@@ -21,6 +21,7 @@ import { AdminManagementTable } from "@/tables/AdminManagementTable";
 import { UserManagementTable } from "@/tables/UserManagementTable";
 import { WithdrawRequestsTable } from "@/tables/WithdrawRequestsTable";
 import { OrdersTable } from "@/tables/OrdersTable";
+import { KpiCards } from "@/components/ui/kpiCards";
 import {
   ArrowUpRight,
   Users,
@@ -93,34 +94,17 @@ export default function Home() {
         </div>
 
         {/* Stat cards */}
-        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
-          {statCards.map((card) => {
+        <KpiCards
+          items={statCards.map((card) => {
             const Icon = card.icon;
-            return (
-              <Card key={card.label} className="relative overflow-hidden">
-                <CardHeader className="flex items-start justify-between gap-2">
-                  <div>
-                    <CardDescription className="text-sm text-gray-500">
-                      {card.label}
-                    </CardDescription>
-                    <CardTitle className="mt-1 text-2xl font-bold text-gray-900">
-                      {card.value}
-                    </CardTitle>
-                  </div>
-                  <div className="flex h-9 w-9 items-center justify-center rounded-full bg-pink-50 text-primary">
-                    <Icon className="h-4 w-4" />
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <span className="inline-flex items-center rounded-full bg-pink-50 px-2.5 py-1 text-[11px] font-medium text-primary">
-                    <ArrowUpRight className="mr-1 h-3 w-3" />
-                    {card.delta}
-                  </span>
-                </CardContent>
-              </Card>
-            );
+            return {
+              title: card.label,
+              value: card.value,
+              delta: card.delta,
+              icon: <Icon className="h-4 w-4" />,
+            };
           })}
-        </div>
+        />
 
         {/* Charts */}
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
