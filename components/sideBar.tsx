@@ -23,6 +23,8 @@ import {
   FileCog,
   Menu,
   X,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -147,7 +149,11 @@ export function SideBar({ onOpenChange }: SideBarProps) {
           onClick={() => setIsCollapsed((v) => !v)}
         >
           <span className="sr-only">Toggle sidebar</span>
-          <Menu className="h-4 w-4 text-gray-900" />
+          {isCollapsed ? (
+            <ChevronRight className="h-4 w-4 text-gray-900" />
+          ) : (
+            <ChevronLeft className="h-4 w-4 text-gray-900" />
+          )}
         </Button>
       </div>
       <div className="beauty-scroll mt-2 flex-1 space-y-4 overflow-y-auto px-4 pb-6">

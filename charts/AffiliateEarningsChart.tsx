@@ -19,8 +19,9 @@ const COLORS = ["#ec5a87", "#f9739b", "#fbb6ce", "#fed7e2"];
 
 export function AffiliateEarningsChart() {
   return (
-    <div className="h-64 w-full">
-      <ResponsiveContainer width="100%" height="100%">
+    <div className="w-full pb-4 pt-2">
+      <div className="h-52 w-full sm:h-64 md:h-72">
+        <ResponsiveContainer width="100%" height="100%">
         <PieChart>
           <Pie
             data={data}
@@ -43,7 +44,8 @@ export function AffiliateEarningsChart() {
           />
         </PieChart>
       </ResponsiveContainer>
-      <div className="mt-4 grid grid-cols-2 gap-2 text-[11px] text-slate-500">
+      </div>
+      <div className="mt-4 grid grid-cols-1 gap-2 text-[11px] text-slate-500 sm:grid-cols-2">
         {data.map((d, idx) => (
           <div key={d.name} className="flex items-center gap-2">
             <span
