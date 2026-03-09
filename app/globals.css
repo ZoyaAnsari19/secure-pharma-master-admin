@@ -1,8 +1,23 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #f9f3f5;
+  --foreground: #101827;
+  --muted: #fbe5f0;
+  --border-subtle: #f9ccd9;
+  --primary: #ec5a87;
+  --primary-soft: #ffe4ef;
+  --card-bg: #ffffff;
+}
+
+.dark {
+  --background: #050612;
+  --foreground: #f9fafb;
+  --muted: #161827;
+  --border-subtle: #2b2e42;
+  --primary: #ff7aa0;
+  --primary-soft: #2b0f1c;
+  --card-bg: #080818;
 }
 
 @theme inline {
@@ -12,15 +27,33 @@
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+body {
+  min-height: 100vh;
+  background: #f9f3f5;
+  color: var(--foreground);
+  font-family: var(--font-geist-sans), system-ui, -apple-system, BlinkMacSystemFont,
+    "SF Pro Text", sans-serif;
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+.dark body {
+  background: #050612;
 }
+
+.beauty-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(236, 90, 135, 0.45) transparent;
+}
+
+.beauty-scroll::-webkit-scrollbar {
+  width: 6px;
+}
+
+.beauty-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.beauty-scroll::-webkit-scrollbar-thumb {
+  background: rgba(236, 90, 135, 0.45);
+  border-radius: 9999px;
+}
+
