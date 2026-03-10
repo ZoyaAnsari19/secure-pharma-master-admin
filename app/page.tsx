@@ -1,3 +1,4 @@
+"use client";
 
 import {
   Card,
@@ -17,10 +18,7 @@ import { RevenueOverviewChart } from "@/charts/RevenueOverviewChart";
 import { OrdersOverviewChart } from "@/charts/OrdersOverviewChart";
 import { UserGrowthChart } from "@/charts/UserGrowthChart";
 import { AffiliateEarningsChart } from "@/charts/AffiliateEarningsChart";
-import { AdminManagementTable } from "@/tables/AdminManagementTable";
-import { UserManagementTable } from "@/tables/UserManagementTable";
-import { WithdrawRequestsTable } from "@/tables/WithdrawRequestsTable";
-import { OrdersTable } from "@/tables/OrdersTable";
+import { DataTable, Column } from "@/components/ui/table";
 import { KpiCards } from "@/components/ui/kpiCards";
 import { SideBar } from "@/components/sideBar";
 import { TopBar } from "@/components/topBar";
@@ -85,6 +83,68 @@ const statCards = [
     delta: "Pending today",
     icon: Wallet,
   },
+];
+
+// Admin Management table
+const adminColumns: Column<{ id: number; name: string; email: string; role: string; status: string; lastActive: string }>[] = [
+  { key: "name", label: "Admin" },
+  { key: "email", label: "Email" },
+  { key: "role", label: "Role" },
+  { key: "status", label: "Status" },
+  { key: "lastActive", label: "Last Active" },
+];
+const adminRows = [
+  { id: 1, name: "Priya Sharma", email: "priya@truebeauty.in", role: "Super Admin", status: "Active", lastActive: "2 min ago" },
+  { id: 2, name: "Ankit Verma", email: "ankit@truebeauty.in", role: "Operations", status: "Active", lastActive: "12 min ago" },
+  { id: 3, name: "Sara Khan", email: "sara@truebeauty.in", role: "Marketing", status: "Suspended", lastActive: "3 days ago" },
+  { id: 4, name: "Rahul Jain", email: "rahul@truebeauty.in", role: "Support", status: "Active", lastActive: "58 min ago" },
+  { id: 5, name: "Divya Mehta", email: "divya@truebeauty.in", role: "Finance", status: "Active", lastActive: "1 hr ago" },
+];
+
+// User Management table
+const userColumns: Column<{ id: number; name: string; email: string; tier: string; orders: string; status: string }>[] = [
+  { key: "name", label: "User" },
+  { key: "email", label: "Email" },
+  { key: "tier", label: "Tier" },
+  { key: "orders", label: "Orders" },
+  { key: "status", label: "Status" },
+];
+const userRows = [
+  { id: 1, name: "Nisha Gupta", email: "nisha@example.com", tier: "Gold", orders: "48", status: "Active" },
+  { id: 2, name: "Karan Patel", email: "karan@example.com", tier: "Silver", orders: "21", status: "Active" },
+  { id: 3, name: "Anjali Rao", email: "anjali@example.com", tier: "Platinum", orders: "82", status: "VIP" },
+  { id: 4, name: "Vikram Singh", email: "vikram@example.com", tier: "Bronze", orders: "9", status: "On hold" },
+  { id: 5, name: "Simran Kaur", email: "simran@example.com", tier: "Gold", orders: "32", status: "Active" },
+];
+
+// Withdraw Requests table
+const withdrawColumns: Column<{ id: number; affiliate: string; amount: string; method: string; status: string; requestedOn: string }>[] = [
+  { key: "affiliate", label: "Affiliate" },
+  { key: "amount", label: "Amount" },
+  { key: "method", label: "Method" },
+  { key: "status", label: "Status" },
+  { key: "requestedOn", label: "Requested On" },
+];
+const withdrawRows = [
+  { id: 1, affiliate: "GlowWithIra", amount: "₹18,500", method: "UPI", status: "Pending", requestedOn: "Today, 09:32 AM" },
+  { id: 2, affiliate: "BlushByMeera", amount: "₹12,300", method: "Bank transfer", status: "Processing", requestedOn: "Today, 08:15 AM" },
+  { id: 3, affiliate: "SkinStory", amount: "₹9,750", method: "UPI", status: "Completed", requestedOn: "Yesterday, 05:40 PM" },
+  { id: 4, affiliate: "MinimalGlow", amount: "₹7,120", method: "Bank transfer", status: "Pending", requestedOn: "Yesterday, 01:17 PM" },
+];
+
+// Orders table
+const orderColumns: Column<{ id: number; orderId: string; customer: string; total: string; status: string; placedOn: string }>[] = [
+  { key: "orderId", label: "Order ID" },
+  { key: "customer", label: "Customer" },
+  { key: "total", label: "Total" },
+  { key: "status", label: "Status" },
+  { key: "placedOn", label: "Placed On" },
+];
+const orderRows = [
+  { id: 1, orderId: "#TB-9821", customer: "Riya Malhotra", total: "₹2,340", status: "Delivered", placedOn: "Today, 10:02 AM" },
+  { id: 2, orderId: "#TB-9819", customer: "Sagar Arora", total: "₹1,120", status: "Shipped", placedOn: "Today, 09:48 AM" },
+  { id: 3, orderId: "#TB-9807", customer: "Palak Sethi", total: "₹3,890", status: "Processing", placedOn: "Yesterday, 04:37 PM" },
+  { id: 4, orderId: "#TB-9798", customer: "Neeraj Kumar", total: "₹780", status: "Pending", placedOn: "Yesterday, 01:19 PM" },
 ];
 
 export default function Home() {
@@ -198,16 +258,60 @@ export default function Home() {
                   </TabsList>
                 </div>
                 <TabsContent value="admins">
-                  <AdminManagementTable />
+                  <DataTable
+                    title="Admin Management"
+                    columns={adminColumns}
+                    data={adminRows}
+                    renderActions={() => (
+                      <div className="flex gap-1">
+                        <Button variant="outline" size="sm" className="h-7 px-2 text-[11px]">Edit</Button>
+                        <Button variant="outline" size="sm" className="h-7 px-2 text-[11px] text-amber-600">Suspend</Button>
+                        <Button variant="outline" size="sm" className="h-7 px-2 text-[11px] text-rose-600">Delete</Button>
+                      </div>
+                    )}
+                  />
                 </TabsContent>
                 <TabsContent value="users">
-                  <UserManagementTable />
+                  <DataTable
+                    title="User Management"
+                    columns={userColumns}
+                    data={userRows}
+                    renderActions={() => (
+                      <div className="flex gap-1">
+                        <Button variant="outline" size="sm" className="h-7 px-2 text-[11px]">Edit</Button>
+                        <Button variant="outline" size="sm" className="h-7 px-2 text-[11px] text-amber-600">Suspend</Button>
+                        <Button variant="outline" size="sm" className="h-7 px-2 text-[11px] text-rose-600">Delete</Button>
+                      </div>
+                    )}
+                  />
                 </TabsContent>
                 <TabsContent value="withdraw">
-                  <WithdrawRequestsTable />
+                  <DataTable
+                    title="Withdraw Requests"
+                    columns={withdrawColumns}
+                    data={withdrawRows}
+                    renderActions={() => (
+                      <div className="flex gap-1">
+                        <Button variant="outline" size="sm" className="h-7 px-2 text-[11px] text-emerald-600">Approve</Button>
+                        <Button variant="outline" size="sm" className="h-7 px-2 text-[11px] text-amber-600">Hold</Button>
+                        <Button variant="outline" size="sm" className="h-7 px-2 text-[11px] text-rose-600">Reject</Button>
+                      </div>
+                    )}
+                  />
                 </TabsContent>
                 <TabsContent value="orders">
-                  <OrdersTable />
+                  <DataTable
+                    title="Recent Orders"
+                    columns={orderColumns}
+                    data={orderRows}
+                    renderActions={() => (
+                      <div className="flex gap-1">
+                        <Button variant="outline" size="sm" className="h-7 px-2 text-[11px]">View</Button>
+                        <Button variant="outline" size="sm" className="h-7 px-2 text-[11px] text-amber-600">Refund</Button>
+                        <Button variant="outline" size="sm" className="h-7 px-2 text-[11px] text-rose-600">Cancel</Button>
+                      </div>
+                    )}
+                  />
                 </TabsContent>
               </Tabs>
             </div>
