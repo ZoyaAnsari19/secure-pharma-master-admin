@@ -14,28 +14,28 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 export function TopBar() {
   return (
     <header className="sticky top-0 z-30 border-b border-gray-200 bg-white">
-      <div className="mx-auto flex h-16 max-w-[1400px] items-center justify-between px-4 sm:px-6 lg:px-8">
-        {/* Left: title + search */}
-        <div className="flex flex-1 items-center gap-4">
-          <div className="hidden md:block">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-gray-400">
-              Dashboard
-            </p>
-            <p className="text-sm font-semibold text-gray-800">
-              Super Admin Overview
-            </p>
-          </div>
-          <div className="relative w-full max-w-3xl">
-            <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
-            <Input
-              placeholder="Search across platform, users, products..."
-              className="w-full rounded-full border border-gray-200 bg-white pl-10 pr-4 text-xs text-gray-700 placeholder:text-gray-400 shadow-sm"
-            />
-          </div>
+      <div className="mx-auto grid h-16 max-w-[1400px] grid-cols-3 items-center gap-4 px-4 sm:px-6 lg:px-8">
+        {/* Left: title */}
+        <div className="hidden md:block">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-gray-400">
+            Dashboard
+          </p>
+          <p className="text-sm font-semibold text-gray-800">
+            Super Admin Overview
+          </p>
+        </div>
+
+        {/* Center: search */}
+        <div className="relative mx-auto w-full max-w-xl">
+          <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+          <Input
+            placeholder="Search across platform, users, products..."
+            className="w-full rounded-full border border-gray-200 bg-white pl-10 pr-4 text-xs text-gray-700 placeholder:text-gray-400 shadow-sm"
+          />
         </div>
 
         {/* Right: notification + profile */}
-        <div className="ml-4 flex items-center gap-3">
+        <div className="flex items-center justify-end gap-3">
           <Button
             variant="outline"
             size="icon"

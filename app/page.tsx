@@ -32,9 +32,23 @@ import {
   Package,
   UserCheck,
   Wallet,
+  ShieldCheck,
+  ClipboardList,
 } from "lucide-react";
 
 const statCards = [
+  {
+    label: "Total Admins",
+    value: "24",
+    delta: "+2 this month",
+    icon: ShieldCheck,
+  },
+  {
+    label: "Total Admin Requests",
+    value: "8",
+    delta: "Pending review",
+    icon: ClipboardList,
+  },
   {
     label: "Total Users",
     value: "12,543",
@@ -85,20 +99,10 @@ export default function Home() {
               <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
                 <div>
                   <h1 className="text-2xl font-semibold tracking-tight text-gray-800">
-                    Good morning, Admin ✨
+                    Admin ✨
                   </h1>
-                  <p className="mt-1 text-sm text-gray-500">
-                    A soft overview of what&apos;s happening across True Beauty
-                    today.
-                  </p>
                 </div>
-                <div className="flex flex-wrap gap-2">
-                  <Button variant="subtle" size="sm">
-                    <ArrowUpRight className="mr-1.5 h-3.5 w-3.5" />
-                    Live store
-                  </Button>
-                  <Button size="sm">Create campaign</Button>
-                </div>
+               
               </div>
 
               {/* Stat cards */}
