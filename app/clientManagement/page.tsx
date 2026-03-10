@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import { SideBar } from "@/components/sideBar";
 import { TopBar } from "@/components/topBar";
 import { Input } from "@/components/ui/input";
@@ -109,6 +110,7 @@ const clientColumns: Column<Client>[] = [
 ];
 
 export default function ClientManagement() {
+  const router = useRouter();
   const [clients, setClients] = useState<Client[]>(initialClients);
   const [statusFilter, setStatusFilter] = useState<"All" | ClientStatus>("All");
   const [planFilter, setPlanFilter] = useState<"All" | ClientPlan>("All");
@@ -436,7 +438,13 @@ export default function ClientManagement() {
                 }
                 renderActionMenuItems={(row) => (
                   <>
-                    <DropdownMenuItem>View</DropdownMenuItem>
+                    <DropdownMenuItem
+                      onClick={() =>
+                        router.push("/clientManagement/clientDetails")
+                      }
+                    >
+                      View
+                    </DropdownMenuItem>
                     <DropdownMenuItem>Edit</DropdownMenuItem>
                     <DropdownMenuItem className="text-amber-600">
                       Suspend
