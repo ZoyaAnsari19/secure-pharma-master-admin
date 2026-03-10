@@ -91,6 +91,8 @@ TableCell.displayName = "TableCell";
 export type Column<T> = {
   key: keyof T;
   label: string;
+  /** Optional custom cell render (e.g. for badges, tags) */
+  render?: (row: T) => React.ReactNode;
 };
 
 export type DataTableProps<T> = {
@@ -101,6 +103,8 @@ export type DataTableProps<T> = {
   rightHeader?: ReactNode;
   pageSize?: number;
   searchPlaceholder?: string;
+  /** Hide the default Filters button when using custom filter UI (e.g. role dropdown) */
+  hideFiltersButton?: boolean;
 };
 
 export function DataTable<T extends { id: string | number }>({
@@ -111,6 +115,7 @@ export function DataTable<T extends { id: string | number }>({
   rightHeader,
   pageSize = 6,
   searchPlaceholder = "Search...",
+  hideFiltersButton = false,
 }: DataTableProps<T>) {
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
@@ -150,14 +155,16 @@ export function DataTable<T extends { id: string | number }>({
               }}
             />
           </div>
-          <Button
-            variant="outline"
-            size="sm"
-            className="rounded-full border-pink-100 bg-white text-xs text-slate-600 hover:border-pink-200 hover:bg-pink-50"
-          >
-            <Filter className="mr-1.5 h-3.5 w-3.5" />
-            Filters
-          </Button>
+          {!hideFiltersButton && (
+            <Button
+              variant="outline"
+              size="sm"
+              className="rounded-full border-pink-100 bg-white text-xs text-slate-600 hover:border-pink-200 hover:bg-pink-50"
+            >
+              <Filter className="mr-1.5 h-3.5 w-3.5" />
+              Filters
+            </Button>
+          )}
           {rightHeader}
         </div>
       </CardHeader>
@@ -179,7 +186,7 @@ export function DataTable<T extends { id: string | number }>({
                 <TableRow key={row.id}>
                   {columns.map((col) => (
                     <TableCell key={String(col.key)}>
-                      {String(row[col.key])}
+                      {col.render ? col.render(row) : String(row[col.key] ?? "")}
                     </TableCell>
                   ))}
                   {renderActions && (

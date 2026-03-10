@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useState, ReactNode } from "react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 import {
   LayoutDashboard,
   Users,
@@ -33,19 +35,20 @@ import { cn } from "@/lib/utils";
 type NavItem = {
   label: string;
   icon: ReactNode;
+  href?: string;
 };
 
 const sidebarSections: { title: string; items: NavItem[] }[] = [
   {
     title: "Main",
     items: [
-      { label: "Dashboard", icon: <LayoutDashboard className="h-4 w-4" /> },
+      { label: "Dashboard", icon: <LayoutDashboard className="h-4 w-4" />, href: "/" },
     ],
   },
   {
     title: "Platform Management",
     items: [
-      { label: "Admin Management", icon: <Shield className="h-4 w-4" /> },
+      { label: "Admin Management", icon: <Shield className="h-4 w-4" />, href: "/adminMangement" },
       { label: "User Management", icon: <Users className="h-4 w-4" /> },
       { label: "Affiliate Users", icon: <Wallet className="h-4 w-4" /> },
     ],
@@ -100,6 +103,7 @@ type SideBarProps = {
 export function SideBar({ onOpenChange }: SideBarProps) {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const pathname = usePathname();
 
   // Responsive behaviour: desktop full, tablet collapsed, mobile drawer
   useEffect(() => {
@@ -122,6 +126,11 @@ export function SideBar({ onOpenChange }: SideBarProps) {
     window.addEventListener("resize", applyLayoutForWidth);
     return () => window.removeEventListener("resize", applyLayoutForWidth);
   }, []);
+
+  const closeMobile = () => {
+    setMobileOpen(false);
+    onOpenChange?.(false);
+  };
 
   const SidebarContent = (
     <div className="flex h-full flex-col bg-white">
@@ -166,26 +175,44 @@ export function SideBar({ onOpenChange }: SideBarProps) {
             )}
             <div className="space-y-1">
               {section.items.map((item) => {
-                const isActive = item.label === "Dashboard";
-                return (
-                  <button
-                    key={item.label}
-                    className={cn(
-                      "group flex w-full items-center gap-3 rounded-lg px-4 py-3 text-left text-[13px] font-medium text-gray-600 transition hover:bg-gray-100",
-                      isActive &&
-                        "bg-pink-100 text-pink-600 hover:bg-pink-100"
-                    )}
-                  >
+                const isActive = item.href ? pathname === item.href : false;
+                const content = (
+                  <>
                     <span
                       className={cn(
-                        "flex h-8 w-8 items-center justify-center rounded-full bg-gray-50 text-gray-500 group-hover:bg-white group-hover:text-pink-500",
-                        isActive &&
-                          "bg-white text-pink-600 shadow-sm"
+                        "flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gray-50 text-gray-500 group-hover:bg-white group-hover:text-pink-500",
+                        isActive && "bg-white text-pink-600 shadow-sm"
                       )}
                     >
                       {item.icon}
                     </span>
                     {!isCollapsed && <span>{item.label}</span>}
+                  </>
+                );
+                if (item.href) {
+                  return (
+                    <Link
+                      key={item.label}
+                      href={item.href}
+                      onClick={closeMobile}
+                      className={cn(
+                        "group flex w-full items-center gap-3 rounded-lg px-4 py-3 text-left text-[13px] font-medium text-gray-600 transition hover:bg-gray-100",
+                        isActive && "bg-pink-100 text-pink-600 hover:bg-pink-100"
+                      )}
+                    >
+                      {content}
+                    </Link>
+                  );
+                }
+                return (
+                  <button
+                    key={item.label}
+                    className={cn(
+                      "group flex w-full items-center gap-3 rounded-lg px-4 py-3 text-left text-[13px] font-medium text-gray-600 transition hover:bg-gray-100",
+                      isActive && "bg-pink-100 text-pink-600 hover:bg-pink-100"
+                    )}
+                  >
+                    {content}
                   </button>
                 );
               })}
@@ -195,11 +222,6 @@ export function SideBar({ onOpenChange }: SideBarProps) {
       </div>
     </div>
   );
-
-  const closeMobile = () => {
-    setMobileOpen(false);
-    onOpenChange?.(false);
-  };
 
   return (
     <>
