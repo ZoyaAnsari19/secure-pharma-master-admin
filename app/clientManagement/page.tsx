@@ -9,14 +9,14 @@ import { KpiCards } from "@/components/ui/kpiCards";
 import { DataTable, Column } from "@/components/ui/table";
 import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
+  SideDrawer,
+  SideDrawerContent,
+  SideDrawerDescription,
+  SideDrawerFooter,
+  SideDrawerHeader,
+  SideDrawerTitle,
+  SideDrawerTrigger,
+} from "@/components/ui/sideDrawer";
 import {
   Building2,
   Globe2,
@@ -36,7 +36,7 @@ type Client = {
   adminEmail: string;
   plan: ClientPlan;
   status: ClientStatus;
-  createdAt: string;
+  joinDate: string;
 };
 
 const initialClients: Client[] = [
@@ -48,7 +48,7 @@ const initialClients: Client[] = [
     adminEmail: "admin@mumbaiglow.in",
     plan: "Premium",
     status: "Active",
-    createdAt: "2024-01-15",
+    joinDate: "2024-01-15",
   },
   {
     id: 2,
@@ -58,7 +58,7 @@ const initialClients: Client[] = [
     adminEmail: "owner@blushhubdelhi.in",
     plan: "Standard",
     status: "Active",
-    createdAt: "2023-11-03",
+    joinDate: "2023-11-03",
   },
   {
     id: 3,
@@ -68,7 +68,7 @@ const initialClients: Client[] = [
     adminEmail: "support@skincraftpune.in",
     plan: "Basic",
     status: "Inactive",
-    createdAt: "2023-07-22",
+    joinDate: "2023-07-22",
   },
   {
     id: 4,
@@ -78,7 +78,7 @@ const initialClients: Client[] = [
     adminEmail: "hello@minimalglowblr.in",
     plan: "Premium",
     status: "Expiring",
-    createdAt: "2023-03-09",
+    joinDate: "2023-03-09",
   },
   {
     id: 5,
@@ -88,7 +88,7 @@ const initialClients: Client[] = [
     adminEmail: "admin@radianttouchchennai.in",
     plan: "Standard",
     status: "Suspended",
-    createdAt: "2022-12-01",
+    joinDate: "2022-12-01",
   },
 ];
 
@@ -96,32 +96,11 @@ const clientColumns: Column<Client>[] = [
   { key: "clientName", label: "Client Name" },
   { key: "websiteDomain", label: "Website Domain" },
   { key: "brandName", label: "Brand Name" },
-  { key: "plan", label: "Plan" },
   {
-    key: "status",
-    label: "Status",
-    render: (row) => (
-      <span
-        className={
-          "inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium " +
-          (row.status === "Active"
-            ? "bg-emerald-50 text-emerald-700"
-            : row.status === "Suspended"
-            ? "bg-rose-50 text-rose-700"
-            : row.status === "Expiring"
-            ? "bg-amber-50 text-amber-700"
-            : "bg-slate-50 text-slate-600")
-        }
-      >
-        {row.status}
-      </span>
-    ),
-  },
-  {
-    key: "createdAt",
-    label: "Created Date",
+    key: "joinDate",
+    label: "Join Date",
     render: (row) =>
-      new Date(row.createdAt).toLocaleDateString("en-IN", {
+      new Date(row.joinDate).toLocaleDateString("en-IN", {
         day: "2-digit",
         month: "short",
         year: "numeric",
@@ -183,7 +162,7 @@ export default function ClientManagement() {
       adminEmail: formState.adminEmail,
       plan: formState.plan,
       status: formState.status,
-      createdAt: new Date().toISOString().slice(0, 10),
+      joinDate: new Date().toISOString().slice(0, 10),
     };
 
     setClients((prev) => [newClient, ...prev]);
@@ -217,22 +196,23 @@ export default function ClientManagement() {
                  
                 </div>
                 <div className="flex w-full flex-col gap-2 sm:flex-row sm:items-center sm:justify-end">
-                  <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-                    <DialogTrigger asChild>
+                  <SideDrawer open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+                    <SideDrawerTrigger asChild>
                       <Button variant="primary" className="h-10 px-4">
                         <UserPlus className="mr-2 h-4 w-4" />
                         Add Client
                       </Button>
-                    </DialogTrigger>
-                    <DialogContent>
-                        <DialogHeader>
-                          <DialogTitle>Add New Client</DialogTitle>
-                          <DialogDescription>
-                            Create a new client account with their website,
-                            admin panel, and subscription details.
-                          </DialogDescription>
-                        </DialogHeader>
-                        <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
+                    </SideDrawerTrigger>
+                    <SideDrawerContent className="gap-4">
+                      <SideDrawerHeader>
+                        <SideDrawerTitle>Add New Client</SideDrawerTitle>
+                        <SideDrawerDescription>
+                          Create a new client account with their website,
+                          admin panel, and subscription details.
+                        </SideDrawerDescription>
+                      </SideDrawerHeader>
+                      <form className="grid gap-4 rounded-2xl bg-white/60 p-4 shadow-sm ring-1 ring-pink-50 sm:p-5">
+                        <div className="mt-1 grid grid-cols-1 gap-3 sm:grid-cols-2">
                           <div className="space-y-1.5 sm:col-span-2">
                             <label className="text-xs font-medium text-gray-700">
                               Client Name
@@ -369,17 +349,21 @@ export default function ClientManagement() {
                             </select>
                           </div>
                         </div>
-                        <DialogFooter>
+                        <SideDrawerFooter>
                           <Button
+                            type="button"
                             variant="outline"
                             onClick={() => setIsDialogOpen(false)}
                           >
                             Cancel
                           </Button>
-                          <Button onClick={handleAddClient}>Create Client</Button>
-                        </DialogFooter>
-                      </DialogContent>
-                    </Dialog>
+                          <Button type="button" onClick={handleAddClient}>
+                            Create Client
+                          </Button>
+                        </SideDrawerFooter>
+                      </form>
+                    </SideDrawerContent>
+                  </SideDrawer>
                 </div>
               </div>
 

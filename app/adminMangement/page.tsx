@@ -5,13 +5,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { DataTable, Column } from "@/components/ui/table";
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-  DialogTrigger,
-} from "@/components/ui/dialog";
+  SideDrawer,
+  SideDrawerContent,
+  SideDrawerHeader,
+  SideDrawerTitle,
+  SideDrawerFooter,
+  SideDrawerTrigger,
+} from "@/components/ui/sideDrawer";
 import { KpiCards } from "@/components/ui/kpiCards";
 import { SideBar } from "@/components/sideBar";
 import { TopBar } from "@/components/topBar";
@@ -271,10 +271,10 @@ export default function AdminManagementPage() {
             {/* Page header: title left, Add button right */}
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
               <h1 className="text-2xl font-semibold tracking-tight text-gray-800">
-                Admin Management
+                Super Sub Admin Management
               </h1>
-              <Dialog open={addModalOpen} onOpenChange={setAddModalOpen}>
-                <DialogTrigger asChild>
+              <SideDrawer open={addModalOpen} onOpenChange={setAddModalOpen}>
+                <SideDrawerTrigger asChild>
                   <Button
                     size="sm"
                     variant="primary"
@@ -283,11 +283,11 @@ export default function AdminManagementPage() {
                     <Plus className="mr-1.5 h-3.5 w-3.5" />
                     Add Admin
                   </Button>
-                </DialogTrigger>
-                <DialogContent className="gap-6">
-                      <DialogHeader>
-                        <DialogTitle>Add Admin</DialogTitle>
-                      </DialogHeader>
+                </SideDrawerTrigger>
+                <SideDrawerContent className="gap-4">
+                      <SideDrawerHeader>
+                        <SideDrawerTitle>Add Admin</SideDrawerTitle>
+                      </SideDrawerHeader>
                       <form onSubmit={handleAddAdmin} className="grid gap-4">
                         <div>
                           <label className="mb-1.5 block text-xs font-medium text-gray-600">
@@ -378,7 +378,7 @@ export default function AdminManagementPage() {
                             <option value="Suspended">Suspended</option>
                           </select>
                         </div>
-                        <DialogFooter>
+                        <SideDrawerFooter>
                           <Button
                             type="button"
                             variant="outline"
@@ -389,25 +389,25 @@ export default function AdminManagementPage() {
                           <Button type="submit" variant="primary">
                             Add Admin
                           </Button>
-                        </DialogFooter>
+                        </SideDrawerFooter>
                       </form>
-                    </DialogContent>
-              </Dialog>
+                    </SideDrawerContent>
+              </SideDrawer>
             </div>
 
             <KpiCards items={kpiItems} />
-            {/* Edit Admin modal (prefilled) */}
-            <Dialog
+            {/* Edit Admin side drawer (prefilled) */}
+            <SideDrawer
               open={editModalOpen}
               onOpenChange={(open) => {
                 setEditModalOpen(open);
                 if (!open) setEditingAdmin(null);
               }}
             >
-              <DialogContent className="gap-6">
-                <DialogHeader>
-                  <DialogTitle>Edit Admin</DialogTitle>
-                </DialogHeader>
+              <SideDrawerContent className="gap-4">
+                <SideDrawerHeader>
+                  <SideDrawerTitle>Edit Admin</SideDrawerTitle>
+                </SideDrawerHeader>
                 {editingAdmin && (
                   <form onSubmit={handleUpdateAdmin} className="grid gap-4">
                     <div>
@@ -511,7 +511,7 @@ export default function AdminManagementPage() {
                         <option value="Suspended">Suspended</option>
                       </select>
                     </div>
-                    <DialogFooter>
+                    <SideDrawerFooter>
                       <Button
                         type="button"
                         variant="outline"
@@ -528,11 +528,11 @@ export default function AdminManagementPage() {
                       >
                         Save changes
                       </Button>
-                    </DialogFooter>
+                    </SideDrawerFooter>
                   </form>
                 )}
-              </DialogContent>
-            </Dialog>
+              </SideDrawerContent>
+            </SideDrawer>
             <DataTable<AdminRow>
               title="Admins"
               columns={adminColumns}
