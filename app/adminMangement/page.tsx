@@ -277,7 +277,8 @@ export default function AdminManagementPage() {
                 <DialogTrigger asChild>
                   <Button
                     size="sm"
-                    className="w-full rounded-full bg-pink-500 text-white hover:bg-pink-600 sm:w-auto"
+                    variant="primary"
+                    className="w-full sm:w-auto"
                   >
                     <Plus className="mr-1.5 h-3.5 w-3.5" />
                     Add Admin
@@ -385,7 +386,7 @@ export default function AdminManagementPage() {
                           >
                             Cancel
                           </Button>
-                          <Button type="submit" className="bg-pink-500 hover:bg-pink-600">
+                          <Button type="submit" variant="primary">
                             Add Admin
                           </Button>
                         </DialogFooter>
@@ -523,7 +524,7 @@ export default function AdminManagementPage() {
                       </Button>
                       <Button
                         type="submit"
-                        className="bg-pink-500 hover:bg-pink-600"
+                        variant="primary"
                       >
                         Save changes
                       </Button>

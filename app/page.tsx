@@ -37,15 +37,15 @@ import {
 
 const statCards = [
   {
-    label: "Total Admins",
+    label: "Total Sub Admins",
     value: "24",
     delta: "+2 this month",
     icon: ShieldCheck,
   },
   {
-    label: "Total Admin Requests",
-    value: "8",
-    delta: "Pending review",
+    label: "Total Clients",
+    value: "320",
+    delta: "+4.3% this month",
     icon: ClipboardList,
   },
   {
