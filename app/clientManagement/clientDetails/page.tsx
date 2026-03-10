@@ -4,7 +4,6 @@ import { Button } from "@/components/ui/button";
 import { SideBar } from "@/components/sideBar";
 import { TopBar } from "@/components/topBar";
 import { KpiCards } from "@/components/ui/kpiCards";
-import { DataTable, Column } from "@/components/ui/table";
 import {
   ArrowLeft,
   Building2,
@@ -18,63 +17,23 @@ import {
   Wallet,
 } from "lucide-react";
 import Link from "next/link";
+import {
+  Bar,
+  BarChart,
+  CartesianGrid,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from "recharts";
 
-type Activity = {
-  id: number;
-  type: string;
-  description: string;
-  actor: string;
-  timestamp: string;
-};
-
-const activityColumns: Column<Activity>[] = [
-  {
-    key: "type",
-    label: "Activity",
-  },
-  {
-    key: "description",
-    label: "Details",
-  },
-  {
-    key: "actor",
-    label: "Performed By",
-  },
-  {
-    key: "timestamp",
-    label: "When",
-  },
-];
-
-const mockActivities: Activity[] = [
-  {
-    id: 1,
-    type: "Admin Login",
-    description: "Primary admin logged into dashboard",
-    actor: "Priya Sharma",
-    timestamp: "Today, 10:24 AM",
-  },
-  {
-    id: 2,
-    type: "Order Placed",
-    description: "New order #TB-10423 created",
-    actor: "Client Storefront",
-    timestamp: "Today, 09:51 AM",
-  },
-  {
-    id: 3,
-    type: "Product Update",
-    description: "Updated pricing for 6 products",
-    actor: "Priya Sharma",
-    timestamp: "Yesterday, 05:12 PM",
-  },
-  {
-    id: 4,
-    type: "Subscription",
-    description: "Plan renewed to Premium (12 months)",
-    actor: "System",
-    timestamp: "Mar 01, 2026",
-  },
+const salesPerformanceData = [
+  { month: "Oct", orders: 45, products: 120, revenue: 3.8 },
+  { month: "Nov", orders: 62, products: 150, revenue: 4.4 },
+  { month: "Dec", orders: 71, products: 176, revenue: 5.2 },
+  { month: "Jan", orders: 58, products: 160, revenue: 4.7 },
+  { month: "Feb", orders: 66, products: 181, revenue: 5.5 },
+  { month: "Mar", orders: 74, products: 196, revenue: 6.1 },
 ];
 
 export default function ClientDetailsPage() {
@@ -259,25 +218,100 @@ export default function ClientDetailsPage() {
                   </div>
                 </section>
 
-                {/* Activity logs */}
+                {/* Sales performance chart */}
                 <section className="rounded-2xl bg-white/80 p-4 shadow-sm ring-1 ring-gray-100 sm:p-5">
                   <div className="flex items-center justify-between gap-2">
                     <h2 className="text-sm font-semibold text-gray-900">
-                      Activity Logs
+                      Sales & orders performance
                     </h2>
                     <p className="text-xs text-gray-400">
-                      Last 30 days of client activity
+                      Last 6 months summary across key metrics
                     </p>
                   </div>
-                  <div className="mt-4">
-                    <DataTable<Activity>
-                      title="Recent activity"
-                      columns={activityColumns}
-                      data={mockActivities}
-                      searchPlaceholder="Search in activity log..."
-                      pageSize={5}
-                      hideFiltersButton
-                    />
+                  <div className="mt-4 space-y-4">
+                    {/* Legend */}
+                    <div className="flex flex-wrap items-center gap-3 text-[11px] text-gray-500">
+                      <div className="inline-flex items-center gap-1.5">
+                        <span className="h-1.5 w-5 rounded-full bg-pink-500" />
+                        Orders
+                      </div>
+                      <div className="inline-flex items-center gap-1.5">
+                        <span className="h-1.5 w-5 rounded-full bg-rose-400" />
+                        Products sold
+                      </div>
+                      <div className="inline-flex items-center gap-1.5">
+                        <span className="h-1.5 w-5 rounded-full bg-amber-400" />
+                        Revenue (₹L)
+                      </div>
+                    </div>
+                    {/* Grouped bar chart using Recharts */}
+                    <div className="mt-1 h-64 rounded-xl bg-slate-50 px-3 pb-4 pt-3">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <BarChart
+                          data={salesPerformanceData}
+                          margin={{ left: -12, right: 4, top: 10, bottom: 0 }}
+                          barCategoryGap="18%"
+                        >
+                          <CartesianGrid
+                            strokeDasharray="3 3"
+                            stroke="#fce0ec"
+                            vertical={false}
+                          />
+                          <XAxis
+                            dataKey="month"
+                            axisLine={false}
+                            tickLine={false}
+                            tickMargin={8}
+                            tick={{ fontSize: 11, fill: "#9f8ca5" }}
+                          />
+                          <YAxis
+                            axisLine={false}
+                            tickLine={false}
+                            tickMargin={8}
+                            tick={{ fontSize: 11, fill: "#9f8ca5" }}
+                          />
+                          <Tooltip
+                            formatter={(value: number, name: string) => {
+                              if (name === "Revenue") {
+                                return [`₹ ${value.toFixed(1)}L`, "Revenue"];
+                              }
+                              if (name === "Products sold") {
+                                return [value, "Products sold"];
+                              }
+                              return [value, "Orders"];
+                            }}
+                            labelFormatter={(label) => `Month: ${label}`}
+                            contentStyle={{
+                              borderRadius: 16,
+                              borderColor: "#f9ccd9",
+                              boxShadow: "0 18px 45px rgba(236,90,135,0.1)",
+                              fontSize: 11,
+                            }}
+                          />
+                          <Bar
+                            dataKey="orders"
+                            name="Orders"
+                            radius={[6, 6, 0, 0]}
+                            barSize={12}
+                            fill="#ec5a87"
+                          />
+                          <Bar
+                            dataKey="products"
+                            name="Products sold"
+                            radius={[6, 6, 0, 0]}
+                            barSize={12}
+                            fill="#fb7185"
+                          />
+                          <Bar
+                            dataKey="revenue"
+                            name="Revenue"
+                            radius={[6, 6, 0, 0]}
+                            barSize={12}
+                            fill="#fbbf24"
+                          />
+                        </BarChart>
+                      </ResponsiveContainer>
+                    </div>
                   </div>
                 </section>
               </div>
