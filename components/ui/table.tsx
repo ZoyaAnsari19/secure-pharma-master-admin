@@ -91,8 +91,11 @@ TableCell.displayName = "TableCell";
 export type Column<T> = {
   key: keyof T;
   label: string;
-  /** Optional custom cell render (e.g. for badges, tags) */
-  render?: (row: T) => React.ReactNode;
+  /**
+   * Optional custom cell render (e.g. for badges, tags, serial numbers).
+   * The second argument is the zero-based absolute row index in the filtered data.
+   */
+  render?: (row: T, index: number) => React.ReactNode;
 };
 
 export type DataTableProps<T> = {
@@ -133,10 +136,8 @@ export function DataTable<T extends { id: string | number }>({
   const pageCount = Math.max(1, Math.ceil(filtered.length / pageSize));
   const currentPage = Math.min(page, pageCount);
 
-  const items = filtered.slice(
-    (currentPage - 1) * pageSize,
-    currentPage * pageSize
-  );
+  const startIndex = (currentPage - 1) * pageSize;
+  const items = filtered.slice(startIndex, startIndex + pageSize);
 
   return (
     <Card className="bg-white">
@@ -182,18 +183,23 @@ export function DataTable<T extends { id: string | number }>({
               </TableRow>
             </TableHeader>
             <TableBody>
-              {items.map((row) => (
-                <TableRow key={row.id}>
-                  {columns.map((col) => (
-                    <TableCell key={String(col.key)}>
-                      {col.render ? col.render(row) : String(row[col.key] ?? "")}
-                    </TableCell>
-                  ))}
-                  {renderActions && (
-                    <TableCell>{renderActions(row)}</TableCell>
-                  )}
-                </TableRow>
-              ))}
+              {items.map((row, rowIndex) => {
+                const absoluteIndex = startIndex + rowIndex;
+                return (
+                  <TableRow key={row.id}>
+                    {columns.map((col) => (
+                      <TableCell key={String(col.key)}>
+                        {col.render
+                          ? col.render(row, absoluteIndex)
+                          : String(row[col.key] ?? "")}
+                      </TableCell>
+                    ))}
+                    {renderActions && (
+                      <TableCell>{renderActions(row)}</TableCell>
+                    )}
+                  </TableRow>
+                );
+              })}
               {items.length === 0 && (
                 <TableRow>
                   <TableCell
