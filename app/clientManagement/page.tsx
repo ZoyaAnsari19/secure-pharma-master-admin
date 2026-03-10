@@ -670,7 +670,7 @@ export default function ClientManagement() {
                       <PauseCircle className="h-3.5 w-3.5 text-amber-500" />
                       <span>Suspend</span>
                     </DropdownMenuItem>
-                    <DropdownMenuItem className="flex items-center gap-2 text-[13px] text-slate-900 hover:bg-rose-50">
+                    <DropdownMenuItem className="flex items-center gap-2 text-[13px] text-rose-600 hover:bg-rose-50 hover:text-rose-700">
                       <Trash2 className="h-3.5 w-3.5 text-rose-500" />
                       <span>Delete</span>
                     </DropdownMenuItem>
