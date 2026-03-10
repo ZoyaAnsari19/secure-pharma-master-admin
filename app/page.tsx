@@ -22,6 +22,7 @@ import { DataTable, Column } from "@/components/ui/table";
 import { KpiCards } from "@/components/ui/kpiCards";
 import { SideBar } from "@/components/sideBar";
 import { TopBar } from "@/components/topBar";
+import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import {
   ArrowUpRight,
   Users,
@@ -262,12 +263,16 @@ export default function Home() {
                     title="Admin Management"
                     columns={adminColumns}
                     data={adminRows}
-                    renderActions={() => (
-                      <div className="flex gap-1">
-                        <Button variant="outline" size="sm" className="h-7 px-2 text-[11px]">Edit</Button>
-                        <Button variant="outline" size="sm" className="h-7 px-2 text-[11px] text-amber-600">Suspend</Button>
-                        <Button variant="outline" size="sm" className="h-7 px-2 text-[11px] text-rose-600">Delete</Button>
-                      </div>
+                    renderActionMenuItems={() => (
+                      <>
+                        <DropdownMenuItem>Edit</DropdownMenuItem>
+                        <DropdownMenuItem className="text-amber-600">
+                          Suspend
+                        </DropdownMenuItem>
+                        <DropdownMenuItem className="text-rose-600">
+                          Delete
+                        </DropdownMenuItem>
+                      </>
                     )}
                   />
                 </TabsContent>
@@ -276,12 +281,16 @@ export default function Home() {
                     title="User Management"
                     columns={userColumns}
                     data={userRows}
-                    renderActions={() => (
-                      <div className="flex gap-1">
-                        <Button variant="outline" size="sm" className="h-7 px-2 text-[11px]">Edit</Button>
-                        <Button variant="outline" size="sm" className="h-7 px-2 text-[11px] text-amber-600">Suspend</Button>
-                        <Button variant="outline" size="sm" className="h-7 px-2 text-[11px] text-rose-600">Delete</Button>
-                      </div>
+                    renderActionMenuItems={() => (
+                      <>
+                        <DropdownMenuItem>Edit</DropdownMenuItem>
+                        <DropdownMenuItem className="text-amber-600">
+                          Suspend
+                        </DropdownMenuItem>
+                        <DropdownMenuItem className="text-rose-600">
+                          Delete
+                        </DropdownMenuItem>
+                      </>
                     )}
                   />
                 </TabsContent>
@@ -290,12 +299,18 @@ export default function Home() {
                     title="Withdraw Requests"
                     columns={withdrawColumns}
                     data={withdrawRows}
-                    renderActions={() => (
-                      <div className="flex gap-1">
-                        <Button variant="outline" size="sm" className="h-7 px-2 text-[11px] text-emerald-600">Approve</Button>
-                        <Button variant="outline" size="sm" className="h-7 px-2 text-[11px] text-amber-600">Hold</Button>
-                        <Button variant="outline" size="sm" className="h-7 px-2 text-[11px] text-rose-600">Reject</Button>
-                      </div>
+                    renderActionMenuItems={() => (
+                      <>
+                        <DropdownMenuItem className="text-emerald-600">
+                          Approve
+                        </DropdownMenuItem>
+                        <DropdownMenuItem className="text-amber-600">
+                          Hold
+                        </DropdownMenuItem>
+                        <DropdownMenuItem className="text-rose-600">
+                          Reject
+                        </DropdownMenuItem>
+                      </>
                     )}
                   />
                 </TabsContent>
@@ -304,12 +319,16 @@ export default function Home() {
                     title="Recent Orders"
                     columns={orderColumns}
                     data={orderRows}
-                    renderActions={() => (
-                      <div className="flex gap-1">
-                        <Button variant="outline" size="sm" className="h-7 px-2 text-[11px]">View</Button>
-                        <Button variant="outline" size="sm" className="h-7 px-2 text-[11px] text-amber-600">Refund</Button>
-                        <Button variant="outline" size="sm" className="h-7 px-2 text-[11px] text-rose-600">Cancel</Button>
-                      </div>
+                    renderActionMenuItems={() => (
+                      <>
+                        <DropdownMenuItem>View</DropdownMenuItem>
+                        <DropdownMenuItem className="text-amber-600">
+                          Refund
+                        </DropdownMenuItem>
+                        <DropdownMenuItem className="text-rose-600">
+                          Cancel
+                        </DropdownMenuItem>
+                      </>
                     )}
                   />
                 </TabsContent>

@@ -7,7 +7,12 @@ import { cn } from "@/lib/utils";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { ChevronLeft, ChevronRight, Filter } from "lucide-react";
+import { ChevronLeft, ChevronRight, Filter, MoreVertical } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 const Table = React.forwardRef<
   HTMLTableElement,
@@ -103,6 +108,11 @@ export type DataTableProps<T> = {
   columns: Column<T>[];
   data: T[];
   renderActions?: (row: T) => ReactNode;
+  /**
+   * If provided, actions will be shown under a 3-dots menu (⋮) in the Actions column.
+   * Return menu items (e.g. <DropdownMenuItem />s) from this render function.
+   */
+  renderActionMenuItems?: (row: T) => ReactNode;
   rightHeader?: ReactNode;
   pageSize?: number;
   searchPlaceholder?: string;
@@ -115,6 +125,7 @@ export function DataTable<T extends { id: string | number }>({
   columns,
   data,
   renderActions,
+  renderActionMenuItems,
   rightHeader,
   pageSize = 6,
   searchPlaceholder = "Search...",
@@ -177,7 +188,7 @@ export function DataTable<T extends { id: string | number }>({
                 {columns.map((col) => (
                   <TableHead key={String(col.key)}>{col.label}</TableHead>
                 ))}
-                {renderActions && (
+                {(renderActions || renderActionMenuItems) && (
                   <TableHead className="w-[120px]">Actions</TableHead>
                 )}
               </TableRow>
@@ -194,8 +205,27 @@ export function DataTable<T extends { id: string | number }>({
                           : String(row[col.key] ?? "")}
                       </TableCell>
                     ))}
-                    {renderActions && (
-                      <TableCell>{renderActions(row)}</TableCell>
+                    {(renderActions || renderActionMenuItems) && (
+                      <TableCell>
+                        {renderActionMenuItems ? (
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button
+                                variant="outline"
+                                size="icon"
+                                className="h-7 w-7 rounded-full border-pink-100 bg-white text-slate-500 shadow-none hover:border-pink-200 hover:bg-pink-50 hover:shadow-none focus-visible:ring-0 focus-visible:ring-offset-0"
+                              >
+                                <MoreVertical className="h-4 w-4" />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                              {renderActionMenuItems(row)}
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        ) : (
+                          renderActions?.(row)
+                        )}
+                      </TableCell>
                     )}
                   </TableRow>
                 );
@@ -203,7 +233,9 @@ export function DataTable<T extends { id: string | number }>({
               {items.length === 0 && (
                 <TableRow>
                   <TableCell
-                    colSpan={columns.length + (renderActions ? 1 : 0)}
+                    colSpan={
+                      columns.length + (renderActions || renderActionMenuItems ? 1 : 0)
+                    }
                     className="py-8 text-center text-xs text-slate-400"
                   >
                     No data available for the current filters.
