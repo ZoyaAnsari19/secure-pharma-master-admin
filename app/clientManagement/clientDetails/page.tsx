@@ -7,10 +7,14 @@ import { KpiCards } from "@/components/ui/kpiCards";
 import {
   ArrowLeft,
   Building2,
+  CheckCircle2,
+  Clock,
+  CreditCard,
   ExternalLink,
+  FileText,
   Globe2,
+  History,
   Mail,
-  MapPin,
   Phone,
   ShieldCheck,
   ShoppingBag,
@@ -19,7 +23,7 @@ import {
   Wallet,
 } from "lucide-react";
 import Link from "next/link";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import {
   Bar,
@@ -43,6 +47,16 @@ const salesPerformanceData = [
 export default function ClientDetailsPage() {
   const searchParams = useSearchParams();
   const idParam = searchParams.get("id");
+  const [activeTab, setActiveTab] = useState<
+    | "clientInfo"
+    | "company"
+    | "kyc"
+    | "subscription"
+    | "billing"
+    | "usage"
+    | "documents"
+    | "activity"
+  >("clientInfo");
 
   const client = useMemo(() => {
     if (!idParam) return null;
@@ -81,6 +95,54 @@ export default function ClientDetailsPage() {
     expiryDate: "29 Feb 2026",
     billingStatus: "Paid - Auto renew enabled",
   };
+
+  const companyDetails = {
+    companyName,
+    businessType: "Salon / Studio",
+    industry: "Beauty & Wellness",
+    teamSize: "10–25",
+    companyAddress: "—",
+    country: "India",
+    state: "—",
+    city: "—",
+    postalCode: "—",
+  };
+
+  const kyc = {
+    status: "Pending" as "Pending" | "Verified" | "Rejected",
+    updatedAt: "Today, 11:12 AM",
+    docs: [
+      { name: "PAN Card", file: "pan_card.pdf", status: "Uploaded" as const },
+      { name: "GST Certificate", file: "gst_certificate.pdf", status: "Uploaded" as const },
+      { name: "Address Proof", file: "address_proof.pdf", status: "Missing" as const },
+    ],
+  };
+
+  const billingHistory = [
+    { id: "INV-1042", date: "01 Mar 2025", amount: "₹ 29,999", status: "Paid" },
+    { id: "INV-0987", date: "01 Mar 2024", amount: "₹ 29,999", status: "Paid" },
+    { id: "INV-0874", date: "01 Mar 2023", amount: "₹ 24,999", status: "Paid" },
+  ];
+
+  const usageMetrics = [
+    { label: "API Requests", value: "128,540", hint: "+12% (30d)" },
+    { label: "Storage Used", value: "3.2 GB", hint: "of 10 GB" },
+    { label: "Active Staff", value: "26", hint: "assigned" },
+    { label: "Orders (30d)", value: "312", hint: "processed" },
+  ];
+
+  const documents = [
+    { name: "Agreement", type: "PDF", updated: "12 Feb 2025" },
+    { name: "Brand Assets", type: "ZIP", updated: "05 Jan 2025" },
+    { name: "KYC Bundle", type: "PDF", updated: "Today" },
+  ];
+
+  const activityLogs = [
+    { at: "Today, 11:12 AM", event: "KYC review initiated", by: "Super Admin" },
+    { at: "Yesterday, 05:24 PM", event: "Subscription renewed", by: "System" },
+    { at: "Yesterday, 04:10 PM", event: "Client status changed to Active", by: "Operations" },
+    { at: "12 Feb 2025, 10:02 AM", event: "Updated company details", by: "Super Admin" },
+  ];
 
   const overviewItems = [
     {
@@ -192,276 +254,696 @@ export default function ClientDetailsPage() {
             {/* Overview cards */}
             <KpiCards items={overviewItems} />
 
-            {/* Detail grid */}
-            <div className="grid gap-6 lg:grid-cols-[minmax(0,2fr)_minmax(0,1.3fr)]">
-              {/* Left column */}
-              <div className="space-y-6">
-                {/* Admin information */}
-                <section className="rounded-2xl bg-white/80 p-4 shadow-sm ring-1 ring-gray-100 sm:p-5">
-                  <div className="flex items-center justify-between gap-2">
-                    <h2 className="text-sm font-semibold text-gray-900">
-                      Client Information
-                    </h2>
-                    <span className="rounded-full bg-emerald-50 px-2.5 py-0.5 text-[11px] font-medium text-emerald-700">
-                      Primary admin
-                    </span>
-                  </div>
-                  <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
-                    <div className="space-y-3">
+            {/* Tabs */}
+            <div className="space-y-4">
+              <div className="sticky top-16 z-20 -mx-4 border-b border-gray-200 bg-gray-50/80 px-4 backdrop-blur sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8">
+                <div className="flex gap-2 overflow-x-auto py-2">
+                  {[
+                    { id: "clientInfo", label: "Client Information" },
+                    { id: "company", label: "Company Details" },
+                    { id: "kyc", label: "KYC Verification" },
+                    { id: "subscription", label: "Subscription" },
+                    { id: "billing", label: "Billing & Payments" },
+                    { id: "usage", label: "Usage & Analytics" },
+                    { id: "documents", label: "Documents" },
+                    { id: "activity", label: "Activity Logs" },
+                  ].map((t) => (
+                    <button
+                      key={t.id}
+                      onClick={() => setActiveTab(t.id as typeof activeTab)}
+                      className={
+                        "whitespace-nowrap rounded-full px-3 py-1.5 text-xs font-semibold transition " +
+                        (activeTab === (t.id as typeof activeTab)
+                          ? "bg-pink-500 text-white shadow-sm"
+                          : "bg-white text-gray-700 ring-1 ring-gray-200 hover:bg-pink-50 hover:ring-pink-100")
+                      }
+                    >
+                      {t.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Tab content */}
+              {activeTab === "clientInfo" && (
+                <div className="space-y-6">
+                  <section className="rounded-2xl bg-white/80 p-4 shadow-sm ring-1 ring-gray-100 sm:p-5">
+                    <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                      <div>
+                        <h2 className="text-sm font-semibold text-gray-900">
+                          Client Information
+                        </h2>
+                        <p className="mt-1 text-xs text-gray-500">
+                          Contact details and primary identity for this client.
+                        </p>
+                      </div>
+                      <div className="flex flex-wrap items-center gap-2">
+                        <span className="rounded-full bg-emerald-50 px-2.5 py-0.5 text-[11px] font-medium text-emerald-700">
+                          Primary admin
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="mt-5 grid gap-6 sm:grid-cols-2 lg:grid-cols-5">
                       <div>
                         <p className="text-[11px] font-medium uppercase tracking-[0.14em] text-gray-400">
                           Client name
                         </p>
-                        <p className="mt-1 inline-flex items-center gap-1.5 text-sm font-medium text-gray-900">
+                        <p className="mt-1 inline-flex items-center gap-1.5 text-sm font-semibold text-gray-900">
                           <User className="h-3.5 w-3.5 text-pink-500" />
                           {admin.name}
                         </p>
                       </div>
+
                       <div>
                         <p className="text-[11px] font-medium uppercase tracking-[0.14em] text-gray-400">
                           Client email
                         </p>
-                        <p className="mt-1 inline-flex items-center gap-1.5 text-sm text-gray-700">
+                        <p className="mt-1 inline-flex items-center gap-1.5 text-sm text-gray-900">
                           <Mail className="h-3.5 w-3.5 text-pink-500" />
                           {admin.email}
                         </p>
                       </div>
-                      <div>
-                        <p className="text-[11px] font-medium uppercase tracking-[0.14em] text-gray-400">
-                          Company name
-                        </p>
-                        <p className="mt-1 inline-flex items-center gap-1.5 text-sm text-gray-700">
-                          <Building2 className="h-3.5 w-3.5 text-pink-500" />
-                          {companyName}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="space-y-3">
+
                       <div>
                         <p className="text-[11px] font-medium uppercase tracking-[0.14em] text-gray-400">
                           Phone number
                         </p>
-                        <p className="mt-1 inline-flex items-center gap-1.5 text-sm text-gray-700">
+                        <p className="mt-1 inline-flex items-center gap-1.5 text-sm text-gray-900">
                           <Phone className="h-3.5 w-3.5 text-pink-500" />
                           {admin.phone}
                         </p>
                       </div>
+
                       <div>
                         <p className="text-[11px] font-medium uppercase tracking-[0.14em] text-gray-400">
-                          Location
+                          Company name
                         </p>
-                        <p className="mt-1 inline-flex items-center gap-1.5 text-sm text-gray-700">
-                          <MapPin className="h-3.5 w-3.5 text-pink-500" />
-                          {admin.location}
+                        <p className="mt-1 inline-flex items-center gap-1.5 text-sm text-gray-900">
+                          <Building2 className="h-3.5 w-3.5 text-pink-500" />
+                          {companyName}
                         </p>
                       </div>
+
                       <div>
                         <p className="text-[11px] font-medium uppercase tracking-[0.14em] text-gray-400">
-                          Last login
+                          Status
                         </p>
-                        <p className="mt-1 text-sm text-gray-700">
-                          {admin.lastLogin}
-                        </p>
-                      </div>
-                      <div>
-                        <p className="text-[11px] font-medium uppercase tracking-[0.14em] text-gray-400">
-                          Admin panel URL
-                        </p>
-                        <Link
-                          href={admin.adminUrl}
-                          target="_blank"
-                          className="mt-1 inline-flex items-center gap-1.5 text-xs font-medium text-pink-600 hover:text-pink-700"
+                        <span
+                          className={
+                            "mt-1 inline-flex items-center rounded-full px-2.5 py-0.5 text-[11px] font-medium " +
+                            (status === "Active"
+                              ? "bg-emerald-50 text-emerald-700"
+                              : status === "Suspended"
+                              ? "bg-rose-50 text-rose-700"
+                              : status === "Expiring"
+                              ? "bg-amber-50 text-amber-700"
+                              : "bg-slate-50 text-slate-600")
+                          }
                         >
-                          {admin.adminUrl}
-                          <ExternalLink className="h-3 w-3" />
-                        </Link>
+                          {status}
+                        </span>
                       </div>
                     </div>
-                  </div>
-                </section>
+                  </section>
 
-                {/* Sales performance chart */}
+                  <section className="rounded-2xl bg-white/80 p-4 shadow-sm ring-1 ring-gray-100 sm:p-5">
+                    <div className="flex items-center justify-between gap-2">
+                      <div>
+                        <h2 className="text-sm font-semibold text-gray-900">
+                          Company Details
+                        </h2>
+                        <p className="mt-1 text-xs text-gray-500">
+                          Business information for this client account.
+                        </p>
+                      </div>
+                    </div>
+                    <div className="mt-5 space-y-5">
+                      <div className="grid gap-x-10 gap-y-5 sm:grid-cols-2 lg:grid-cols-4">
+                        <div>
+                        <p className="text-[11px] font-medium uppercase tracking-[0.14em] text-gray-400">
+                          Company Name
+                        </p>
+                        <p className="mt-1 text-sm font-medium text-gray-900">
+                          {companyDetails.companyName}
+                        </p>
+                        </div>
+                        <div>
+                        <p className="text-[11px] font-medium uppercase tracking-[0.14em] text-gray-400">
+                          Business Type
+                        </p>
+                        <p className="mt-1 text-sm font-medium text-gray-900">
+                          {companyDetails.businessType}
+                        </p>
+                        </div>
+                        <div>
+                        <p className="text-[11px] font-medium uppercase tracking-[0.14em] text-gray-400">
+                          Industry
+                        </p>
+                        <p className="mt-1 text-sm font-medium text-gray-900">
+                          {companyDetails.industry}
+                        </p>
+                        </div>
+                        <div>
+                        <p className="text-[11px] font-medium uppercase tracking-[0.14em] text-gray-400">
+                          Team Size
+                        </p>
+                        <p className="mt-1 text-sm font-medium text-gray-900">
+                          {companyDetails.teamSize}
+                        </p>
+                        </div>
+                      </div>
+                      <div className="h-px bg-gray-100" />
+                      <div>
+                        <p className="text-[11px] font-medium uppercase tracking-[0.14em] text-gray-400">
+                          Company Address
+                        </p>
+                        <p className="mt-1 text-sm font-medium text-gray-900">
+                          {companyDetails.companyAddress}
+                        </p>
+                      </div>
+                      <div className="h-px bg-gray-100" />
+                      <div className="grid gap-x-10 gap-y-5 sm:grid-cols-2 lg:grid-cols-4">
+                        <div>
+                        <p className="text-[11px] font-medium uppercase tracking-[0.14em] text-gray-400">
+                          Country
+                        </p>
+                        <p className="mt-1 text-sm font-medium text-gray-900">
+                          {companyDetails.country}
+                        </p>
+                        </div>
+                        <div>
+                        <p className="text-[11px] font-medium uppercase tracking-[0.14em] text-gray-400">
+                          State
+                        </p>
+                        <p className="mt-1 text-sm font-medium text-gray-900">
+                          {companyDetails.state}
+                        </p>
+                        </div>
+                        <div>
+                        <p className="text-[11px] font-medium uppercase tracking-[0.14em] text-gray-400">
+                          City
+                        </p>
+                        <p className="mt-1 text-sm font-medium text-gray-900">
+                          {companyDetails.city}
+                        </p>
+                        </div>
+                        <div>
+                        <p className="text-[11px] font-medium uppercase tracking-[0.14em] text-gray-400">
+                          Postal Code
+                        </p>
+                        <p className="mt-1 text-sm font-medium text-gray-900">
+                          {companyDetails.postalCode}
+                        </p>
+                        </div>
+                      </div>
+                    </div>
+                  </section>
+                </div>
+              )}
+
+              {activeTab === "company" && (
                 <section className="rounded-2xl bg-white/80 p-4 shadow-sm ring-1 ring-gray-100 sm:p-5">
                   <div className="flex items-center justify-between gap-2">
-                    <h2 className="text-sm font-semibold text-gray-900">
-                      Sales & orders performance
-                    </h2>
-                    <p className="text-xs text-gray-400">
-                      Last 6 months summary across key metrics
-                    </p>
+                    <div>
+                      <h2 className="text-sm font-semibold text-gray-900">
+                        Company Details
+                      </h2>
+                      <p className="mt-1 text-xs text-gray-500">
+                        Business information for this client account.
+                      </p>
+                    </div>
                   </div>
-                  <div className="mt-4 space-y-4">
-                    {/* Legend */}
-                    <div className="flex flex-wrap items-center gap-3 text-[11px] text-gray-500">
-                      <div className="inline-flex items-center gap-1.5">
-                        <span className="h-1.5 w-5 rounded-full bg-pink-500" />
-                        Orders
+                  <div className="mt-5 space-y-5">
+                    <div className="grid gap-x-10 gap-y-5 sm:grid-cols-2 lg:grid-cols-4">
+                      <div>
+                      <p className="text-[11px] font-medium uppercase tracking-[0.14em] text-gray-400">
+                        Company Name
+                      </p>
+                      <p className="mt-1 text-sm font-medium text-gray-900">
+                        {companyDetails.companyName}
+                      </p>
                       </div>
-                      <div className="inline-flex items-center gap-1.5">
-                        <span className="h-1.5 w-5 rounded-full bg-rose-400" />
-                        Products sold
+                      <div>
+                      <p className="text-[11px] font-medium uppercase tracking-[0.14em] text-gray-400">
+                        Business Type
+                      </p>
+                      <p className="mt-1 text-sm font-medium text-gray-900">
+                        {companyDetails.businessType}
+                      </p>
                       </div>
-                      <div className="inline-flex items-center gap-1.5">
-                        <span className="h-1.5 w-5 rounded-full bg-amber-400" />
-                        Revenue (₹L)
+                      <div>
+                      <p className="text-[11px] font-medium uppercase tracking-[0.14em] text-gray-400">
+                        Industry
+                      </p>
+                      <p className="mt-1 text-sm font-medium text-gray-900">
+                        {companyDetails.industry}
+                      </p>
+                      </div>
+                      <div>
+                      <p className="text-[11px] font-medium uppercase tracking-[0.14em] text-gray-400">
+                        Team Size
+                      </p>
+                      <p className="mt-1 text-sm font-medium text-gray-900">
+                        {companyDetails.teamSize}
+                      </p>
                       </div>
                     </div>
-                    {/* Grouped bar chart using Recharts */}
-                    <div className="mt-1 h-64 rounded-xl bg-slate-50 px-3 pb-4 pt-3">
-                      <ResponsiveContainer width="100%" height="100%">
-                        <BarChart
-                          data={salesPerformanceData}
-                          margin={{ left: -12, right: 4, top: 10, bottom: 0 }}
-                          barCategoryGap="18%"
-                        >
-                          <CartesianGrid
-                            strokeDasharray="3 3"
-                            stroke="#fce0ec"
-                            vertical={false}
-                          />
-                          <XAxis
-                            dataKey="month"
-                            axisLine={false}
-                            tickLine={false}
-                            tickMargin={8}
-                            tick={{ fontSize: 11, fill: "#9f8ca5" }}
-                          />
-                          <YAxis
-                            axisLine={false}
-                            tickLine={false}
-                            tickMargin={8}
-                            tick={{ fontSize: 11, fill: "#9f8ca5" }}
-                          />
-                          <Tooltip
-                            formatter={(value: number, name: string) => {
-                              if (name === "Revenue") {
-                                return [`₹ ${value.toFixed(1)}L`, "Revenue"];
-                              }
-                              if (name === "Products sold") {
-                                return [value, "Products sold"];
-                              }
-                              return [value, "Orders"];
-                            }}
-                            labelFormatter={(label) => `Month: ${label}`}
-                            contentStyle={{
-                              borderRadius: 16,
-                              borderColor: "#f9ccd9",
-                              boxShadow: "0 18px 45px rgba(236,90,135,0.1)",
-                              fontSize: 11,
-                            }}
-                          />
-                          <Bar
-                            dataKey="orders"
-                            name="Orders"
-                            radius={[6, 6, 0, 0]}
-                            barSize={12}
-                            fill="#ec5a87"
-                          />
-                          <Bar
-                            dataKey="products"
-                            name="Products sold"
-                            radius={[6, 6, 0, 0]}
-                            barSize={12}
-                            fill="#fb7185"
-                          />
-                          <Bar
-                            dataKey="revenue"
-                            name="Revenue"
-                            radius={[6, 6, 0, 0]}
-                            barSize={12}
-                            fill="#fbbf24"
-                          />
-                        </BarChart>
-                      </ResponsiveContainer>
+                    <div className="h-px bg-gray-100" />
+                    <div>
+                      <p className="text-[11px] font-medium uppercase tracking-[0.14em] text-gray-400">
+                        Company Address
+                      </p>
+                      <p className="mt-1 text-sm font-medium text-gray-900">
+                        {companyDetails.companyAddress}
+                      </p>
+                    </div>
+                    <div className="h-px bg-gray-100" />
+                    <div className="grid gap-x-10 gap-y-5 sm:grid-cols-2 lg:grid-cols-4">
+                      <div>
+                      <p className="text-[11px] font-medium uppercase tracking-[0.14em] text-gray-400">
+                        Country
+                      </p>
+                      <p className="mt-1 text-sm font-medium text-gray-900">
+                        {companyDetails.country}
+                      </p>
+                      </div>
+                      <div>
+                      <p className="text-[11px] font-medium uppercase tracking-[0.14em] text-gray-400">
+                        State
+                      </p>
+                      <p className="mt-1 text-sm font-medium text-gray-900">
+                        {companyDetails.state}
+                      </p>
+                      </div>
+                      <div>
+                      <p className="text-[11px] font-medium uppercase tracking-[0.14em] text-gray-400">
+                        City
+                      </p>
+                      <p className="mt-1 text-sm font-medium text-gray-900">
+                        {companyDetails.city}
+                      </p>
+                      </div>
+                      <div>
+                      <p className="text-[11px] font-medium uppercase tracking-[0.14em] text-gray-400">
+                        Postal Code
+                      </p>
+                      <p className="mt-1 text-sm font-medium text-gray-900">
+                        {companyDetails.postalCode}
+                      </p>
+                      </div>
                     </div>
                   </div>
                 </section>
-              </div>
+              )}
 
-              {/* Right column */}
-              <div className="space-y-6">
-                {/* Subscription details */}
+              {activeTab === "kyc" && (
                 <section className="rounded-2xl bg-white/80 p-4 shadow-sm ring-1 ring-gray-100 sm:p-5">
-                  <h2 className="text-sm font-semibold text-gray-900">
-                    Subscription Details
-                  </h2>
-                  <p className="mt-1 text-xs text-gray-500">
-                    Plan and billing information for this client.
-                  </p>
-                  <dl className="mt-4 space-y-4 text-sm">
-                    <div className="flex items-start justify-between gap-3">
-                      <div>
-                        <dt className="text-[11px] font-medium uppercase tracking-[0.14em] text-gray-400">
-                          Plan name
-                        </dt>
-                        <dd className="mt-1 font-medium text-gray-900">
-                          {subscription.planName}
-                        </dd>
-                      </div>
-                      <span className="inline-flex items-center rounded-full bg-pink-50 px-2.5 py-0.5 text-[11px] font-medium text-pink-700 ring-1 ring-pink-100">
-                        <ShieldCheck className="mr-1 h-3 w-3" />
-                        {plan}
-                      </span>
-                    </div>
-                    <div className="flex items-center justify-between gap-3">
-                      <div>
-                        <dt className="text-[11px] font-medium uppercase tracking-[0.14em] text-gray-400">
-                          Subscription start
-                        </dt>
-                        <dd className="mt-1 text-gray-800">
-                          {subscription.startDate}
-                        </dd>
-                      </div>
-                      <div>
-                        <dt className="text-[11px] font-medium uppercase tracking-[0.14em] text-gray-400">
-                          Expiry date
-                        </dt>
-                        <dd className="mt-1 text-gray-800">
-                          {subscription.expiryDate}
-                        </dd>
-                      </div>
-                    </div>
+                  <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                     <div>
+                      <h2 className="text-sm font-semibold text-gray-900">
+                        KYC Verification
+                      </h2>
+                      <p className="mt-1 text-xs text-gray-500">
+                        Review and verify business documents for compliance.
+                      </p>
+                    </div>
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span
+                        className={
+                          "inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold ring-1 " +
+                          (kyc.status === "Verified"
+                            ? "bg-emerald-50 text-emerald-700 ring-emerald-200/60"
+                            : kyc.status === "Rejected"
+                            ? "bg-rose-50 text-rose-700 ring-rose-200/60"
+                            : "bg-amber-50 text-amber-700 ring-amber-200/60")
+                        }
+                      >
+                        <Clock className="h-3.5 w-3.5" />
+                        {kyc.status}
+                      </span>
+                      <Button variant="outline" size="sm">
+                        Upload document
+                      </Button>
+                      <Button variant="primary" size="sm" className="gap-1.5">
+                        <CheckCircle2 className="h-4 w-4" />
+                        Verify
+                      </Button>
+                    </div>
+                  </div>
+
+                  <div className="mt-5 overflow-hidden rounded-2xl ring-1 ring-gray-100">
+                    <div className="bg-gray-50 px-4 py-3 text-xs font-semibold text-gray-600">
+                      Uploaded documents
+                    </div>
+                    <div className="divide-y divide-gray-100 bg-white">
+                      {kyc.docs.map((d) => (
+                        <div key={d.name} className="flex items-center justify-between gap-3 px-4 py-3">
+                          <div className="min-w-0">
+                            <p className="truncate text-sm font-semibold text-gray-900">
+                              {d.name}
+                            </p>
+                            <p className="truncate text-xs text-gray-500">{d.file}</p>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <span
+                              className={
+                                "rounded-full px-2.5 py-0.5 text-[11px] font-medium " +
+                                (d.status === "Uploaded"
+                                  ? "bg-emerald-50 text-emerald-700"
+                                  : "bg-slate-50 text-slate-600")
+                              }
+                            >
+                              {d.status}
+                            </span>
+                            <Button variant="outline" size="sm">
+                              View
+                            </Button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </section>
+              )}
+
+              {activeTab === "subscription" && (
+                <section className="rounded-2xl bg-white/80 p-4 shadow-sm ring-1 ring-gray-100 sm:p-5">
+                  <div className="flex items-center justify-between gap-2">
+                    <div>
+                      <h2 className="text-sm font-semibold text-gray-900">
+                        Subscription
+                      </h2>
+                      <p className="mt-1 text-xs text-gray-500">
+                        Plan details, expiry date, and renewal controls.
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Button variant="outline" size="sm">
+                        Change plan
+                      </Button>
+                      <Button variant="primary" size="sm">
+                        Renew
+                      </Button>
+                    </div>
+                  </div>
+
+                  <dl className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                    <div className="rounded-xl bg-slate-50 p-4 ring-1 ring-gray-100">
+                      <dt className="text-[11px] font-medium uppercase tracking-[0.14em] text-gray-400">
+                        Plan name
+                      </dt>
+                      <dd className="mt-1 text-sm font-semibold text-gray-900">
+                        {subscription.planName}
+                      </dd>
+                    </div>
+                    <div className="rounded-xl bg-slate-50 p-4 ring-1 ring-gray-100">
+                      <dt className="text-[11px] font-medium uppercase tracking-[0.14em] text-gray-400">
+                        Subscription start
+                      </dt>
+                      <dd className="mt-1 text-sm font-semibold text-gray-900">
+                        {subscription.startDate}
+                      </dd>
+                    </div>
+                    <div className="rounded-xl bg-slate-50 p-4 ring-1 ring-gray-100">
+                      <dt className="text-[11px] font-medium uppercase tracking-[0.14em] text-gray-400">
+                        Expiry date
+                      </dt>
+                      <dd className="mt-1 text-sm font-semibold text-gray-900">
+                        {subscription.expiryDate}
+                      </dd>
+                    </div>
+                    <div className="rounded-xl bg-slate-50 p-4 ring-1 ring-gray-100">
                       <dt className="text-[11px] font-medium uppercase tracking-[0.14em] text-gray-400">
                         Billing status
                       </dt>
-                      <dd className="mt-1 inline-flex items-center gap-1.5 text-sm text-emerald-700">
-                        <ShieldCheck className="h-3.5 w-3.5" />
+                      <dd className="mt-1 inline-flex items-center gap-1.5 text-sm font-semibold text-emerald-700">
+                        <ShieldCheck className="h-4 w-4" />
                         {subscription.billingStatus}
                       </dd>
                     </div>
                   </dl>
                 </section>
+              )}
 
-                {/* Client metadata */}
+              {activeTab === "billing" && (
                 <section className="rounded-2xl bg-white/80 p-4 shadow-sm ring-1 ring-gray-100 sm:p-5">
-                  <h2 className="text-sm font-semibold text-gray-900">
-                    Client Metadata
-                  </h2>
-                  <p className="mt-1 text-xs text-gray-500">
-                    Snapshot of how this client is configured on True Beauty.
-                  </p>
-                  <dl className="mt-4 space-y-3 text-sm">
-                    <div className="flex items-center justify-between gap-3">
-                      <dt className="text-gray-500">Join date</dt>
-                      <dd className="font-medium text-gray-900">15 Jan 2024</dd>
+                  <div className="flex items-center justify-between gap-2">
+                    <div>
+                      <h2 className="text-sm font-semibold text-gray-900">
+                        Billing & Payments
+                      </h2>
+                      <p className="mt-1 text-xs text-gray-500">
+                        Invoices, payment history, and billing settings.
+                      </p>
                     </div>
-                    <div className="flex items-center justify-between gap-3">
-                      <dt className="text-gray-500">Region</dt>
-                      <dd className="font-medium text-gray-900">
-                        Mumbai, India
-                      </dd>
+                    <div className="flex items-center gap-2">
+                      <Button variant="outline" size="sm" className="gap-1.5">
+                        <CreditCard className="h-4 w-4" />
+                        Add payment method
+                      </Button>
+                      <Button variant="primary" size="sm" className="gap-1.5">
+                        <FileText className="h-4 w-4" />
+                        Create invoice
+                      </Button>
                     </div>
-                    <div className="flex items-center justify-between gap-3">
-                      <dt className="text-gray-500">Storefront URL</dt>
-                      <dd className="inline-flex items-center gap-1.5 text-xs font-medium text-pink-600">
-                        <Globe2 className="h-3.5 w-3.5" />
-                        {domain}
-                      </dd>
+                  </div>
+
+                  <div className="mt-5 overflow-hidden rounded-2xl ring-1 ring-gray-100">
+                    <div className="grid grid-cols-4 bg-gray-50 px-4 py-3 text-xs font-semibold text-gray-600">
+                      <span>Invoice</span>
+                      <span>Date</span>
+                      <span>Amount</span>
+                      <span className="text-right">Status</span>
                     </div>
-                  </dl>
+                    <div className="divide-y divide-gray-100 bg-white">
+                      {billingHistory.map((b) => (
+                        <div key={b.id} className="grid grid-cols-4 items-center gap-3 px-4 py-3">
+                          <span className="text-sm font-semibold text-gray-900">{b.id}</span>
+                          <span className="text-sm text-gray-600">{b.date}</span>
+                          <span className="text-sm text-gray-600">{b.amount}</span>
+                          <div className="flex items-center justify-end gap-2">
+                            <span className="rounded-full bg-emerald-50 px-2.5 py-0.5 text-[11px] font-medium text-emerald-700">
+                              {b.status}
+                            </span>
+                            <Button variant="outline" size="sm">
+                              Download
+                            </Button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
                 </section>
-              </div>
+              )}
+
+              {activeTab === "usage" && (
+                <div className="grid gap-6 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)]">
+                  <section className="rounded-2xl bg-white/80 p-4 shadow-sm ring-1 ring-gray-100 sm:p-5">
+                    <div className="flex items-center justify-between gap-2">
+                      <h2 className="text-sm font-semibold text-gray-900">
+                        Usage & Analytics
+                      </h2>
+                      <span className="text-xs text-gray-500">Last 6 months</span>
+                    </div>
+                    <div className="mt-4 space-y-4">
+                      <div className="flex flex-wrap items-center gap-3 text-[11px] text-gray-500">
+                        <div className="inline-flex items-center gap-1.5">
+                          <span className="h-1.5 w-5 rounded-full bg-pink-500" />
+                          Orders
+                        </div>
+                        <div className="inline-flex items-center gap-1.5">
+                          <span className="h-1.5 w-5 rounded-full bg-rose-400" />
+                          Products sold
+                        </div>
+                        <div className="inline-flex items-center gap-1.5">
+                          <span className="h-1.5 w-5 rounded-full bg-amber-400" />
+                          Revenue (₹L)
+                        </div>
+                      </div>
+                      <div className="mt-1 h-64 rounded-xl bg-slate-50 px-3 pb-4 pt-3">
+                        <ResponsiveContainer width="100%" height="100%">
+                          <BarChart
+                            data={salesPerformanceData}
+                            margin={{ left: -12, right: 4, top: 10, bottom: 0 }}
+                            barCategoryGap="18%"
+                          >
+                            <CartesianGrid
+                              strokeDasharray="3 3"
+                              stroke="#fce0ec"
+                              vertical={false}
+                            />
+                            <XAxis
+                              dataKey="month"
+                              axisLine={false}
+                              tickLine={false}
+                              tickMargin={8}
+                              tick={{ fontSize: 11, fill: "#9f8ca5" }}
+                            />
+                            <YAxis
+                              axisLine={false}
+                              tickLine={false}
+                              tickMargin={8}
+                              tick={{ fontSize: 11, fill: "#9f8ca5" }}
+                            />
+                            <Tooltip
+                              formatter={(value: number, name: string) => {
+                                if (name === "Revenue") {
+                                  return [`₹ ${value.toFixed(1)}L`, "Revenue"];
+                                }
+                                if (name === "Products sold") {
+                                  return [value, "Products sold"];
+                                }
+                                return [value, "Orders"];
+                              }}
+                              labelFormatter={(label) => `Month: ${label}`}
+                              contentStyle={{
+                                borderRadius: 16,
+                                borderColor: "#f9ccd9",
+                                boxShadow: "0 18px 45px rgba(236,90,135,0.1)",
+                                fontSize: 11,
+                              }}
+                            />
+                            <Bar
+                              dataKey="orders"
+                              name="Orders"
+                              radius={[6, 6, 0, 0]}
+                              barSize={12}
+                              fill="#ec5a87"
+                            />
+                            <Bar
+                              dataKey="products"
+                              name="Products sold"
+                              radius={[6, 6, 0, 0]}
+                              barSize={12}
+                              fill="#fb7185"
+                            />
+                            <Bar
+                              dataKey="revenue"
+                              name="Revenue"
+                              radius={[6, 6, 0, 0]}
+                              barSize={12}
+                              fill="#fbbf24"
+                            />
+                          </BarChart>
+                        </ResponsiveContainer>
+                      </div>
+                    </div>
+                  </section>
+
+                  <section className="rounded-2xl bg-white/80 p-4 shadow-sm ring-1 ring-gray-100 sm:p-5">
+                    <div className="flex items-center justify-between gap-2">
+                      <h3 className="text-sm font-semibold text-gray-900">
+                        System usage
+                      </h3>
+                      <Button variant="outline" size="sm">
+                        View report
+                      </Button>
+                    </div>
+                    <div className="mt-4 grid gap-3">
+                      {usageMetrics.map((m) => (
+                        <div
+                          key={m.label}
+                          className="flex items-center justify-between rounded-xl bg-slate-50 px-4 py-3 ring-1 ring-gray-100"
+                        >
+                          <div>
+                            <p className="text-[11px] font-medium uppercase tracking-[0.14em] text-gray-400">
+                              {m.label}
+                            </p>
+                            <p className="mt-1 text-sm font-semibold text-gray-900">
+                              {m.value}
+                            </p>
+                          </div>
+                          <p className="text-xs font-medium text-gray-500">
+                            {m.hint}
+                          </p>
+                        </div>
+                      ))}
+                    </div>
+                  </section>
+                </div>
+              )}
+
+              {activeTab === "documents" && (
+                <section className="rounded-2xl bg-white/80 p-4 shadow-sm ring-1 ring-gray-100 sm:p-5">
+                  <div className="flex items-center justify-between gap-2">
+                    <div>
+                      <h2 className="text-sm font-semibold text-gray-900">
+                        Documents
+                      </h2>
+                      <p className="mt-1 text-xs text-gray-500">
+                        Agreements, assets, and verification bundles.
+                      </p>
+                    </div>
+                    <Button variant="outline" size="sm">
+                      Upload
+                    </Button>
+                  </div>
+
+                  <div className="mt-5 divide-y divide-gray-100 overflow-hidden rounded-2xl ring-1 ring-gray-100">
+                    {documents.map((d) => (
+                      <div key={d.name} className="flex items-center justify-between gap-3 bg-white px-4 py-3">
+                        <div className="min-w-0">
+                          <p className="truncate text-sm font-semibold text-gray-900">
+                            {d.name}
+                          </p>
+                          <p className="text-xs text-gray-500">
+                            {d.type} • Updated {d.updated}
+                          </p>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Button variant="outline" size="sm">
+                            View
+                          </Button>
+                          <Button variant="outline" size="sm">
+                            Download
+                          </Button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </section>
+              )}
+
+              {activeTab === "activity" && (
+                <section className="rounded-2xl bg-white/80 p-4 shadow-sm ring-1 ring-gray-100 sm:p-5">
+                  <div className="flex items-center justify-between gap-2">
+                    <div>
+                      <h2 className="text-sm font-semibold text-gray-900">
+                        Activity Logs
+                      </h2>
+                      <p className="mt-1 text-xs text-gray-500">
+                        Audit trail of actions performed on this client.
+                      </p>
+                    </div>
+                    <Button variant="outline" size="sm" className="gap-1.5">
+                      <History className="h-4 w-4" />
+                      Export
+                    </Button>
+                  </div>
+
+                  <div className="mt-5 space-y-3">
+                    {activityLogs.map((log, idx) => (
+                      <div
+                        key={`${log.at}-${idx}`}
+                        className="flex items-start gap-3 rounded-2xl bg-slate-50 px-4 py-3 ring-1 ring-gray-100"
+                      >
+                        <span className="mt-0.5 inline-flex h-8 w-8 items-center justify-center rounded-xl bg-pink-100 text-pink-600">
+                          <Clock className="h-4 w-4" />
+                        </span>
+                        <div className="min-w-0 flex-1">
+                          <p className="text-sm font-semibold text-gray-900">
+                            {log.event}
+                          </p>
+                          <p className="mt-0.5 text-xs text-gray-500">
+                            {log.at} • by {log.by}
+                          </p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </section>
+              )}
             </div>
           </div>
         </main>
