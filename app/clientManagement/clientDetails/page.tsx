@@ -24,7 +24,6 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
-import { useSearchParams } from "next/navigation";
 import {
   Bar,
   BarChart,
@@ -45,8 +44,6 @@ const salesPerformanceData = [
 ];
 
 export default function ClientDetailsPage() {
-  const searchParams = useSearchParams();
-  const idParam = searchParams.get("id");
   const [activeTab, setActiveTab] = useState<
     | "clientInfo"
     | "kyc"
@@ -65,18 +62,21 @@ export default function ClientDetailsPage() {
 
   useEffect(() => {
     if (!hasMounted) return;
-    if (!idParam) {
-      setClient(null);
-      return;
-    }
-
-    const id = Number(idParam);
-    if (!Number.isFinite(id)) {
-      setClient(null);
-      return;
-    }
 
     try {
+      const url = new URL(window.location.href);
+      const idParam = url.searchParams.get("id");
+      if (!idParam) {
+        setClient(null);
+        return;
+      }
+
+      const id = Number(idParam);
+      if (!Number.isFinite(id)) {
+        setClient(null);
+        return;
+      }
+
       const raw = window.localStorage.getItem("super-admin.clients.v1");
       if (!raw) {
         setClient(null);
@@ -91,7 +91,7 @@ export default function ClientDetailsPage() {
     } catch {
       setClient(null);
     }
-  }, [hasMounted, idParam]);
+  }, [hasMounted]);
 
   const clientName = hasMounted ? client?.clientName ?? "Client" : "Client";
   const companyName = hasMounted ? client?.brandName ?? "—" : "—";
