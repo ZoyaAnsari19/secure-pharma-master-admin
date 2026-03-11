@@ -135,17 +135,7 @@ const clientColumns: Column<Client>[] = [
 
 export default function ClientManagement() {
   const router = useRouter();
-  const [clients, setClients] = useState<Client[]>(() => {
-    if (typeof window === "undefined") return initialClients;
-    try {
-      const raw = window.localStorage.getItem(CLIENTS_STORAGE_KEY);
-      if (!raw) return initialClients;
-      const parsed = JSON.parse(raw) as Client[];
-      return Array.isArray(parsed) ? parsed : initialClients;
-    } catch {
-      return initialClients;
-    }
-  });
+  const [clients, setClients] = useState<Client[]>(initialClients);
   const [statusFilter, setStatusFilter] = useState<"All" | ClientStatus>("All");
   const [planFilter, setPlanFilter] = useState<"All" | ClientPlan>("All");
 
@@ -174,6 +164,17 @@ export default function ClientManagement() {
     subscriptionDuration: "12 months",
     status: "Active" as ClientStatus,
   });
+
+  useEffect(() => {
+    try {
+      const raw = window.localStorage.getItem(CLIENTS_STORAGE_KEY);
+      if (!raw) return;
+      const parsed = JSON.parse(raw) as Client[];
+      if (Array.isArray(parsed)) setClients(parsed);
+    } catch {
+      // ignore storage errors
+    }
+  }, []);
 
   useEffect(() => {
     try {

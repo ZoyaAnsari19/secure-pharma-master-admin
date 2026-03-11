@@ -23,7 +23,7 @@ import {
   Wallet,
 } from "lucide-react";
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import {
   Bar,
@@ -49,41 +49,66 @@ export default function ClientDetailsPage() {
   const idParam = searchParams.get("id");
   const [activeTab, setActiveTab] = useState<
     | "clientInfo"
-    | "company"
     | "kyc"
     | "subscription"
-    | "billing"
     | "usage"
     | "documents"
     | "activity"
   >("clientInfo");
 
-  const client = useMemo(() => {
-    if (!idParam) return null;
+  const [hasMounted, setHasMounted] = useState(false);
+  const [client, setClient] = useState<any>(null);
+
+  useEffect(() => {
+    setHasMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (!hasMounted) return;
+    if (!idParam) {
+      setClient(null);
+      return;
+    }
+
     const id = Number(idParam);
-    if (!Number.isFinite(id)) return null;
+    if (!Number.isFinite(id)) {
+      setClient(null);
+      return;
+    }
+
     try {
       const raw = window.localStorage.getItem("super-admin.clients.v1");
-      if (!raw) return null;
+      if (!raw) {
+        setClient(null);
+        return;
+      }
       const parsed = JSON.parse(raw) as Array<any>;
-      if (!Array.isArray(parsed)) return null;
-      return parsed.find((c) => Number(c?.id) === id) ?? null;
+      if (!Array.isArray(parsed)) {
+        setClient(null);
+        return;
+      }
+      setClient(parsed.find((c) => Number(c?.id) === id) ?? null);
     } catch {
-      return null;
+      setClient(null);
     }
-  }, [idParam]);
+  }, [hasMounted, idParam]);
 
-  const clientName = client?.clientName ?? "Client";
-  const companyName = client?.brandName ?? "—";
-  const domain = client?.websiteDomain ?? "—";
-  const plan = client?.plan ?? "—";
-  const status: "Active" | "Suspended" | "Expiring" | "Inactive" =
-    client?.status ?? "Inactive";
+  const clientName = hasMounted ? client?.clientName ?? "Client" : "Client";
+  const companyName = hasMounted ? client?.brandName ?? "—" : "—";
+  const domain = hasMounted ? client?.websiteDomain ?? "—" : "—";
+  const plan = hasMounted ? client?.plan ?? "—" : "—";
+  const status: "Active" | "Suspended" | "Expiring" | "Inactive" = hasMounted
+    ? (client?.status ?? "Inactive")
+    : "Inactive";
 
   const admin = {
-    name: client?.clientName ?? "—",
-    email: client?.adminEmail ?? client?.clientEmail ?? "—",
-    phone: client?.clientPhone ? `+91 ${client.clientPhone}` : "—",
+    name: hasMounted ? client?.clientName ?? "—" : "—",
+    email: hasMounted ? client?.adminEmail ?? client?.clientEmail ?? "—" : "—",
+    phone: hasMounted
+      ? client?.clientPhone
+        ? `+91 ${client.clientPhone}`
+        : "—"
+      : "—",
     location: "—",
     lastLogin: "—",
     adminUrl: domain !== "—" ? `https://${domain}/admin` : "#",
@@ -113,6 +138,7 @@ export default function ClientDetailsPage() {
     updatedAt: "Today, 11:12 AM",
     docs: [
       { name: "PAN Card", file: "pan_card.pdf", status: "Uploaded" as const },
+      { name: "Aadhar Card", file: "aadhar_card.pdf", status: "Uploaded" as const },
       { name: "GST Certificate", file: "gst_certificate.pdf", status: "Uploaded" as const },
       { name: "Address Proof", file: "address_proof.pdf", status: "Missing" as const },
     ],
@@ -123,6 +149,79 @@ export default function ClientDetailsPage() {
     { id: "INV-0987", date: "01 Mar 2024", amount: "₹ 29,999", status: "Paid" },
     { id: "INV-0874", date: "01 Mar 2023", amount: "₹ 24,999", status: "Paid" },
   ];
+
+  const subscriptionBillingHistory = [
+    {
+      invoiceId: "INV-1042",
+      itemName: "Premium Plan (Annual)",
+      cycle: "Annual",
+      method: "UPI",
+      amountInr: 29999,
+      status: "Paid" as const,
+      date: "01 Mar 2025",
+    },
+    {
+      invoiceId: "INV-1031",
+      itemName: "Add-on: Extra Staff Seats (10)",
+      cycle: "One-time",
+      method: "Card",
+      amountInr: 4999,
+      status: "Paid" as const,
+      date: "15 Feb 2025",
+    },
+    {
+      invoiceId: "INV-1022",
+      itemName: "Upgrade: Standard → Premium",
+      cycle: "Prorated",
+      method: "NetBanking",
+      amountInr: 7999,
+      status: "Paid" as const,
+      date: "01 Jan 2025",
+    },
+    {
+      invoiceId: "INV-1015",
+      itemName: "Refund: Add-on chargeback",
+      cycle: "Refund",
+      method: "UPI",
+      amountInr: -1499,
+      status: "Refunded" as const,
+      date: "20 Dec 2024",
+    },
+    {
+      invoiceId: "INV-1008",
+      itemName: "Premium Plan Renewal (Monthly)",
+      cycle: "Monthly",
+      method: "Card",
+      amountInr: 2999,
+      status: "Failed" as const,
+      date: "01 Dec 2024",
+    },
+    {
+      invoiceId: "INV-1007",
+      itemName: "Premium Plan Renewal (Monthly)",
+      cycle: "Monthly",
+      method: "Card",
+      amountInr: 2999,
+      status: "Pending" as const,
+      date: "01 Nov 2024",
+    },
+  ];
+
+  const billingSummary = useMemo(() => {
+    const totalPaid = subscriptionBillingHistory.reduce((sum, r) => {
+      if (r.status !== "Paid") return sum;
+      return sum + Math.max(0, r.amountInr);
+    }, 0);
+
+    const lastPayment =
+      subscriptionBillingHistory.find((r) => r.status === "Paid") ?? null;
+
+    return {
+      totalPaidInr: totalPaid,
+      lastPayment,
+      nextBillingDate: subscription.expiryDate,
+    };
+  }, [subscription.expiryDate, subscriptionBillingHistory]);
 
   const usageMetrics = [
     { label: "API Requests", value: "128,540", hint: "+12% (30d)" },
@@ -188,7 +287,7 @@ export default function ClientDetailsPage() {
                   <ArrowLeft className="h-3.5 w-3.5" />
                   Back to clients
                 </Link>
-                {!client && (
+                {hasMounted && !client && (
                   <div className="rounded-2xl bg-white/80 p-4 shadow-sm ring-1 ring-rose-100">
                     <p className="text-sm font-semibold text-gray-900">
                       Client not found
@@ -260,10 +359,8 @@ export default function ClientDetailsPage() {
                 <div className="flex gap-2 overflow-x-auto py-2">
                   {[
                     { id: "clientInfo", label: "Client Information" },
-                    { id: "company", label: "Company Details" },
                     { id: "kyc", label: "KYC Verification" },
                     { id: "subscription", label: "Subscription" },
-                    { id: "billing", label: "Billing & Payments" },
                     { id: "usage", label: "Usage & Analytics" },
                     { id: "documents", label: "Documents" },
                     { id: "activity", label: "Activity Logs" },
@@ -462,101 +559,6 @@ export default function ClientDetailsPage() {
                 </div>
               )}
 
-              {activeTab === "company" && (
-                <section className="rounded-2xl bg-white/80 p-4 shadow-sm ring-1 ring-gray-100 sm:p-5">
-                  <div className="flex items-center justify-between gap-2">
-                    <div>
-                      <h2 className="text-sm font-semibold text-gray-900">
-                        Company Details
-                      </h2>
-                      <p className="mt-1 text-xs text-gray-500">
-                        Business information for this client account.
-                      </p>
-                    </div>
-                  </div>
-                  <div className="mt-5 space-y-5">
-                    <div className="grid gap-x-10 gap-y-5 sm:grid-cols-2 lg:grid-cols-4">
-                      <div>
-                      <p className="text-[11px] font-medium uppercase tracking-[0.14em] text-gray-400">
-                        Company Name
-                      </p>
-                      <p className="mt-1 text-sm font-medium text-gray-900">
-                        {companyDetails.companyName}
-                      </p>
-                      </div>
-                      <div>
-                      <p className="text-[11px] font-medium uppercase tracking-[0.14em] text-gray-400">
-                        Business Type
-                      </p>
-                      <p className="mt-1 text-sm font-medium text-gray-900">
-                        {companyDetails.businessType}
-                      </p>
-                      </div>
-                      <div>
-                      <p className="text-[11px] font-medium uppercase tracking-[0.14em] text-gray-400">
-                        Industry
-                      </p>
-                      <p className="mt-1 text-sm font-medium text-gray-900">
-                        {companyDetails.industry}
-                      </p>
-                      </div>
-                      <div>
-                      <p className="text-[11px] font-medium uppercase tracking-[0.14em] text-gray-400">
-                        Team Size
-                      </p>
-                      <p className="mt-1 text-sm font-medium text-gray-900">
-                        {companyDetails.teamSize}
-                      </p>
-                      </div>
-                    </div>
-                    <div className="h-px bg-gray-100" />
-                    <div>
-                      <p className="text-[11px] font-medium uppercase tracking-[0.14em] text-gray-400">
-                        Company Address
-                      </p>
-                      <p className="mt-1 text-sm font-medium text-gray-900">
-                        {companyDetails.companyAddress}
-                      </p>
-                    </div>
-                    <div className="h-px bg-gray-100" />
-                    <div className="grid gap-x-10 gap-y-5 sm:grid-cols-2 lg:grid-cols-4">
-                      <div>
-                      <p className="text-[11px] font-medium uppercase tracking-[0.14em] text-gray-400">
-                        Country
-                      </p>
-                      <p className="mt-1 text-sm font-medium text-gray-900">
-                        {companyDetails.country}
-                      </p>
-                      </div>
-                      <div>
-                      <p className="text-[11px] font-medium uppercase tracking-[0.14em] text-gray-400">
-                        State
-                      </p>
-                      <p className="mt-1 text-sm font-medium text-gray-900">
-                        {companyDetails.state}
-                      </p>
-                      </div>
-                      <div>
-                      <p className="text-[11px] font-medium uppercase tracking-[0.14em] text-gray-400">
-                        City
-                      </p>
-                      <p className="mt-1 text-sm font-medium text-gray-900">
-                        {companyDetails.city}
-                      </p>
-                      </div>
-                      <div>
-                      <p className="text-[11px] font-medium uppercase tracking-[0.14em] text-gray-400">
-                        Postal Code
-                      </p>
-                      <p className="mt-1 text-sm font-medium text-gray-900">
-                        {companyDetails.postalCode}
-                      </p>
-                      </div>
-                    </div>
-                  </div>
-                </section>
-              )}
-
               {activeTab === "kyc" && (
                 <section className="rounded-2xl bg-white/80 p-4 shadow-sm ring-1 ring-gray-100 sm:p-5">
                   <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -628,113 +630,162 @@ export default function ClientDetailsPage() {
               )}
 
               {activeTab === "subscription" && (
-                <section className="rounded-2xl bg-white/80 p-4 shadow-sm ring-1 ring-gray-100 sm:p-5">
-                  <div className="flex items-center justify-between gap-2">
-                    <div>
-                      <h2 className="text-sm font-semibold text-gray-900">
-                        Subscription
-                      </h2>
-                      <p className="mt-1 text-xs text-gray-500">
-                        Plan details, expiry date, and renewal controls.
-                      </p>
+                <div className="space-y-6">
+                  <section className="rounded-2xl bg-white/80 p-4 shadow-sm ring-1 ring-gray-100 sm:p-5">
+                    <div className="flex items-center justify-between gap-2">
+                      <div>
+                        <h2 className="text-sm font-semibold text-gray-900">
+                          Subscription
+                        </h2>
+                        <p className="mt-1 text-xs text-gray-500">
+                          Plan details, expiry date, and renewal controls.
+                        </p>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Button variant="outline" size="sm">
+                          Change plan
+                        </Button>
+                        <Button variant="primary" size="sm">
+                          Renew
+                        </Button>
+                      </div>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <Button variant="outline" size="sm">
-                        Change plan
-                      </Button>
-                      <Button variant="primary" size="sm">
-                        Renew
-                      </Button>
-                    </div>
-                  </div>
 
-                  <dl className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-                    <div className="rounded-xl bg-slate-50 p-4 ring-1 ring-gray-100">
-                      <dt className="text-[11px] font-medium uppercase tracking-[0.14em] text-gray-400">
-                        Plan name
-                      </dt>
-                      <dd className="mt-1 text-sm font-semibold text-gray-900">
-                        {subscription.planName}
-                      </dd>
-                    </div>
-                    <div className="rounded-xl bg-slate-50 p-4 ring-1 ring-gray-100">
-                      <dt className="text-[11px] font-medium uppercase tracking-[0.14em] text-gray-400">
-                        Subscription start
-                      </dt>
-                      <dd className="mt-1 text-sm font-semibold text-gray-900">
-                        {subscription.startDate}
-                      </dd>
-                    </div>
-                    <div className="rounded-xl bg-slate-50 p-4 ring-1 ring-gray-100">
-                      <dt className="text-[11px] font-medium uppercase tracking-[0.14em] text-gray-400">
-                        Expiry date
-                      </dt>
-                      <dd className="mt-1 text-sm font-semibold text-gray-900">
-                        {subscription.expiryDate}
-                      </dd>
-                    </div>
-                    <div className="rounded-xl bg-slate-50 p-4 ring-1 ring-gray-100">
-                      <dt className="text-[11px] font-medium uppercase tracking-[0.14em] text-gray-400">
-                        Billing status
-                      </dt>
-                      <dd className="mt-1 inline-flex items-center gap-1.5 text-sm font-semibold text-emerald-700">
-                        <ShieldCheck className="h-4 w-4" />
-                        {subscription.billingStatus}
-                      </dd>
-                    </div>
-                  </dl>
-                </section>
-              )}
+                    <dl className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                      <div className="rounded-xl bg-slate-50 p-4 ring-1 ring-gray-100">
+                        <dt className="text-[11px] font-medium uppercase tracking-[0.14em] text-gray-400">
+                          Plan name
+                        </dt>
+                        <dd className="mt-1 text-sm font-semibold text-gray-900">
+                          {subscription.planName}
+                        </dd>
+                      </div>
+                      <div className="rounded-xl bg-slate-50 p-4 ring-1 ring-gray-100">
+                        <dt className="text-[11px] font-medium uppercase tracking-[0.14em] text-gray-400">
+                          Subscription start
+                        </dt>
+                        <dd className="mt-1 text-sm font-semibold text-gray-900">
+                          {subscription.startDate}
+                        </dd>
+                      </div>
+                      <div className="rounded-xl bg-slate-50 p-4 ring-1 ring-gray-100">
+                        <dt className="text-[11px] font-medium uppercase tracking-[0.14em] text-gray-400">
+                          Expiry date
+                        </dt>
+                        <dd className="mt-1 text-sm font-semibold text-gray-900">
+                          {subscription.expiryDate}
+                        </dd>
+                      </div>
+                      <div className="rounded-xl bg-slate-50 p-4 ring-1 ring-gray-100">
+                        <dt className="text-[11px] font-medium uppercase tracking-[0.14em] text-gray-400">
+                          Billing status
+                        </dt>
+                        <dd className="mt-1 inline-flex items-center gap-1.5 text-sm font-semibold text-emerald-700">
+                          <ShieldCheck className="h-4 w-4" />
+                          {subscription.billingStatus}
+                        </dd>
+                      </div>
+                    </dl>
+                  </section>
 
-              {activeTab === "billing" && (
-                <section className="rounded-2xl bg-white/80 p-4 shadow-sm ring-1 ring-gray-100 sm:p-5">
-                  <div className="flex items-center justify-between gap-2">
-                    <div>
-                      <h2 className="text-sm font-semibold text-gray-900">
-                        Billing & Payments
-                      </h2>
-                      <p className="mt-1 text-xs text-gray-500">
-                        Invoices, payment history, and billing settings.
-                      </p>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Button variant="outline" size="sm" className="gap-1.5">
-                        <CreditCard className="h-4 w-4" />
-                        Add payment method
-                      </Button>
-                      <Button variant="primary" size="sm" className="gap-1.5">
-                        <FileText className="h-4 w-4" />
-                        Create invoice
-                      </Button>
-                    </div>
-                  </div>
-
-                  <div className="mt-5 overflow-hidden rounded-2xl ring-1 ring-gray-100">
-                    <div className="grid grid-cols-4 bg-gray-50 px-4 py-3 text-xs font-semibold text-gray-600">
-                      <span>Invoice</span>
-                      <span>Date</span>
-                      <span>Amount</span>
-                      <span className="text-right">Status</span>
-                    </div>
-                    <div className="divide-y divide-gray-100 bg-white">
-                      {billingHistory.map((b) => (
-                        <div key={b.id} className="grid grid-cols-4 items-center gap-3 px-4 py-3">
-                          <span className="text-sm font-semibold text-gray-900">{b.id}</span>
-                          <span className="text-sm text-gray-600">{b.date}</span>
-                          <span className="text-sm text-gray-600">{b.amount}</span>
-                          <div className="flex items-center justify-end gap-2">
-                            <span className="rounded-full bg-emerald-50 px-2.5 py-0.5 text-[11px] font-medium text-emerald-700">
-                              {b.status}
-                            </span>
-                            <Button variant="outline" size="sm">
-                              Download
-                            </Button>
-                          </div>
+                  <section className="rounded-2xl bg-white/80 p-4 shadow-sm ring-1 ring-gray-100 sm:p-5">
+                    <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                      <div>
+                        <h2 className="text-sm font-semibold text-gray-900">
+                          Billing & Payments History
+                        </h2>
+                        <p className="mt-1 text-xs text-gray-500">
+                          Subscription billing history including upgrades, add-ons, and refunds.
+                        </p>
+                      </div>
+                      <div className="grid w-full gap-2 sm:w-auto sm:grid-cols-3 sm:gap-3">
+                        <div className="rounded-xl bg-slate-50 px-4 py-3 ring-1 ring-gray-100">
+                          <p className="text-[11px] font-medium uppercase tracking-[0.14em] text-gray-400">
+                            Total paid
+                          </p>
+                          <p className="mt-1 text-sm font-semibold text-gray-900">
+                            ₹ {billingSummary.totalPaidInr.toLocaleString("en-IN")}
+                          </p>
                         </div>
-                      ))}
+                        <div className="rounded-xl bg-slate-50 px-4 py-3 ring-1 ring-gray-100">
+                          <p className="text-[11px] font-medium uppercase tracking-[0.14em] text-gray-400">
+                            Last payment
+                          </p>
+                          <p className="mt-1 text-sm font-semibold text-gray-900">
+                            {billingSummary.lastPayment
+                              ? `${billingSummary.lastPayment.date} • ₹ ${billingSummary.lastPayment.amountInr.toLocaleString(
+                                  "en-IN"
+                                )}`
+                              : "—"}
+                          </p>
+                        </div>
+                        <div className="rounded-xl bg-slate-50 px-4 py-3 ring-1 ring-gray-100">
+                          <p className="text-[11px] font-medium uppercase tracking-[0.14em] text-gray-400">
+                            Next billing
+                          </p>
+                          <p className="mt-1 text-sm font-semibold text-gray-900">
+                            {billingSummary.nextBillingDate}
+                          </p>
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                </section>
+
+                    <div className="mt-5 overflow-hidden rounded-2xl ring-1 ring-gray-100">
+                      <div className="grid grid-cols-7 bg-gray-50 px-4 py-3 text-xs font-semibold text-gray-600">
+                        <span>Invoice</span>
+                        <span className="col-span-2">Item / plan</span>
+                        <span>Cycle</span>
+                        <span>Method</span>
+                        <span>Amount</span>
+                        <span className="text-right">Status</span>
+                      </div>
+                      <div className="divide-y divide-gray-100 bg-white">
+                        {subscriptionBillingHistory.map((r) => (
+                          <div
+                            key={r.invoiceId}
+                            className="grid grid-cols-7 items-center gap-3 px-4 py-3"
+                          >
+                            <div className="min-w-0">
+                              <p className="truncate text-sm font-semibold text-gray-900">
+                                {r.invoiceId}
+                              </p>
+                              <p className="text-xs text-gray-500">{r.date}</p>
+                            </div>
+                            <div className="col-span-2 min-w-0">
+                              <p className="truncate text-sm text-gray-700">
+                                {r.itemName}
+                              </p>
+                            </div>
+                            <span className="text-sm text-gray-600">{r.cycle}</span>
+                            <span className="text-sm text-gray-600">{r.method}</span>
+                            <span className="text-sm text-gray-700">
+                              ₹ {Math.abs(r.amountInr).toLocaleString("en-IN")}
+                            </span>
+                            <div className="flex items-center justify-end gap-2">
+                              <span
+                                className={
+                                  "rounded-full px-2.5 py-0.5 text-[11px] font-medium " +
+                                  (r.status === "Paid"
+                                    ? "bg-emerald-50 text-emerald-700"
+                                    : r.status === "Pending"
+                                    ? "bg-amber-50 text-amber-700"
+                                    : r.status === "Refunded"
+                                    ? "bg-sky-50 text-sky-700"
+                                    : "bg-rose-50 text-rose-700")
+                                }
+                              >
+                                {r.status}
+                              </span>
+                              <Button variant="outline" size="sm">
+                                Download
+                              </Button>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </section>
+                </div>
               )}
 
               {activeTab === "usage" && (
