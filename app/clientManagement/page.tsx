@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { SideBar } from "@/components/sideBar";
 import { TopBar } from "@/components/topBar";
@@ -44,6 +44,8 @@ type Client = {
   status: ClientStatus;
   joinDate: string;
 };
+
+const CLIENTS_STORAGE_KEY = "super-admin.clients.v1";
 
 const initialClients: Client[] = [
   {
@@ -109,6 +111,13 @@ const initialClients: Client[] = [
 ];
 
 const clientColumns: Column<Client>[] = [
+  {
+    key: "id",
+    label: "Sr No.",
+    render: (_row, index) => (
+      <span className="text-xs text-gray-500">{index + 1}</span>
+    ),
+  },
   { key: "clientName", label: "Client Name" },
   { key: "websiteDomain", label: "Website Domain" },
   { key: "brandName", label: "Brand Name" },
@@ -126,7 +135,17 @@ const clientColumns: Column<Client>[] = [
 
 export default function ClientManagement() {
   const router = useRouter();
-  const [clients, setClients] = useState<Client[]>(initialClients);
+  const [clients, setClients] = useState<Client[]>(() => {
+    if (typeof window === "undefined") return initialClients;
+    try {
+      const raw = window.localStorage.getItem(CLIENTS_STORAGE_KEY);
+      if (!raw) return initialClients;
+      const parsed = JSON.parse(raw) as Client[];
+      return Array.isArray(parsed) ? parsed : initialClients;
+    } catch {
+      return initialClients;
+    }
+  });
   const [statusFilter, setStatusFilter] = useState<"All" | ClientStatus>("All");
   const [planFilter, setPlanFilter] = useState<"All" | ClientPlan>("All");
 
@@ -155,6 +174,14 @@ export default function ClientManagement() {
     subscriptionDuration: "12 months",
     status: "Active" as ClientStatus,
   });
+
+  useEffect(() => {
+    try {
+      window.localStorage.setItem(CLIENTS_STORAGE_KEY, JSON.stringify(clients));
+    } catch {
+      // ignore storage errors (e.g. private mode)
+    }
+  }, [clients]);
 
   const filteredClients = useMemo(() => {
     return clients.filter((client) => {
@@ -655,6 +682,9 @@ export default function ClientManagement() {
                 title="Clients"
                 columns={clientColumns}
                 data={filteredClients}
+                onRowClick={(row) => {
+                  router.push(`/clientManagement/clientDetails?id=${row.id}`);
+                }}
                 pageSize={8}
                 searchPlaceholder="Search within listed clients..."
                 hideFiltersButton
@@ -691,7 +721,7 @@ export default function ClientManagement() {
                   <>
                     <DropdownMenuItem
                       onClick={() =>
-                        router.push("/clientManagement/clientDetails")
+                        router.push(`/clientManagement/clientDetails?id=${row.id}`)
                       }
                       className="flex items-center gap-2 text-[13px] text-slate-900 hover:bg-gray-50"
                     >

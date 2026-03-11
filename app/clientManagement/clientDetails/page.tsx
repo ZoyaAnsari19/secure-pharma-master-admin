@@ -19,6 +19,8 @@ import {
   Wallet,
 } from "lucide-react";
 import Link from "next/link";
+import { useMemo } from "react";
+import { useSearchParams } from "next/navigation";
 import {
   Bar,
   BarChart,
@@ -39,19 +41,38 @@ const salesPerformanceData = [
 ];
 
 export default function ClientDetailsPage() {
-  const clientName = "Glow Studio Mumbai";
-  const companyName = "True Beauty Glow Studio";
-  const domain = "mumbai.glow.truebeauty.in";
-  const plan = "Premium";
-  const status: "Active" | "Suspended" | "Expiring" | "Inactive" = "Active";
+  const searchParams = useSearchParams();
+  const idParam = searchParams.get("id");
+
+  const client = useMemo(() => {
+    if (!idParam) return null;
+    const id = Number(idParam);
+    if (!Number.isFinite(id)) return null;
+    try {
+      const raw = window.localStorage.getItem("super-admin.clients.v1");
+      if (!raw) return null;
+      const parsed = JSON.parse(raw) as Array<any>;
+      if (!Array.isArray(parsed)) return null;
+      return parsed.find((c) => Number(c?.id) === id) ?? null;
+    } catch {
+      return null;
+    }
+  }, [idParam]);
+
+  const clientName = client?.clientName ?? "Client";
+  const companyName = client?.brandName ?? "—";
+  const domain = client?.websiteDomain ?? "—";
+  const plan = client?.plan ?? "—";
+  const status: "Active" | "Suspended" | "Expiring" | "Inactive" =
+    client?.status ?? "Inactive";
 
   const admin = {
-    name: "Priya Sharma",
-    email: "admin@mumbaiglow.in",
-    phone: "+91 98765 43210",
-    location: "Mumbai, India",
-    lastLogin: "Today, 10:24 AM from Mumbai, India",
-    adminUrl: "https://mumbai.glow.truebeauty.in/admin",
+    name: client?.clientName ?? "—",
+    email: client?.adminEmail ?? client?.clientEmail ?? "—",
+    phone: client?.clientPhone ? `+91 ${client.clientPhone}` : "—",
+    location: "—",
+    lastLogin: "—",
+    adminUrl: domain !== "—" ? `https://${domain}/admin` : "#",
   };
 
   const subscription = {
@@ -105,6 +126,16 @@ export default function ClientDetailsPage() {
                   <ArrowLeft className="h-3.5 w-3.5" />
                   Back to clients
                 </Link>
+                {!client && (
+                  <div className="rounded-2xl bg-white/80 p-4 shadow-sm ring-1 ring-rose-100">
+                    <p className="text-sm font-semibold text-gray-900">
+                      Client not found
+                    </p>
+                    <p className="mt-1 text-xs text-gray-500">
+                      Please go back and select a client again.
+                    </p>
+                  </div>
+                )}
                 <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-4">
                   <div>
                     <div className="flex items-center gap-2">
