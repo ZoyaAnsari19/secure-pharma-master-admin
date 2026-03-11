@@ -278,15 +278,46 @@ export default function ClientDetailsPage() {
         <main className="beauty-scroll flex-1 overflow-y-auto">
           <div className="mx-auto w-full max-w-[1400px] space-y-6 p-4 sm:p-6 lg:p-8">
             {/* Header */}
-            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex flex-col gap-4">
               <div className="space-y-3">
-                <Link
-                  href="/clientManagement"
-                  className="inline-flex items-center gap-1.5 text-xs font-medium text-pink-500 hover:text-pink-600"
-                >
-                  <ArrowLeft className="h-3.5 w-3.5" />
-                  Back to clients
-                </Link>
+                <div className="relative flex items-center justify-between gap-2">
+                  <Link
+                    href="/clientManagement"
+                    className="inline-flex items-center gap-1.5 text-xs font-medium text-pink-500 hover:text-pink-600"
+                  >
+                    <ArrowLeft className="h-3.5 w-3.5" />
+                    Back to clients
+                  </Link>
+                  <div className="pointer-events-none absolute left-1/2 top-1/2 flex -translate-x-1/2 -translate-y-1/2 items-center gap-2">
+                    <h1 className="text-xl font-semibold tracking-tight text-gray-900 sm:text-2xl">
+                      {clientName}
+                    </h1>
+                    <span
+                      className={
+                        "inline-flex items-center rounded-full px-2.5 py-0.5 text-[11px] font-medium " +
+                        (status === "Active"
+                          ? "bg-emerald-50 text-emerald-700"
+                          : status === "Suspended"
+                          ? "bg-rose-50 text-rose-700"
+                          : status === "Expiring"
+                          ? "bg-amber-50 text-amber-700"
+                          : "bg-slate-50 text-slate-600")
+                      }
+                    >
+                      {status}
+                    </span>
+                  </div>
+                  <div className="flex flex-wrap items-center justify-end gap-2">
+                    <Button variant="outline" size="sm" className="gap-1.5">
+                      <ExternalLink className="h-3.5 w-3.5" />
+                      Open Website
+                    </Button>
+                    <Button variant="outline" size="sm" className="gap-1.5">
+                      <ShieldCheck className="h-3.5 w-3.5" />
+                      Open Admin Panel
+                    </Button>
+                  </div>
+                </div>
                 {hasMounted && !client && (
                   <div className="rounded-2xl bg-white/80 p-4 shadow-sm ring-1 ring-rose-100">
                     <p className="text-sm font-semibold text-gray-900">
@@ -297,53 +328,17 @@ export default function ClientDetailsPage() {
                     </p>
                   </div>
                 )}
-                <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-4">
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <h1 className="text-xl font-semibold tracking-tight text-gray-900 sm:text-2xl">
-                        {clientName}
-                      </h1>
-                      <span
-                        className={
-                          "inline-flex items-center rounded-full px-2.5 py-0.5 text-[11px] font-medium " +
-                          (status === "Active"
-                            ? "bg-emerald-50 text-emerald-700"
-                            : status === "Suspended"
-                            ? "bg-rose-50 text-rose-700"
-                            : status === "Expiring"
-                            ? "bg-amber-50 text-amber-700"
-                            : "bg-slate-50 text-slate-600")
-                        }
-                      >
-                        {status}
-                      </span>
-                    </div>
-                    <p className="mt-0.5 text-xs font-medium text-gray-500">
-                      {companyName}
-                    </p>
-                    <div className="mt-2 flex flex-wrap items-center gap-3 text-xs text-gray-500">
-                      <span className="inline-flex items-center gap-1.5 rounded-full bg-white px-2.5 py-1 text-[11px] text-gray-600 ring-1 ring-gray-100">
-                        <Globe2 className="h-3.5 w-3.5 text-pink-500" />
-                        {domain}
-                      </span>
-                      <span className="inline-flex items-center gap-1.5 rounded-full bg-pink-50 px-2.5 py-1 text-[11px] font-medium text-pink-700 ring-1 ring-pink-100">
-                        <ShieldCheck className="h-3.5 w-3.5" />
-                        {plan} Plan
-                      </span>
-                    </div>
-                  </div>
+                <div className="mt-2 flex flex-wrap items-center gap-3 text-xs text-gray-500">
+                  <p className="text-xs font-medium text-gray-800">{companyName}</p>
+                  <span className="inline-flex items-center gap-1.5 rounded-full bg-white px-2.5 py-1 text-[11px] text-gray-600 ring-1 ring-gray-100">
+                    <Globe2 className="h-3.5 w-3.5 text-pink-500" />
+                    {domain}
+                  </span>
+                  <span className="inline-flex items-center gap-1.5 rounded-full bg-pink-50 px-2.5 py-1 text-[11px] font-medium text-pink-700 ring-1 ring-pink-100">
+                    <ShieldCheck className="h-3.5 w-3.5" />
+                    {plan} Plan
+                  </span>
                 </div>
-              </div>
-              {/* Quick actions */}
-              <div className="flex flex-wrap items-center justify-start gap-2 sm:justify-end">
-                <Button variant="outline" size="sm" className="gap-1.5">
-                  <ExternalLink className="h-3.5 w-3.5" />
-                  Open Website
-                </Button>
-                <Button variant="outline" size="sm" className="gap-1.5">
-                  <ShieldCheck className="h-3.5 w-3.5" />
-                  Open Admin Panel
-                </Button>
               </div>
             </div>
 

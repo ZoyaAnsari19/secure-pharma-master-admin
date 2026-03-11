@@ -120,6 +120,9 @@ export type DataTableProps<T> = {
   searchPlaceholder?: string;
   /** Hide the default Filters button when using custom filter UI (e.g. role dropdown) */
   hideFiltersButton?: boolean;
+  /** When true, show a leading Sr No. column based on filtered + paginated index */
+  showIndexColumn?: boolean;
+  indexColumnLabel?: string;
 };
 
 export function DataTable<T extends { id: string | number }>({
@@ -133,6 +136,8 @@ export function DataTable<T extends { id: string | number }>({
   pageSize = 6,
   searchPlaceholder = "Search...",
   hideFiltersButton = false,
+  showIndexColumn = false,
+  indexColumnLabel = "Sr No.",
 }: DataTableProps<T>) {
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
@@ -160,7 +165,7 @@ export function DataTable<T extends { id: string | number }>({
           <CardTitle>{title}</CardTitle>
         </div>
         <div className="flex flex-wrap items-center gap-2">
-          <div className="w-full min-w-[220px] flex-1 sm:w-auto">
+          <div className="w-full min-w-[260px] flex-1 sm:w-auto">
             <Input
               placeholder={searchPlaceholder}
               value={search}
@@ -188,6 +193,11 @@ export function DataTable<T extends { id: string | number }>({
           <Table className="min-w-[640px]">
             <TableHeader>
               <TableRow>
+                {showIndexColumn && (
+                  <TableHead className="w-[70px] whitespace-nowrap text-center">
+                    {indexColumnLabel}
+                  </TableHead>
+                )}
                 {columns.map((col) => (
                   <TableHead key={String(col.key)}>{col.label}</TableHead>
                 ))}
@@ -213,6 +223,11 @@ export function DataTable<T extends { id: string | number }>({
                         : undefined
                     }
                   >
+                    {showIndexColumn && (
+                      <TableCell className="px-4 text-center text-xs text-gray-500">
+                        {absoluteIndex + 1}
+                      </TableCell>
+                    )}
                     {columns.map((col) => (
                       <TableCell key={String(col.key)}>
                         {col.render
@@ -254,7 +269,9 @@ export function DataTable<T extends { id: string | number }>({
                 <TableRow>
                   <TableCell
                     colSpan={
-                      columns.length + (renderActions || renderActionMenuItems ? 1 : 0)
+                      columns.length +
+                      (renderActions || renderActionMenuItems ? 1 : 0) +
+                      (showIndexColumn ? 1 : 0)
                     }
                     className="py-8 text-center text-xs text-slate-400"
                   >

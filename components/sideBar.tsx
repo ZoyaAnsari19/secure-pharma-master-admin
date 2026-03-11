@@ -51,7 +51,7 @@ const sidebarSections: { title: string; items: NavItem[] }[] = [
     items: [
       { label: "Sub Admin Management", icon: <Shield className="h-4 w-4" />, href: "/adminMangement" },
       { label: "Client Management", icon: <Building2 className="h-4 w-4" />, href: "/clientManagement" },
-      { label: "User Management", icon: <Users className="h-4 w-4" /> },
+      { label: "User Management", icon: <Users className="h-4 w-4" />, href: "/userManagement" },
       { label: "Affiliate Users", icon: <Wallet className="h-4 w-4" /> },
     ],
   },

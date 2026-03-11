@@ -160,7 +160,7 @@ export default function Home() {
               <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
                 <div>
                   <h1 className="text-2xl font-semibold tracking-tight text-gray-800">
-                    Admin ✨
+                    Super Admin ✨
                   </h1>
                 </div>
                

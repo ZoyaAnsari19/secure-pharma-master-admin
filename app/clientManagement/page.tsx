@@ -43,6 +43,14 @@ type Client = {
   plan: ClientPlan;
   status: ClientStatus;
   joinDate: string;
+  businessType?: string;
+  industry?: string;
+  teamSize?: string;
+  companyAddress?: string;
+  country?: string;
+  state?: string;
+  city?: string;
+  postalCode?: string;
 };
 
 const CLIENTS_STORAGE_KEY = "super-admin.clients.v1";
@@ -150,6 +158,14 @@ export default function ClientManagement() {
     plan: "Standard" as ClientPlan,
     subscriptionDuration: "12 months",
     status: "Active" as ClientStatus,
+     businessType: "",
+     industry: "",
+     teamSize: "",
+     companyAddress: "",
+     country: "India",
+     state: "",
+     city: "",
+     postalCode: "",
   });
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [editingClient, setEditingClient] = useState<Client | null>(null);
@@ -163,6 +179,14 @@ export default function ClientManagement() {
     plan: "Standard" as ClientPlan,
     subscriptionDuration: "12 months",
     status: "Active" as ClientStatus,
+    businessType: "",
+    industry: "",
+    teamSize: "",
+    companyAddress: "",
+    country: "India",
+    state: "",
+    city: "",
+    postalCode: "",
   });
 
   useEffect(() => {
@@ -223,6 +247,14 @@ export default function ClientManagement() {
       plan: formState.plan,
       status: formState.status,
       joinDate: new Date().toISOString().slice(0, 10),
+      businessType: formState.businessType,
+      industry: formState.industry,
+      teamSize: formState.teamSize,
+      companyAddress: formState.companyAddress,
+      country: formState.country,
+      state: formState.state,
+      city: formState.city,
+      postalCode: formState.postalCode,
     };
 
     setClients((prev) => [newClient, ...prev]);
@@ -237,6 +269,14 @@ export default function ClientManagement() {
       plan: "Standard",
       subscriptionDuration: "12 months",
       status: "Active",
+      businessType: "",
+      industry: "",
+      teamSize: "",
+      companyAddress: "",
+      country: "India",
+      state: "",
+      city: "",
+      postalCode: "",
     });
   };
 
@@ -252,6 +292,14 @@ export default function ClientManagement() {
       plan: client.plan,
       subscriptionDuration: "12 months",
       status: client.status,
+      businessType: client.businessType || "",
+      industry: client.industry || "",
+      teamSize: client.teamSize || "",
+      companyAddress: client.companyAddress || "",
+      country: client.country || "India",
+      state: client.state || "",
+      city: client.city || "",
+      postalCode: client.postalCode || "",
     });
     setEditDialogOpen(true);
   };
@@ -271,6 +319,14 @@ export default function ClientManagement() {
               adminEmail: editForm.clientEmail,
               plan: editForm.plan,
               status: editForm.status,
+              businessType: editForm.businessType,
+              industry: editForm.industry,
+              teamSize: editForm.teamSize,
+              companyAddress: editForm.companyAddress,
+              country: editForm.country,
+              state: editForm.state,
+              city: editForm.city,
+              postalCode: editForm.postalCode,
             }
           : c
       )
@@ -452,6 +508,143 @@ export default function ClientManagement() {
                             <option value="Expiring">Expiring</option>
                           </select>
                         </div>
+                        <div className="mt-2 border-t border-gray-100 pt-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-gray-400">
+                          Company details
+                        </div>
+                        <div className="grid gap-4 sm:grid-cols-2">
+                          <div>
+                            <label className="mb-1.5 block text-xs font-medium text-gray-600">
+                              Business Type
+                            </label>
+                            <select
+                              value={formState.businessType}
+                              onChange={(e) =>
+                                setFormState((prev) => ({
+                                  ...prev,
+                                  businessType: e.target.value,
+                                }))
+                              }
+                              className="h-9 w-full rounded-full border border-pink-100 bg-white px-4 text-sm text-slate-700 focus:border-pink-300 focus:outline-none focus:ring-2 focus:ring-pink-100"
+                            >
+                              <option value="">Select business type</option>
+                              <option value="E-commerce">E-commerce</option>
+                              <option value="Retail Store">Retail Store</option>
+                              <option value="Brand/Manufacturer">Brand/Manufacturer</option>
+                              <option value="Other">Other</option>
+                            </select>
+                          </div>
+                          <div>
+                            <label className="mb-1.5 block text-xs font-medium text-gray-600">
+                              Industry
+                            </label>
+                            <Input
+                              placeholder="e.g. Beauty & Wellness"
+                              value={formState.industry}
+                              onChange={(e) =>
+                                setFormState((prev) => ({
+                                  ...prev,
+                                  industry: e.target.value,
+                                }))
+                              }
+                            />
+                          </div>
+                          <div>
+                            <label className="mb-1.5 block text-xs font-medium text-gray-600">
+                              Team Size
+                            </label>
+                            <select
+                              value={formState.teamSize}
+                              onChange={(e) =>
+                                setFormState((prev) => ({
+                                  ...prev,
+                                  teamSize: e.target.value,
+                                }))
+                              }
+                              className="h-9 w-full rounded-full border border-pink-100 bg-white px-4 text-sm text-slate-700 focus:border-pink-300 focus:outline-none focus:ring-2 focus:ring-pink-100"
+                            >
+                              <option value="">Select team size</option>
+                              <option value="1-5 employees">1-5 employees</option>
+                              <option value="6-20 employees">6-20 employees</option>
+                              <option value="21-100 employees">21-100 employees</option>
+                              <option value="100+ employees">100+ employees</option>
+                            </select>
+                          </div>
+                          <div>
+                            <label className="mb-1.5 block text-xs font-medium text-gray-600">
+                              Company Address
+                            </label>
+                            <Input
+                              placeholder="Street, area, landmark"
+                              value={formState.companyAddress}
+                              onChange={(e) =>
+                                setFormState((prev) => ({
+                                  ...prev,
+                                  companyAddress: e.target.value,
+                                }))
+                              }
+                            />
+                          </div>
+                          <div>
+                            <label className="mb-1.5 block text-xs font-medium text-gray-600">
+                              Country
+                            </label>
+                            <Input
+                              placeholder="e.g. India"
+                              value={formState.country}
+                              onChange={(e) =>
+                                setFormState((prev) => ({
+                                  ...prev,
+                                  country: e.target.value,
+                                }))
+                              }
+                            />
+                          </div>
+                          <div>
+                            <label className="mb-1.5 block text-xs font-medium text-gray-600">
+                              State
+                            </label>
+                            <Input
+                              placeholder="e.g. Maharashtra"
+                              value={formState.state}
+                              onChange={(e) =>
+                                setFormState((prev) => ({
+                                  ...prev,
+                                  state: e.target.value,
+                                }))
+                              }
+                            />
+                          </div>
+                          <div>
+                            <label className="mb-1.5 block text-xs font-medium text-gray-600">
+                              City
+                            </label>
+                            <Input
+                              placeholder="e.g. Mumbai"
+                              value={formState.city}
+                              onChange={(e) =>
+                                setFormState((prev) => ({
+                                  ...prev,
+                                  city: e.target.value,
+                                }))
+                              }
+                            />
+                          </div>
+                          <div>
+                            <label className="mb-1.5 block text-xs font-medium text-gray-600">
+                              Postal Code
+                            </label>
+                            <Input
+                              placeholder="e.g. 400001"
+                              value={formState.postalCode}
+                              onChange={(e) =>
+                                setFormState((prev) => ({
+                                  ...prev,
+                                  postalCode: e.target.value,
+                                }))
+                              }
+                            />
+                          </div>
+                        </div>
                         <SideDrawerFooter>
                           <Button
                             type="button"
@@ -625,6 +818,143 @@ export default function ClientManagement() {
                               <option value="Suspended">Suspended</option>
                               <option value="Expiring">Expiring</option>
                             </select>
+                          </div>
+                          <div className="mt-2 border-t border-gray-100 pt-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-gray-400">
+                            Company details
+                          </div>
+                          <div className="grid gap-4 sm:grid-cols-2">
+                            <div>
+                              <label className="mb-1.5 block text-xs font-medium text-gray-600">
+                                Business Type
+                              </label>
+                              <select
+                                value={editForm.businessType}
+                                onChange={(e) =>
+                                  setEditForm((prev) => ({
+                                    ...prev,
+                                    businessType: e.target.value,
+                                  }))
+                                }
+                                className="h-9 w-full rounded-full border border-pink-100 bg-white px-4 text-sm text-slate-700 focus:border-pink-300 focus:outline-none focus:ring-2 focus:ring-pink-100"
+                              >
+                                <option value="">Select business type</option>
+                                <option value="E-commerce">E-commerce</option>
+                                <option value="Retail Store">Retail Store</option>
+                                <option value="Brand/Manufacturer">Brand/Manufacturer</option>
+                                <option value="Other">Other</option>
+                              </select>
+                            </div>
+                            <div>
+                              <label className="mb-1.5 block text-xs font-medium text-gray-600">
+                                Industry
+                              </label>
+                              <Input
+                                placeholder="e.g. Beauty & Wellness"
+                                value={editForm.industry}
+                                onChange={(e) =>
+                                  setEditForm((prev) => ({
+                                    ...prev,
+                                    industry: e.target.value,
+                                  }))
+                                }
+                              />
+                            </div>
+                            <div>
+                              <label className="mb-1.5 block text-xs font-medium text-gray-600">
+                                Team Size
+                              </label>
+                              <select
+                                value={editForm.teamSize}
+                                onChange={(e) =>
+                                  setEditForm((prev) => ({
+                                    ...prev,
+                                    teamSize: e.target.value,
+                                  }))
+                                }
+                                className="h-9 w-full rounded-full border border-pink-100 bg-white px-4 text-sm text-slate-700 focus:border-pink-300 focus:outline-none focus:ring-2 focus:ring-pink-100"
+                              >
+                                <option value="">Select team size</option>
+                                <option value="1-5 employees">1-5 employees</option>
+                                <option value="6-20 employees">6-20 employees</option>
+                                <option value="21-100 employees">21-100 employees</option>
+                                <option value="100+ employees">100+ employees</option>
+                              </select>
+                            </div>
+                            <div>
+                              <label className="mb-1.5 block text-xs font-medium text-gray-600">
+                                Company Address
+                              </label>
+                              <Input
+                                placeholder="Street, area, landmark"
+                                value={editForm.companyAddress}
+                                onChange={(e) =>
+                                  setEditForm((prev) => ({
+                                    ...prev,
+                                    companyAddress: e.target.value,
+                                  }))
+                                }
+                              />
+                            </div>
+                            <div>
+                              <label className="mb-1.5 block text-xs font-medium text-gray-600">
+                                Country
+                              </label>
+                              <Input
+                                placeholder="e.g. India"
+                                value={editForm.country}
+                                onChange={(e) =>
+                                  setEditForm((prev) => ({
+                                    ...prev,
+                                    country: e.target.value,
+                                  }))
+                                }
+                              />
+                            </div>
+                            <div>
+                              <label className="mb-1.5 block text-xs font-medium text-gray-600">
+                                State
+                              </label>
+                              <Input
+                                placeholder="e.g. Maharashtra"
+                                value={editForm.state}
+                                onChange={(e) =>
+                                  setEditForm((prev) => ({
+                                    ...prev,
+                                    state: e.target.value,
+                                  }))
+                                }
+                              />
+                            </div>
+                            <div>
+                              <label className="mb-1.5 block text-xs font-medium text-gray-600">
+                                City
+                              </label>
+                              <Input
+                                placeholder="e.g. Mumbai"
+                                value={editForm.city}
+                                onChange={(e) =>
+                                  setEditForm((prev) => ({
+                                    ...prev,
+                                    city: e.target.value,
+                                  }))
+                                }
+                              />
+                            </div>
+                            <div>
+                              <label className="mb-1.5 block text-xs font-medium text-gray-600">
+                                Postal Code
+                              </label>
+                              <Input
+                                placeholder="e.g. 400001"
+                                value={editForm.postalCode}
+                                onChange={(e) =>
+                                  setEditForm((prev) => ({
+                                    ...prev,
+                                    postalCode: e.target.value,
+                                  }))
+                                }
+                              />
+                            </div>
                           </div>
                           <SideDrawerFooter>
                             <Button
