@@ -164,19 +164,19 @@ export default function AdminManagementPage() {
     const roles = new Set(admins.map((a) => a.role)).size;
     return [
       {
-        title: "Total Admins",
+        title: "Total Sub Admins",
         value: admins.length,
         delta: "On platform",
         icon: <Shield className="h-4 w-4" />,
       },
       {
-        title: "Active Admins",
+        title: "Active Sub Admins",
         value: active,
         delta: "Currently active",
         icon: <UserCheck className="h-4 w-4" />,
       },
       {
-        title: "Suspended",
+        title: "Suspended Sub Admins",
         value: suspended,
         delta: "Access revoked",
         icon: <UserX className="h-4 w-4" />,
@@ -546,10 +546,10 @@ export default function AdminManagementPage() {
               </SideDrawerContent>
             </SideDrawer>
             <DataTable<AdminRow>
-              title="Admins"
+              title="Sub Admins"
               columns={adminColumns}
               data={filteredByRole}
-              searchPlaceholder="Search admins..."
+              searchPlaceholder="Search sub admins..."
               pageSize={8}
               hideFiltersButton
               rightHeader={
