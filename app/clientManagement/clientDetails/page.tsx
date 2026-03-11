@@ -344,9 +344,6 @@ export default function ClientDetailsPage() {
                   <ShieldCheck className="h-3.5 w-3.5" />
                   Open Admin Panel
                 </Button>
-                <Button variant="primary" size="sm" className="gap-1.5">
-                  Edit Client
-                </Button>
               </div>
             </div>
 

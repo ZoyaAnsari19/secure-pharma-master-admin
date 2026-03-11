@@ -177,7 +177,9 @@ export function SideBar({ onOpenChange }: SideBarProps) {
             )}
             <div className="space-y-1">
               {section.items.map((item) => {
-                const isActive = item.href ? pathname === item.href : false;
+                const isActive = item.href
+                  ? pathname === item.href || pathname.startsWith(item.href + "/")
+                  : false;
                 const content = (
                   <>
                     <span
