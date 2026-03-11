@@ -35,7 +35,7 @@ const SideDrawerContent = React.forwardRef<
     <DialogPrimitive.Content
       ref={ref}
       className={cn(
-        "fixed inset-y-0 right-0 z-50 flex h-full w-full max-w-md flex-col border-l border-gray-100 bg-white p-6 shadow-2xl duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:slide-out-to-right data-[state=open]:slide-in-from-right",
+        "fixed inset-y-0 right-0 z-50 flex h-full w-full max-w-lg flex-col border-l border-gray-100 bg-white px-6 pb-6 pt-0 shadow-2xl duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:slide-out-to-right data-[state=open]:slide-in-from-right",
         className
       )}
       {...props}
@@ -63,7 +63,7 @@ const SideDrawerHeader = ({
 }: React.HTMLAttributes<HTMLDivElement>) => (
   <div
     className={cn(
-      "mb-4 flex flex-col space-y-1.5 border-b border-gray-100 pb-4 text-left",
+      "mb-4 -mx-6 flex flex-col justify-center space-y-1.5 border-b border-gray-200 bg-pink-50 px-6 py-4 text-left",
       className
     )}
     {...props}
@@ -89,7 +89,7 @@ const SideDrawerTitle = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <DialogPrimitive.Title
     ref={ref}
-    className={cn("text-lg font-semibold text-gray-900", className)}
+    className={cn("text-2xl font-semibold text-gray-900", className)}
     {...props}
   />
 ));
