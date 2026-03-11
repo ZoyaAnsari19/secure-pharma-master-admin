@@ -38,6 +38,7 @@ type AdminRow = {
   id: number;
   name: string;
   email: string;
+  phone: string;
   role: string;
   permissions: string[];
   status: "Active" | "Suspended";
@@ -51,6 +52,7 @@ const initialAdmins: AdminRow[] = [
     id: 1,
     name: "Priya Sharma",
     email: "priya@truebeauty.in",
+    phone: "9876543210",
     role: "Super Admin",
     permissions: ["Users", "Orders", "Settings"],
     status: "Active",
@@ -60,6 +62,7 @@ const initialAdmins: AdminRow[] = [
     id: 2,
     name: "Ankit Verma",
     email: "ankit@truebeauty.in",
+    phone: "9123456789",
     role: "Operations",
     permissions: ["Orders", "Inventory"],
     status: "Active",
@@ -69,6 +72,7 @@ const initialAdmins: AdminRow[] = [
     id: 3,
     name: "Sara Khan",
     email: "sara@truebeauty.in",
+    phone: "9988776655",
     role: "Marketing",
     permissions: ["Campaigns", "Analytics"],
     status: "Suspended",
@@ -78,6 +82,7 @@ const initialAdmins: AdminRow[] = [
     id: 4,
     name: "Rahul Jain",
     email: "rahul@truebeauty.in",
+    phone: "8765432109",
     role: "Support",
     permissions: ["Tickets", "Users"],
     status: "Active",
@@ -87,6 +92,7 @@ const initialAdmins: AdminRow[] = [
     id: 5,
     name: "Divya Mehta",
     email: "divya@truebeauty.in",
+    phone: "7654321098",
     role: "Finance",
     permissions: ["Payments", "Reports"],
     status: "Active",
@@ -104,6 +110,7 @@ const adminColumns: Column<AdminRow>[] = [
   },
   { key: "name", label: "Admin Name" },
   { key: "email", label: "Email" },
+  { key: "phone", label: "Phone" },
   { key: "role", label: "Role" },
   {
     key: "permissions",
@@ -141,7 +148,7 @@ export default function AdminManagementPage() {
   const [form, setForm] = useState({
     fullName: "",
     email: "",
-    password: "",
+    phone: "",
     role: "Operations",
     permissions: "" as string,
     status: "Active" as "Active" | "Suspended",
@@ -190,6 +197,7 @@ export default function AdminManagementPage() {
       id: admins.length + 1,
       name: form.fullName,
       email: form.email,
+      phone: form.phone,
       role: form.role,
       permissions: form.permissions ? form.permissions.split(",").map((p) => p.trim()) : [],
       status: form.status,
@@ -199,7 +207,7 @@ export default function AdminManagementPage() {
     setForm({
       fullName: "",
       email: "",
-      password: "",
+      phone: "",
       role: "Operations",
       permissions: "",
       status: "Active",
@@ -220,7 +228,7 @@ export default function AdminManagementPage() {
   const [editForm, setEditForm] = useState({
     fullName: "",
     email: "",
-    password: "",
+    phone: "",
     role: "Operations",
     permissions: "" as string,
     status: "Active" as "Active" | "Suspended",
@@ -231,7 +239,7 @@ export default function AdminManagementPage() {
     setEditForm({
       fullName: admin.name,
       email: admin.email,
-      password: "",
+      phone: admin.phone,
       role: admin.role,
       permissions: admin.permissions.join(", "),
       status: admin.status,
@@ -249,6 +257,7 @@ export default function AdminManagementPage() {
               ...a,
               name: editForm.fullName,
               email: editForm.email,
+              phone: editForm.phone,
               role: editForm.role,
               permissions: editForm.permissions
                 ? editForm.permissions.split(",").map((p) => p.trim())
@@ -319,17 +328,20 @@ export default function AdminManagementPage() {
                         </div>
                         <div>
                           <label className="mb-1.5 block text-xs font-medium text-gray-600">
-                            Password
+                            Phone Number
                           </label>
                           <Input
-                            type="password"
-                            value={form.password}
-                            onChange={(e) =>
-                              setForm((f) => ({ ...f, password: e.target.value }))
-                            }
-                            placeholder="••••••••"
+                            type="tel"
+                            value={form.phone}
+                            onChange={(e) => {
+                              const v = e.target.value.replace(/\D/g, "").slice(0, 10);
+                              setForm((f) => ({ ...f, phone: v }));
+                            }}
+                            placeholder="e.g. 9876543210"
+                            maxLength={10}
                             required
                           />
+                         
                         </div>
                         <div>
                           <label className="mb-1.5 block text-xs font-medium text-gray-600">
@@ -444,19 +456,19 @@ export default function AdminManagementPage() {
                     </div>
                     <div>
                       <label className="mb-1.5 block text-xs font-medium text-gray-600">
-                        Password
+                        Phone Number
                       </label>
                       <Input
-                        type="password"
-                        value={editForm.password}
-                        onChange={(e) =>
-                          setEditForm((f) => ({
-                            ...f,
-                            password: e.target.value,
-                          }))
-                        }
-                        placeholder="Update to reset (optional)"
+                        type="tel"
+                        value={editForm.phone}
+                        onChange={(e) => {
+                          const v = e.target.value.replace(/\D/g, "").slice(0, 10);
+                          setEditForm((f) => ({ ...f, phone: v }));
+                        }}
+                        placeholder="e.g. 9876543210"
+                        maxLength={10}
                       />
+                    
                     </div>
                     <div>
                       <label className="mb-1.5 block text-xs font-medium text-gray-600">
