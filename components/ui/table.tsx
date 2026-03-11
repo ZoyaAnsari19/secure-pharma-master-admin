@@ -113,6 +113,8 @@ export type DataTableProps<T> = {
    * Return menu items (e.g. <DropdownMenuItem />s) from this render function.
    */
   renderActionMenuItems?: (row: T) => ReactNode;
+  /** Optional row click handler, e.g. to open a side drawer with details */
+  onRowClick?: (row: T) => void;
   rightHeader?: ReactNode;
   pageSize?: number;
   searchPlaceholder?: string;
@@ -126,6 +128,7 @@ export function DataTable<T extends { id: string | number }>({
   data,
   renderActions,
   renderActionMenuItems,
+  onRowClick,
   rightHeader,
   pageSize = 6,
   searchPlaceholder = "Search...",
@@ -197,7 +200,19 @@ export function DataTable<T extends { id: string | number }>({
               {items.map((row, rowIndex) => {
                 const absoluteIndex = startIndex + rowIndex;
                 return (
-                  <TableRow key={row.id}>
+                  <TableRow
+                    key={row.id}
+                    className={cn(
+                      onRowClick && "cursor-pointer hover:bg-pink-50/70"
+                    )}
+                    onClick={
+                      onRowClick
+                        ? () => {
+                            onRowClick(row);
+                          }
+                        : undefined
+                    }
+                  >
                     {columns.map((col) => (
                       <TableCell key={String(col.key)}>
                         {col.render
@@ -206,7 +221,12 @@ export function DataTable<T extends { id: string | number }>({
                       </TableCell>
                     ))}
                     {(renderActions || renderActionMenuItems) && (
-                      <TableCell>
+                      <TableCell
+                        onClick={(e) => {
+                          // Prevent row click handler from firing when interacting with actions
+                          e.stopPropagation();
+                        }}
+                      >
                         {renderActionMenuItems ? (
                           <DropdownMenu>
                             <DropdownMenuTrigger asChild>

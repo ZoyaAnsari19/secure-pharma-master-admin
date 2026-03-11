@@ -43,9 +43,9 @@ const SideDrawerContent = React.forwardRef<
       {showClose && (
         <SideDrawerClose asChild>
           <Button
-            variant="ghost"
+            variant="outline"
             size="icon"
-            className="absolute right-4 top-4 h-8 w-8 rounded-full"
+            className="absolute right-4 top-4 h-8 w-8 rounded-full border-pink-200 bg-white/90 text-gray-500 shadow-sm ring-1 ring-pink-200/60 hover:border-pink-300 hover:bg-pink-50 hover:text-gray-700"
           >
             <X className="h-4 w-4" />
           </Button>

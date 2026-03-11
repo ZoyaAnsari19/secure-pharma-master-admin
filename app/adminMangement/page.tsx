@@ -739,6 +739,10 @@ export default function AdminManagementPage() {
               title="Sub Admins"
               columns={adminColumns}
               data={filteredByRole}
+              onRowClick={(row) => {
+                setViewingAdmin(row);
+                setViewModalOpen(true);
+              }}
               searchPlaceholder="Search sub admins..."
               pageSize={8}
               hideFiltersButton
