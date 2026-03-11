@@ -26,6 +26,12 @@ import {
   PauseCircle,
   Trash2,
   Eye,
+  User,
+  Mail,
+  Phone,
+  BadgeCheck,
+  KeyRound,
+  Clock,
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -142,6 +148,8 @@ export default function AdminManagementPage() {
   const [roleFilter, setRoleFilter] = useState("All");
   const [admins, setAdmins] = useState<AdminRow[]>(initialAdmins);
   const [addModalOpen, setAddModalOpen] = useState(false);
+  const [viewModalOpen, setViewModalOpen] = useState(false);
+  const [viewingAdmin, setViewingAdmin] = useState<AdminRow | null>(null);
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [editingAdmin, setEditingAdmin] = useState<AdminRow | null>(null);
   const [form, setForm] = useState({
@@ -408,6 +416,188 @@ export default function AdminManagementPage() {
             </div>
 
             <KpiCards items={kpiItems} />
+            {/* View Admin (read-only) side drawer — modern SaaS layout */}
+            <SideDrawer
+              open={viewModalOpen}
+              onOpenChange={(open) => {
+                setViewModalOpen(open);
+                if (!open) setViewingAdmin(null);
+              }}
+            >
+              <SideDrawerContent className="flex h-full flex-col gap-0 overflow-hidden p-0">
+                <SideDrawerHeader className="mb-0 flex h-16 flex-shrink-0 -mx-6 flex-row items-center border-b border-gray-200 bg-pink-50 px-6 pr-14">
+                  <div className="flex flex-col justify-center gap-0.5">
+                    <SideDrawerTitle className="text-base font-semibold leading-tight text-gray-900">
+                      Admin Details
+                    </SideDrawerTitle>
+                    <p className="text-[11px] font-medium uppercase tracking-wider text-gray-500">
+                      Read-only view
+                    </p>
+                  </div>
+                </SideDrawerHeader>
+                {viewingAdmin && (
+                  <>
+                    <div className="flex-1 min-h-0 overflow-y-auto px-6 py-5">
+                      {/* Profile / Basic info card */}
+                      <section className="rounded-xl border border-gray-100 bg-gray-50/50 p-4 shadow-sm">
+                        <h3 className="mb-4 text-[11px] font-semibold uppercase tracking-wider text-gray-400">
+                          Basic information
+                        </h3>
+                        <div className="space-y-4">
+                          <div className="flex items-start gap-3">
+                            <span className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-pink-100 text-pink-600">
+                              <User className="h-4 w-4" />
+                            </span>
+                            <div className="min-w-0 flex-1">
+                              <p className="text-[11px] font-medium uppercase tracking-wider text-gray-400">
+                                Full name
+                              </p>
+                              <p className="mt-0.5 text-sm font-semibold text-gray-900">
+                                {viewingAdmin.name}
+                              </p>
+                            </div>
+                          </div>
+                          <div className="h-px bg-gray-200/80" />
+                          <div className="flex items-start gap-3">
+                            <span className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-sky-100 text-sky-600">
+                              <Mail className="h-4 w-4" />
+                            </span>
+                            <div className="min-w-0 flex-1">
+                              <p className="text-[11px] font-medium uppercase tracking-wider text-gray-400">
+                                Email
+                              </p>
+                              <p className="mt-0.5 break-all text-sm font-semibold text-gray-900">
+                                {viewingAdmin.email}
+                              </p>
+                            </div>
+                          </div>
+                          <div className="h-px bg-gray-200/80" />
+                          <div className="flex items-start gap-3">
+                            <span className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-emerald-100 text-emerald-600">
+                              <Phone className="h-4 w-4" />
+                            </span>
+                            <div className="min-w-0 flex-1">
+                              <p className="text-[11px] font-medium uppercase tracking-wider text-gray-400">
+                                Phone number
+                              </p>
+                              <p className="mt-0.5 text-sm font-semibold text-gray-900">
+                                {viewingAdmin.phone}
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      </section>
+
+                      <div className="my-4 h-px bg-gray-200/60" />
+
+                      {/* Role & access card */}
+                      <section className="rounded-xl border border-gray-100 bg-gray-50/50 p-4 shadow-sm">
+                        <h3 className="mb-4 text-[11px] font-semibold uppercase tracking-wider text-gray-400">
+                          Role & access
+                        </h3>
+                        <div className="space-y-4">
+                          <div className="flex items-start gap-3">
+                            <span className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-violet-100 text-violet-600">
+                              <BadgeCheck className="h-4 w-4" />
+                            </span>
+                            <div className="min-w-0 flex-1">
+                              <p className="text-[11px] font-medium uppercase tracking-wider text-gray-400">
+                                Role
+                              </p>
+                              <p className="mt-0.5 text-sm font-semibold text-gray-900">
+                                {viewingAdmin.role}
+                              </p>
+                            </div>
+                          </div>
+                          <div className="h-px bg-gray-200/80" />
+                          <div className="flex items-start gap-3">
+                            <span className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-amber-100 text-amber-600">
+                              <KeyRound className="h-4 w-4" />
+                            </span>
+                            <div className="min-w-0 flex-1">
+                              <p className="mb-2 text-[11px] font-medium uppercase tracking-wider text-gray-400">
+                                Permissions
+                              </p>
+                              {viewingAdmin.permissions.length ? (
+                                <div className="flex flex-wrap gap-2">
+                                  {viewingAdmin.permissions.map((perm) => (
+                                    <span
+                                      key={perm}
+                                      className="inline-flex items-center rounded-md bg-pink-100 px-2.5 py-1 text-xs font-medium text-pink-700 ring-1 ring-pink-200/50"
+                                    >
+                                      {perm}
+                                    </span>
+                                  ))}
+                                </div>
+                              ) : (
+                                <p className="text-sm font-medium text-gray-400">—</p>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      </section>
+
+                      <div className="my-4 h-px bg-gray-200/60" />
+
+                      {/* Status & activity card */}
+                      <section className="rounded-xl border border-gray-100 bg-gray-50/50 p-4 shadow-sm">
+                        <h3 className="mb-4 text-[11px] font-semibold uppercase tracking-wider text-gray-400">
+                          Status & activity
+                        </h3>
+                        <div className="space-y-4">
+                          <div className="flex items-center justify-between gap-3">
+                            <p className="text-[11px] font-medium uppercase tracking-wider text-gray-400">
+                              Status
+                            </p>
+                            <span
+                              className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold shadow-sm ${
+                                viewingAdmin.status === "Active"
+                                  ? "bg-emerald-100 text-emerald-800 ring-1 ring-emerald-200/60"
+                                  : "bg-amber-100 text-amber-800 ring-1 ring-amber-200/60"
+                              }`}
+                            >
+                              {viewingAdmin.status === "Active" ? (
+                                <UserCheck className="h-3.5 w-3.5" />
+                              ) : (
+                                <UserX className="h-3.5 w-3.5" />
+                              )}
+                              {viewingAdmin.status}
+                            </span>
+                          </div>
+                          <div className="h-px bg-gray-200/80" />
+                          <div className="flex items-start gap-3">
+                            <span className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-gray-200/80 text-gray-500">
+                              <Clock className="h-4 w-4" />
+                            </span>
+                            <div className="min-w-0 flex-1">
+                              <p className="text-[11px] font-medium uppercase tracking-wider text-gray-400">
+                                Last active
+                              </p>
+                              <p className="mt-0.5 text-sm font-semibold text-gray-900">
+                                {viewingAdmin.lastActive}
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      </section>
+                    </div>
+                    <SideDrawerFooter className="flex-shrink-0 border-t border-gray-200/80 bg-gray-50/80 px-6 py-4">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => {
+                          setViewModalOpen(false);
+                          setViewingAdmin(null);
+                        }}
+                        className="w-full sm:w-auto"
+                      >
+                        Close
+                      </Button>
+                    </SideDrawerFooter>
+                  </>
+                )}
+              </SideDrawerContent>
+            </SideDrawer>
             {/* Edit Admin side drawer (prefilled) */}
             <SideDrawer
               open={editModalOpen}
@@ -579,7 +769,8 @@ export default function AdminManagementPage() {
                   <DropdownMenuContent align="end">
                     <DropdownMenuItem
                       onClick={() => {
-                        // TODO: hook up view behaviour (e.g. navigate or open details)
+                        setViewingAdmin(row);
+                        setViewModalOpen(true);
                       }}
                       className="text-[13px] text-slate-700 hover:bg-pink-50"
                     >
