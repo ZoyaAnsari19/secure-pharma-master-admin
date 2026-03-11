@@ -12,7 +12,6 @@ import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import {
   SideDrawer,
   SideDrawerContent,
-  SideDrawerDescription,
   SideDrawerFooter,
   SideDrawerHeader,
   SideDrawerTitle,
@@ -36,6 +35,8 @@ type ClientPlan = "Basic" | "Standard" | "Premium";
 type Client = {
   id: number;
   clientName: string;
+  clientEmail: string;
+  clientPhone: string;
   websiteDomain: string;
   brandName: string;
   adminEmail: string;
@@ -48,6 +49,8 @@ const initialClients: Client[] = [
   {
     id: 1,
     clientName: "Glow Studio Mumbai",
+    clientEmail: "admin@mumbaiglow.in",
+    clientPhone: "9876543210",
     websiteDomain: "mumbai.glow.truebeauty.in",
     brandName: "True Beauty Glow Studio",
     adminEmail: "admin@mumbaiglow.in",
@@ -58,6 +61,8 @@ const initialClients: Client[] = [
   {
     id: 2,
     clientName: "Blush Hub Delhi",
+    clientEmail: "owner@blushhubdelhi.in",
+    clientPhone: "9123456789",
     websiteDomain: "delhi.blush.truebeauty.in",
     brandName: "True Beauty Blush Hub",
     adminEmail: "owner@blushhubdelhi.in",
@@ -68,6 +73,8 @@ const initialClients: Client[] = [
   {
     id: 3,
     clientName: "SkinCraft Pune",
+    clientEmail: "support@skincraftpune.in",
+    clientPhone: "9988776655",
     websiteDomain: "pune.skincraft.truebeauty.in",
     brandName: "True Beauty SkinCraft",
     adminEmail: "support@skincraftpune.in",
@@ -78,6 +85,8 @@ const initialClients: Client[] = [
   {
     id: 4,
     clientName: "MinimalGlow Bangalore",
+    clientEmail: "hello@minimalglowblr.in",
+    clientPhone: "8765432109",
     websiteDomain: "bangalore.minimal.truebeauty.in",
     brandName: "True Beauty MinimalGlow",
     adminEmail: "hello@minimalglowblr.in",
@@ -88,6 +97,8 @@ const initialClients: Client[] = [
   {
     id: 5,
     clientName: "Radiant Touch Chennai",
+    clientEmail: "admin@radianttouchchennai.in",
+    clientPhone: "7654321098",
     websiteDomain: "chennai.radiant.truebeauty.in",
     brandName: "True Beauty Radiant Touch",
     adminEmail: "admin@radianttouchchennai.in",
@@ -122,10 +133,11 @@ export default function ClientManagement() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [formState, setFormState] = useState({
     clientName: "",
+    clientEmail: "",
+    clientPhone: "",
     websiteDomain: "",
     brandName: "",
     adminEmail: "",
-    adminPassword: "",
     plan: "Standard" as ClientPlan,
     subscriptionDuration: "12 months",
     status: "Active" as ClientStatus,
@@ -134,6 +146,8 @@ export default function ClientManagement() {
   const [editingClient, setEditingClient] = useState<Client | null>(null);
   const [editForm, setEditForm] = useState({
     clientName: "",
+    clientEmail: "",
+    clientPhone: "",
     websiteDomain: "",
     brandName: "",
     adminEmail: "",
@@ -164,9 +178,8 @@ export default function ClientManagement() {
   const handleAddClient = () => {
     if (
       !formState.clientName ||
-      !formState.websiteDomain ||
-      !formState.adminEmail ||
-      !formState.adminPassword
+      !formState.clientEmail ||
+      !formState.websiteDomain
     ) {
       return;
     }
@@ -174,9 +187,11 @@ export default function ClientManagement() {
     const newClient: Client = {
       id: Date.now(),
       clientName: formState.clientName,
+      clientEmail: formState.clientEmail,
+      clientPhone: formState.clientPhone,
       websiteDomain: formState.websiteDomain,
       brandName: formState.brandName || `${formState.clientName} - True Beauty`,
-      adminEmail: formState.adminEmail,
+      adminEmail: formState.clientEmail,
       plan: formState.plan,
       status: formState.status,
       joinDate: new Date().toISOString().slice(0, 10),
@@ -186,10 +201,11 @@ export default function ClientManagement() {
     setIsDialogOpen(false);
     setFormState({
       clientName: "",
+      clientEmail: "",
+      clientPhone: "",
       websiteDomain: "",
       brandName: "",
       adminEmail: "",
-      adminPassword: "",
       plan: "Standard",
       subscriptionDuration: "12 months",
       status: "Active",
@@ -200,6 +216,8 @@ export default function ClientManagement() {
     setEditingClient(client);
     setEditForm({
       clientName: client.clientName,
+      clientEmail: client.clientEmail,
+      clientPhone: client.clientPhone,
       websiteDomain: client.websiteDomain,
       brandName: client.brandName,
       adminEmail: client.adminEmail,
@@ -218,9 +236,11 @@ export default function ClientManagement() {
           ? {
               ...c,
               clientName: editForm.clientName,
+              clientEmail: editForm.clientEmail,
+              clientPhone: editForm.clientPhone,
               websiteDomain: editForm.websiteDomain,
               brandName: editForm.brandName,
-              adminEmail: editForm.adminEmail,
+              adminEmail: editForm.clientEmail,
               plan: editForm.plan,
               status: editForm.status,
             }
@@ -258,148 +278,151 @@ export default function ClientManagement() {
                     <SideDrawerContent className="gap-4">
                       <SideDrawerHeader>
                         <SideDrawerTitle>Add New Client</SideDrawerTitle>
-                        <SideDrawerDescription>
-                          Create a new client account with their website,
-                          admin panel, and subscription details.
-                        </SideDrawerDescription>
                       </SideDrawerHeader>
-                      <form className="grid gap-4 rounded-2xl bg-white/60 p-4 shadow-sm ring-1 ring-pink-50 sm:p-5">
-                        <div className="mt-1 grid grid-cols-1 gap-3 sm:grid-cols-2">
-                          <div className="space-y-1.5 sm:col-span-2">
-                            <label className="text-xs font-medium text-gray-700">
-                              Client Name
-                            </label>
-                            <Input
-                              placeholder="e.g. Glow Studio Mumbai"
-                              value={formState.clientName}
-                              onChange={(e) =>
-                                setFormState((prev) => ({
-                                  ...prev,
-                                  clientName: e.target.value,
-                                }))
-                              }
-                            />
-                          </div>
-                          <div className="space-y-1.5 sm:col-span-2">
-                            <label className="text-xs font-medium text-gray-700">
-                              Website Domain
-                            </label>
-                            <Input
-                              placeholder="e.g. mumbai.glow.truebeauty.in"
-                              value={formState.websiteDomain}
-                              onChange={(e) =>
-                                setFormState((prev) => ({
-                                  ...prev,
-                                  websiteDomain: e.target.value,
-                                }))
-                              }
-                            />
-                          </div>
-                          <div className="space-y-1.5 sm:col-span-2">
-                            <label className="text-xs font-medium text-gray-700">
-                              Brand Name
-                            </label>
-                            <Input
-                              placeholder="e.g. True Beauty Glow Studio"
-                              value={formState.brandName}
-                              onChange={(e) =>
-                                setFormState((prev) => ({
-                                  ...prev,
-                                  brandName: e.target.value,
-                                }))
-                              }
-                            />
-                          </div>
-                          <div className="space-y-1.5">
-                            <label className="text-xs font-medium text-gray-700">
-                              Admin Email
-                            </label>
-                            <Input
-                              type="email"
-                              placeholder="owner@clientdomain.in"
-                              value={formState.adminEmail}
-                              onChange={(e) =>
-                                setFormState((prev) => ({
-                                  ...prev,
-                                  adminEmail: e.target.value,
-                                }))
-                              }
-                            />
-                          </div>
-                          <div className="space-y-1.5">
-                            <label className="text-xs font-medium text-gray-700">
-                              Admin Password
-                            </label>
-                            <Input
-                              type="password"
-                              placeholder="Temporary password"
-                              value={formState.adminPassword}
-                              onChange={(e) =>
-                                setFormState((prev) => ({
-                                  ...prev,
-                                  adminPassword: e.target.value,
-                                }))
-                              }
-                            />
-                          </div>
-                          <div className="space-y-1.5">
-                            <label className="text-xs font-medium text-gray-700">
-                              Plan
-                            </label>
-                            <select
-                              value={formState.plan}
-                              onChange={(e) =>
-                                setFormState((prev) => ({
-                                  ...prev,
-                                  plan: e.target.value as ClientPlan,
-                                }))
-                              }
-                              className="h-9 w-full rounded-full border border-pink-100 bg-white px-3 text-sm text-gray-700 shadow-sm outline-none focus:border-pink-300 focus:ring-2 focus:ring-pink-100"
-                            >
-                              <option value="Basic">Basic</option>
-                              <option value="Standard">Standard</option>
-                              <option value="Premium">Premium</option>
-                            </select>
-                          </div>
-                          <div className="space-y-1.5">
-                            <label className="text-xs font-medium text-gray-700">
-                              Subscription Duration
-                            </label>
-                            <select
-                              value={formState.subscriptionDuration}
-                              onChange={(e) =>
-                                setFormState((prev) => ({
-                                  ...prev,
-                                  subscriptionDuration: e.target.value,
-                                }))
-                              }
-                              className="h-9 w-full rounded-full border border-pink-100 bg-white px-3 text-sm text-gray-700 shadow-sm outline-none focus:border-pink-300 focus:ring-2 focus:ring-pink-100"
-                            >
-                              <option value="6 months">6 months</option>
-                              <option value="12 months">12 months</option>
-                              <option value="24 months">24 months</option>
-                            </select>
-                          </div>
-                          <div className="space-y-1.5">
-                            <label className="text-xs font-medium text-gray-700">
-                              Status
-                            </label>
-                            <select
-                              value={formState.status}
-                              onChange={(e) =>
-                                setFormState((prev) => ({
-                                  ...prev,
-                                  status: e.target.value as ClientStatus,
-                                }))
-                              }
-                              className="h-9 w-full rounded-full border border-pink-100 bg-white px-3 text-sm text-gray-700 shadow-sm outline-none focus:border-pink-300 focus:ring-2 focus:ring-pink-100"
-                            >
-                              <option value="Active">Active</option>
-                              <option value="Inactive">Inactive</option>
-                              <option value="Suspended">Suspended</option>
-                              <option value="Expiring">Expiring</option>
-                            </select>
-                          </div>
+                      <form
+                        onSubmit={(e) => {
+                          e.preventDefault();
+                          handleAddClient();
+                        }}
+                        className="grid gap-4"
+                      >
+                        <div>
+                          <label className="mb-1.5 block text-xs font-medium text-gray-600">
+                            Client Name
+                          </label>
+                          <Input
+                            placeholder="e.g. Glow Studio Mumbai"
+                            value={formState.clientName}
+                            onChange={(e) =>
+                              setFormState((prev) => ({
+                                ...prev,
+                                clientName: e.target.value,
+                              }))
+                            }
+                            required
+                          />
+                        </div>
+                        <div>
+                          <label className="mb-1.5 block text-xs font-medium text-gray-600">
+                            Client Email
+                          </label>
+                          <Input
+                            type="email"
+                            placeholder="e.g. owner@clientdomain.in"
+                            value={formState.clientEmail}
+                            onChange={(e) =>
+                              setFormState((prev) => ({
+                                ...prev,
+                                clientEmail: e.target.value,
+                              }))
+                            }
+                            required
+                          />
+                        </div>
+                        <div>
+                          <label className="mb-1.5 block text-xs font-medium text-gray-600">
+                            Phone Number
+                          </label>
+                          <Input
+                            type="tel"
+                            value={formState.clientPhone}
+                            onChange={(e) => {
+                              const v = e.target.value.replace(/\D/g, "").slice(0, 10);
+                              setFormState((prev) => ({ ...prev, clientPhone: v }));
+                            }}
+                            placeholder="e.g. 9876543210"
+                            maxLength={10}
+                          />
+                          
+                        </div>
+                        <div>
+                          <label className="mb-1.5 block text-xs font-medium text-gray-600">
+                            Website Domain
+                          </label>
+                          <Input
+                            placeholder="e.g. mumbai.glow.truebeauty.in"
+                            value={formState.websiteDomain}
+                            onChange={(e) =>
+                              setFormState((prev) => ({
+                                ...prev,
+                                websiteDomain: e.target.value,
+                              }))
+                            }
+                            required
+                          />
+                        </div>
+                        <div>
+                          <label className="mb-1.5 block text-xs font-medium text-gray-600">
+                            Brand Name
+                          </label>
+                          <Input
+                            placeholder="e.g. True Beauty Glow Studio"
+                            value={formState.brandName}
+                            onChange={(e) =>
+                              setFormState((prev) => ({
+                                ...prev,
+                                brandName: e.target.value,
+                              }))
+                            }
+                          />
+                        </div>
+                        <div>
+                          <label className="mb-1.5 block text-xs font-medium text-gray-600">
+                            Plan
+                          </label>
+                          <select
+                            value={formState.plan}
+                            onChange={(e) =>
+                              setFormState((prev) => ({
+                                ...prev,
+                                plan: e.target.value as ClientPlan,
+                              }))
+                            }
+                            className="h-9 w-full rounded-full border border-pink-100 bg-white px-4 text-sm text-slate-700 focus:border-pink-300 focus:outline-none focus:ring-2 focus:ring-pink-100"
+                          >
+                            <option value="Basic">Basic</option>
+                            <option value="Standard">Standard</option>
+                            <option value="Premium">Premium</option>
+                          </select>
+                        </div>
+                        <div>
+                          <label className="mb-1.5 block text-xs font-medium text-gray-600">
+                            Subscription Duration
+                          </label>
+                          <select
+                            value={formState.subscriptionDuration}
+                            onChange={(e) =>
+                              setFormState((prev) => ({
+                                ...prev,
+                                subscriptionDuration: e.target.value,
+                              }))
+                            }
+                            className="h-9 w-full rounded-full border border-pink-100 bg-white px-4 text-sm text-slate-700 focus:border-pink-300 focus:outline-none focus:ring-2 focus:ring-pink-100"
+                          >
+                            <option value="6 months">6 months</option>
+                            <option value="12 months">12 months</option>
+                            <option value="24 months">24 months</option>
+                          </select>
+                        </div>
+                        <div>
+                          <label className="mb-1.5 block text-xs font-medium text-gray-600">
+                            Status
+                          </label>
+                          <select
+                            value={formState.status}
+                            onChange={(e) =>
+                              setFormState((prev) => ({
+                                ...prev,
+                                status: e.target.value as ClientStatus,
+                              }))
+                            }
+                            className="h-9 w-full rounded-full border border-pink-100 bg-white px-4 text-sm text-slate-700 focus:border-pink-300 focus:outline-none focus:ring-2 focus:ring-pink-100"
+                          >
+                            <option value="Active">Active</option>
+                            <option value="Inactive">Inactive</option>
+                            <option value="Suspended">Suspended</option>
+                            <option value="Expiring">Expiring</option>
+                          </select>
                         </div>
                         <SideDrawerFooter>
                           <Button
@@ -409,7 +432,7 @@ export default function ClientManagement() {
                           >
                             Cancel
                           </Button>
-                          <Button type="button" onClick={handleAddClient}>
+                          <Button type="submit" variant="primary">
                             Create Client
                           </Button>
                         </SideDrawerFooter>
@@ -428,138 +451,152 @@ export default function ClientManagement() {
                     <SideDrawerContent className="gap-4">
                       <SideDrawerHeader>
                         <SideDrawerTitle>Edit Client</SideDrawerTitle>
-                        <SideDrawerDescription>
-                          Update this client&apos;s details and plan information.
-                        </SideDrawerDescription>
                       </SideDrawerHeader>
                       {editingClient && (
                         <form
-                          className="grid gap-4 rounded-2xl bg-white/60 p-4 shadow-sm ring-1 ring-pink-50 sm:p-5"
                           onSubmit={(e) => {
                             e.preventDefault();
                             handleUpdateClient();
                           }}
+                          className="grid gap-4"
                         >
-                          <div className="mt-1 grid grid-cols-1 gap-3 sm:grid-cols-2">
-                            <div className="space-y-1.5 sm:col-span-2">
-                              <label className="text-xs font-medium text-gray-700">
-                                Client Name
-                              </label>
-                              <Input
-                                placeholder="e.g. Glow Studio Mumbai"
-                                value={editForm.clientName}
-                                onChange={(e) =>
-                                  setEditForm((prev) => ({
-                                    ...prev,
-                                    clientName: e.target.value,
-                                  }))
-                                }
-                              />
-                            </div>
-                            <div className="space-y-1.5 sm:col-span-2">
-                              <label className="text-xs font-medium text-gray-700">
-                                Website Domain
-                              </label>
-                              <Input
-                                placeholder="e.g. mumbai.glow.truebeauty.in"
-                                value={editForm.websiteDomain}
-                                onChange={(e) =>
-                                  setEditForm((prev) => ({
-                                    ...prev,
-                                    websiteDomain: e.target.value,
-                                  }))
-                                }
-                              />
-                            </div>
-                            <div className="space-y-1.5 sm:col-span-2">
-                              <label className="text-xs font-medium text-gray-700">
-                                Brand Name
-                              </label>
-                              <Input
-                                placeholder="e.g. True Beauty Glow Studio"
-                                value={editForm.brandName}
-                                onChange={(e) =>
-                                  setEditForm((prev) => ({
-                                    ...prev,
-                                    brandName: e.target.value,
-                                  }))
-                                }
-                              />
-                            </div>
-                            <div className="space-y-1.5">
-                              <label className="text-xs font-medium text-gray-700">
-                                Admin Email
-                              </label>
-                              <Input
-                                type="email"
-                                placeholder="owner@clientdomain.in"
-                                value={editForm.adminEmail}
-                                onChange={(e) =>
-                                  setEditForm((prev) => ({
-                                    ...prev,
-                                    adminEmail: e.target.value,
-                                  }))
-                                }
-                              />
-                            </div>
-                            <div className="space-y-1.5">
-                              <label className="text-xs font-medium text-gray-700">
-                                Plan
-                              </label>
-                              <select
-                                value={editForm.plan}
-                                onChange={(e) =>
-                                  setEditForm((prev) => ({
-                                    ...prev,
-                                    plan: e.target.value as ClientPlan,
-                                  }))
-                                }
-                                className="h-9 w-full rounded-full border border-pink-100 bg-white px-3 text-sm text-gray-700 shadow-sm outline-none focus:border-pink-300 focus:ring-2 focus:ring-pink-100"
-                              >
-                                <option value="Basic">Basic</option>
-                                <option value="Standard">Standard</option>
-                                <option value="Premium">Premium</option>
-                              </select>
-                            </div>
-                            <div className="space-y-1.5">
-                              <label className="text-xs font-medium text-gray-700">
-                                Subscription Duration
-                              </label>
-                              <select
-                                value={editForm.subscriptionDuration}
-                                onChange={(e) =>
-                                  setEditForm((prev) => ({
-                                    ...prev,
-                                    subscriptionDuration: e.target.value,
-                                  }))
-                                }
-                                className="h-9 w-full rounded-full border border-pink-100 bg-white px-3 text-sm text-gray-700 shadow-sm outline-none focus:border-pink-300 focus:ring-2 focus:ring-pink-100"
-                              >
-                                <option value="6 months">6 months</option>
-                                <option value="12 months">12 months</option>
-                                <option value="24 months">24 months</option>
-                              </select>
-                            </div>
-                            <div className="space-y-1.5">
-                              <label className="text-xs font-medium text-gray-700">
-                                Status
-                              </label>
-                              <select
-                                value={editForm.status}
-                                onChange={(e) =>
-                                  setEditForm((prev) => ({
-                                    ...prev,
-                                    status: e.target.value as ClientStatus,
-                                  }))
-                                }
-                                className="h-9 w-full rounded-full border border-pink-100 bg-white px-3 text-sm text-gray-700 shadow-sm outline-none focus:border-pink-300 focus:ring-2 focus:ring-pink-100"
-                              >
-                                <option value="Active">Active</option>
-                                <option value="Inactive">Inactive</option>
-                                <option value="Suspended">Suspended</option>
-                                <option value="Expiring">Expiring</option>
-                              </select>
-                            </div>
+                          <div>
+                            <label className="mb-1.5 block text-xs font-medium text-gray-600">
+                              Client Name
+                            </label>
+                            <Input
+                              placeholder="e.g. Glow Studio Mumbai"
+                              value={editForm.clientName}
+                              onChange={(e) =>
+                                setEditForm((prev) => ({
+                                  ...prev,
+                                  clientName: e.target.value,
+                                }))
+                              }
+                              required
+                            />
+                          </div>
+                          <div>
+                            <label className="mb-1.5 block text-xs font-medium text-gray-600">
+                              Client Email
+                            </label>
+                            <Input
+                              type="email"
+                              placeholder="e.g. owner@clientdomain.in"
+                              value={editForm.clientEmail}
+                              onChange={(e) =>
+                                setEditForm((prev) => ({
+                                  ...prev,
+                                  clientEmail: e.target.value,
+                                }))
+                              }
+                              required
+                            />
+                          </div>
+                          <div>
+                            <label className="mb-1.5 block text-xs font-medium text-gray-600">
+                              Phone Number
+                            </label>
+                            <Input
+                              type="tel"
+                              value={editForm.clientPhone}
+                              onChange={(e) => {
+                                const v = e.target.value.replace(/\D/g, "").slice(0, 10);
+                                setEditForm((prev) => ({ ...prev, clientPhone: v }));
+                              }}
+                              placeholder="e.g. 9876543210"
+                              maxLength={10}
+                            />
+                           
+                          </div>
+                          <div>
+                            <label className="mb-1.5 block text-xs font-medium text-gray-600">
+                              Website Domain
+                            </label>
+                            <Input
+                              placeholder="e.g. mumbai.glow.truebeauty.in"
+                              value={editForm.websiteDomain}
+                              onChange={(e) =>
+                                setEditForm((prev) => ({
+                                  ...prev,
+                                  websiteDomain: e.target.value,
+                                }))
+                              }
+                              required
+                            />
+                          </div>
+                          <div>
+                            <label className="mb-1.5 block text-xs font-medium text-gray-600">
+                              Brand Name
+                            </label>
+                            <Input
+                              placeholder="e.g. True Beauty Glow Studio"
+                              value={editForm.brandName}
+                              onChange={(e) =>
+                                setEditForm((prev) => ({
+                                  ...prev,
+                                  brandName: e.target.value,
+                                }))
+                              }
+                            />
+                          </div>
+                          <div>
+                            <label className="mb-1.5 block text-xs font-medium text-gray-600">
+                              Plan
+                            </label>
+                            <select
+                              value={editForm.plan}
+                              onChange={(e) =>
+                                setEditForm((prev) => ({
+                                  ...prev,
+                                  plan: e.target.value as ClientPlan,
+                                }))
+                              }
+                              className="h-9 w-full rounded-full border border-pink-100 bg-white px-4 text-sm text-slate-700 focus:border-pink-300 focus:outline-none focus:ring-2 focus:ring-pink-100"
+                            >
+                              <option value="Basic">Basic</option>
+                              <option value="Standard">Standard</option>
+                              <option value="Premium">Premium</option>
+                            </select>
+                          </div>
+                          <div>
+                            <label className="mb-1.5 block text-xs font-medium text-gray-600">
+                              Subscription Duration
+                            </label>
+                            <select
+                              value={editForm.subscriptionDuration}
+                              onChange={(e) =>
+                                setEditForm((prev) => ({
+                                  ...prev,
+                                  subscriptionDuration: e.target.value,
+                                }))
+                              }
+                              className="h-9 w-full rounded-full border border-pink-100 bg-white px-4 text-sm text-slate-700 focus:border-pink-300 focus:outline-none focus:ring-2 focus:ring-pink-100"
+                            >
+                              <option value="6 months">6 months</option>
+                              <option value="12 months">12 months</option>
+                              <option value="24 months">24 months</option>
+                            </select>
+                          </div>
+                          <div>
+                            <label className="mb-1.5 block text-xs font-medium text-gray-600">
+                              Status
+                            </label>
+                            <select
+                              value={editForm.status}
+                              onChange={(e) =>
+                                setEditForm((prev) => ({
+                                  ...prev,
+                                  status: e.target.value as ClientStatus,
+                                }))
+                              }
+                              className="h-9 w-full rounded-full border border-pink-100 bg-white px-4 text-sm text-slate-700 focus:border-pink-300 focus:outline-none focus:ring-2 focus:ring-pink-100"
+                            >
+                              <option value="Active">Active</option>
+                              <option value="Inactive">Inactive</option>
+                              <option value="Suspended">Suspended</option>
+                              <option value="Expiring">Expiring</option>
+                            </select>
                           </div>
                           <SideDrawerFooter>
                             <Button
@@ -572,7 +609,9 @@ export default function ClientManagement() {
                             >
                               Cancel
                             </Button>
-                            <Button type="submit">Save changes</Button>
+                            <Button type="submit" variant="primary">
+                              Save changes
+                            </Button>
                           </SideDrawerFooter>
                         </form>
                       )}
