@@ -25,6 +25,7 @@ import {
   Pencil,
   PauseCircle,
   Trash2,
+  Eye,
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -565,27 +566,40 @@ export default function AdminManagementPage() {
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">
-                  <DropdownMenuItem
-                    onClick={() => openEditModal(row)}
-                    className="text-slate-700 hover:bg-pink-50"
-                  >
-                    <Pencil className="h-3.5 w-3.5 text-slate-500" />
-                    <span>Edit</span>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem
-                    onClick={() => handleSuspend(row.id)}
-                    className="text-amber-600 hover:bg-amber-50 hover:text-amber-700"
-                  >
-                    <PauseCircle className="h-3.5 w-3.5 text-amber-500" />
-                    <span>{row.status === "Active" ? "Suspend" : "Activate"}</span>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem
-                    onClick={() => handleDelete(row.id)}
-                    className="text-rose-600 hover:bg-rose-50 hover:text-rose-700"
-                  >
-                    <Trash2 className="h-3.5 w-3.5 text-rose-500" />
-                    <span>Delete</span>
-                  </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onClick={() => {
+                        // TODO: hook up view behaviour (e.g. navigate or open details)
+                      }}
+                      className="text-[13px] text-slate-700 hover:bg-pink-50"
+                    >
+                      <Eye className="h-3.5 w-3.5 text-slate-500" />
+                      <span className="font-medium">View</span>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onClick={() => openEditModal(row)}
+                      className="text-[13px] text-slate-700 hover:bg-pink-50"
+                    >
+                      <Pencil className="h-3.5 w-3.5 text-slate-500" />
+                      <span className="font-medium">Edit</span>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onClick={() => handleSuspend(row.id)}
+                      className="text-[13px] text-amber-600 hover:bg-amber-50 hover:text-amber-700"
+                    >
+                      <PauseCircle className="h-3.5 w-3.5 text-amber-500" />
+                      <span className="font-medium">
+                        {row.status === "Active" ? "Suspend" : "Activate"}
+                      </span>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onClick={() => handleDelete(row.id)}
+                      className="text-[13px] text-rose-600 hover:bg-rose-50 hover:text-rose-700"
+                    >
+                      <Trash2 className="h-3.5 w-3.5 text-rose-500" />
+                      <span className="font-semibold text-rose-600">
+                        Delete
+                      </span>
+                    </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
               )}
