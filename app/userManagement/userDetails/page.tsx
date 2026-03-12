@@ -6,18 +6,15 @@ import { useSearchParams } from "next/navigation";
 import { SideBar } from "@/components/sideBar";
 import { TopBar } from "@/components/topBar";
 import { KpiCards } from "@/components/ui/kpiCards";
-import { Button } from "@/components/ui/button";
+import { DataTable, type Column } from "@/components/ui/table";
 import {
   ArrowLeft,
-  Calendar,
-  Mail,
-  Phone,
   ShieldCheck,
   ShoppingBag,
-  User,
   Globe2,
   CreditCard,
-  Package2,
+  Users,
+  UserCheck,
 } from "lucide-react";
 
 type UserStatus = "Active" | "Blocked";
@@ -39,6 +36,15 @@ type UserOrder = {
   amountInr: number;
   status: "Delivered" | "Processing" | "Cancelled" | "Refunded";
   date: string;
+};
+
+type ClientUserStats = {
+  id: number;
+  name: string;
+  totalOrders: number;
+  totalAmountInr: number;
+  lastOrderDate: string;
+   isAffiliate: boolean;
 };
 
 const mockUsers: UserSummary[] = [
@@ -132,6 +138,87 @@ const mockOrders: UserOrder[] = [
   },
 ];
 
+const mockClientUsers: ClientUserStats[] = [
+  {
+    id: 1,
+    name: "Aditi Sharma",
+    totalOrders: 5,
+    totalAmountInr: 8695,
+    lastOrderDate: "2025-03-08",
+    isAffiliate: true,
+  },
+  {
+    id: 2,
+    name: "Rahul Verma",
+    totalOrders: 3,
+    totalAmountInr: 5499,
+    lastOrderDate: "2025-02-27",
+    isAffiliate: false,
+  },
+  {
+    id: 3,
+    name: "Sara Khan",
+    totalOrders: 4,
+    totalAmountInr: 7299,
+    lastOrderDate: "2025-02-15",
+    isAffiliate: true,
+  },
+  {
+    id: 4,
+    name: "Vikram Mehta",
+    totalOrders: 2,
+    totalAmountInr: 2999,
+    lastOrderDate: "2025-01-20",
+    isAffiliate: false,
+  },
+  {
+    id: 5,
+    name: "Priya Nair",
+    totalOrders: 1,
+    totalAmountInr: 1799,
+    lastOrderDate: "2024-12-05",
+    isAffiliate: false,
+  },
+];
+
+const clientUserColumns: Column<ClientUserStats>[] = [
+  {
+    key: "name",
+    label: "User Name",
+    render: (row) => (
+      <span className="text-xs font-medium text-slate-900">{row.name}</span>
+    ),
+  },
+  {
+    key: "totalOrders",
+    label: "Total Orders",
+    render: (row) => (
+      <span className="text-xs font-semibold text-slate-900">
+        {row.totalOrders}
+      </span>
+    ),
+  },
+  {
+    key: "totalAmountInr",
+    label: "Total Amount",
+    render: (row) => (
+      <span className="text-xs font-semibold text-slate-900">
+        ₹ {row.totalAmountInr.toLocaleString("en-IN")}
+      </span>
+    ),
+  },
+  {
+    key: "lastOrderDate",
+    label: "Last Order Date",
+    render: (row) =>
+      new Date(row.lastOrderDate).toLocaleDateString("en-IN", {
+        day: "2-digit",
+        month: "short",
+        year: "numeric",
+      }),
+  },
+];
+
 export default function UserDetailsPage() {
   const searchParams = useSearchParams();
   const [user, setUser] = useState<UserSummary | null>(null);
@@ -215,35 +302,28 @@ export default function UserDetailsPage() {
     }
   }, [user]);
 
-  const orderSummary = useMemo(() => {
-    const totalOrders = mockOrders.length;
-    const totalProducts = mockOrders.reduce((acc, o) => acc + o.quantity, 0);
-    const totalAmount = mockOrders.reduce((acc, o) => acc + o.amountInr, 0);
-    const lastOrderDate = mockOrders[0]?.date ?? null;
+  const clientUserSummary = useMemo(() => {
+    const totalUsers = mockClientUsers.length;
+    const totalOrders = mockClientUsers.reduce(
+      (acc, u) => acc + (Number.isFinite(u.totalOrders) ? u.totalOrders : 0),
+      0
+    );
+    const totalAmount = mockClientUsers.reduce(
+      (acc, u) =>
+        acc + (Number.isFinite(u.totalAmountInr) ? u.totalAmountInr : 0),
+      0
+    );
+    const totalAffiliateUsers = mockClientUsers.filter(
+      (u) => u.isAffiliate
+    ).length;
 
-    return { totalOrders, totalProducts, totalAmount, lastOrderDate };
+    return { totalUsers, totalOrders, totalAmount, totalAffiliateUsers };
   }, []);
 
   const statusBadgeClass =
     user?.status === "Active"
       ? "bg-emerald-50 text-emerald-700"
       : "bg-rose-50 text-rose-700";
-
-  const joinedDateFormatted = user?.joinedDate
-    ? new Date(user.joinedDate).toLocaleDateString("en-IN", {
-        day: "2-digit",
-        month: "short",
-        year: "numeric",
-      })
-    : "—";
-
-  const lastOrderDateFormatted = orderSummary.lastOrderDate
-    ? new Date(orderSummary.lastOrderDate).toLocaleDateString("en-IN", {
-        day: "2-digit",
-        month: "short",
-        year: "numeric",
-      })
-    : "—";
 
   return (
     <div className="flex min-h-screen bg-gray-50 text-gray-900">
@@ -286,35 +366,37 @@ export default function UserDetailsPage() {
             <KpiCards
               items={[
                 {
+                  title: "Total Users",
+                  value: clientUserSummary.totalUsers,
+                  delta: "Registered on this client platform",
+                  icon: <Users className="h-4 w-4" />,
+                },
+                {
                   title: "Total Orders",
-                  value: orderSummary.totalOrders,
-                  delta: "Orders placed across all time",
+                  value: clientUserSummary.totalOrders,
+                  delta: "Orders placed by all users",
                   icon: <ShoppingBag className="h-4 w-4" />,
                 },
                 {
-                  title: "Products Purchased",
-                  value: orderSummary.totalProducts,
-                  delta: "Line items across all orders",
-                  icon: <Package2 className="h-4 w-4" />,
-                },
-                {
-                  title: "Total Amount Spent",
-                  value: `₹ ${orderSummary.totalAmount.toLocaleString("en-IN")}`,
-                  delta: "Lifetime value",
+                  title: "Total Amount",
+                  value: `₹ ${clientUserSummary.totalAmount.toLocaleString(
+                    "en-IN"
+                  )}`,
+                  delta: "Total revenue from this platform",
                   icon: <CreditCard className="h-4 w-4" />,
                 },
                 {
-                  title: "Last Order Date",
-                  value: lastOrderDateFormatted,
-                  delta: "Most recent successful order",
-                  icon: <Calendar className="h-4 w-4" />,
+                  title: "Total Affiliate Users",
+                  value: clientUserSummary.totalAffiliateUsers,
+                  delta: "Users marked as affiliates",
+                  icon: <UserCheck className="h-4 w-4" />,
                 },
               ]}
             />
 
             {/* Main layout */}
-            <div className="grid gap-6 lg:grid-cols-[minmax(0,2fr)_minmax(0,1.5fr)]">
-              {/* Left column: client info + orders table */}
+            <div className="grid gap-6">
+              {/* Client info + platform users table */}
               <div className="space-y-6">
                 {/* Client information */}
                 <div className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
@@ -363,197 +445,17 @@ export default function UserDetailsPage() {
                   </dl>
                 </div>
 
-                {/* Recent orders table */}
-                <div className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
-                  <div className="mb-4 flex items-center justify-between">
-                    <div>
-                      <h3 className="text-sm font-semibold text-gray-900">
-                        Recent Orders
-                      </h3>
-                      <p className="text-xs text-gray-500">
-                        Last {mockOrders.length} orders placed by this user.
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="beauty-scroll overflow-x-auto">
-                    <table className="min-w-full border-collapse text-sm text-slate-700">
-                      <thead className="bg-gray-50 text-xs font-semibold text-gray-600">
-                        <tr>
-                          <th className="whitespace-nowrap px-4 py-3 text-left">
-                            Order ID
-                          </th>
-                          <th className="whitespace-nowrap px-4 py-3 text-left">
-                            Product Name
-                          </th>
-                          <th className="whitespace-nowrap px-4 py-3 text-center">
-                            Qty
-                          </th>
-                          <th className="whitespace-nowrap px-4 py-3 text-right">
-                            Amount
-                          </th>
-                          <th className="whitespace-nowrap px-4 py-3 text-left">
-                            Status
-                          </th>
-                          <th className="whitespace-nowrap px-4 py-3 text-left">
-                            Order Date
-                          </th>
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y divide-gray-100">
-                        {mockOrders.map((order) => (
-                          <tr key={order.id} className="hover:bg-pink-50/40">
-                            <td className="px-4 py-3 align-middle text-xs font-medium text-slate-900">
-                              {order.id}
-                            </td>
-                            <td className="px-4 py-3 align-middle text-xs text-slate-800">
-                              {order.productName}
-                            </td>
-                            <td className="px-4 py-3 align-middle text-center text-xs text-slate-700">
-                              {order.quantity}
-                            </td>
-                            <td className="px-4 py-3 align-middle text-right text-xs font-semibold text-slate-900">
-                              ₹ {order.amountInr.toLocaleString("en-IN")}
-                            </td>
-                            <td className="px-4 py-3 align-middle text-xs">
-                              <span
-                                className={`inline-flex rounded-full px-2.5 py-0.5 text-[11px] font-medium ${
-                                  order.status === "Delivered"
-                                    ? "bg-emerald-50 text-emerald-700"
-                                    : order.status === "Processing"
-                                    ? "bg-amber-50 text-amber-700"
-                                    : order.status === "Cancelled"
-                                    ? "bg-rose-50 text-rose-700"
-                                    : "bg-sky-50 text-sky-700"
-                                }`}
-                              >
-                                {order.status}
-                              </span>
-                            </td>
-                            <td className="px-4 py-3 align-middle text-xs text-slate-700">
-                              {new Date(order.date).toLocaleDateString("en-IN", {
-                                day: "2-digit",
-                                month: "short",
-                                year: "numeric",
-                              })}
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
-              </div>
-
-              {/* Right column: user profile + quick summary */}
-              <div className="space-y-6">
-                {/* User profile card */}
-                <div className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
-                  <div className="flex items-start justify-between gap-4">
-                    <div className="flex items-start gap-3">
-                      <div className="flex h-10 w-10 items-center justify-center rounded-full bg-pink-50 text-pink-500">
-                        <User className="h-5 w-5" />
-                      </div>
-                      <div className="space-y-1">
-                        <h2 className="text-base font-semibold text-gray-900">
-                          {user?.name ?? "User"}
-                        </h2>
-                        <p className="text-xs text-gray-500">
-                          Joined on {joinedDateFormatted}
-                        </p>
-                      </div>
-                    </div>
-                    {user && (
-                      <span
-                        className={`inline-flex rounded-full px-2.5 py-0.5 text-[11px] font-medium ${statusBadgeClass}`}
-                      >
-                        {user.status}
-                      </span>
-                    )}
-                  </div>
-
-                  <div className="mt-4 grid gap-3 text-sm text-gray-700 sm:grid-cols-2">
-                    <div className="flex items-center gap-2">
-                      <Mail className="h-4 w-4 text-slate-400" />
-                      <span className="truncate">{user?.email ?? "—"}</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Phone className="h-4 w-4 text-slate-400" />
-                      <span>{user?.phone ?? "—"}</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Globe2 className="h-4 w-4 text-slate-400" />
-                      <span className="truncate">{user?.clientWebsite ?? "—"}</span>
-                    </div>
-                  </div>
-
-                  <div className="mt-5 flex flex-wrap gap-2">
-                    <Button
-                      variant={user?.status === "Active" ? "outline" : "primary"}
-                      className="h-9 rounded-full px-4 text-xs font-medium"
-                    >
-                      {user?.status === "Active" ? "Block User" : "Unblock User"}
-                    </Button>
-                    <Button
-                      variant="outline"
-                      className="h-9 rounded-full px-4 text-xs font-medium"
-                    >
-                      View Full Order History
-                    </Button>
-                  </div>
-                </div>
-
-                {/* Quick order summary */}
-                <div className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
-                  <div className="mb-4 flex items-center gap-2">
-                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-pink-50 text-pink-500">
-                      <ShoppingBag className="h-4 w-4" />
-                    </div>
-                    <div>
-                      <h3 className="text-sm font-semibold text-gray-900">
-                        Order Summary
-                      </h3>
-                      <p className="text-xs text-gray-500">
-                        Lifetime order stats for this user.
-                      </p>
-                    </div>
-                  </div>
-
-                  <dl className="grid gap-4 text-sm text-gray-800 sm:grid-cols-2">
-                    <div>
-                      <dt className="text-xs font-medium uppercase tracking-wide text-gray-400">
-                        Total Orders
-                      </dt>
-                      <dd className="mt-1 text-base font-semibold text-gray-900">
-                        {orderSummary.totalOrders}
-                      </dd>
-                    </div>
-                    <div>
-                      <dt className="text-xs font-medium uppercase tracking-wide text-gray-400">
-                        Products Purchased
-                      </dt>
-                      <dd className="mt-1 text-base font-semibold text-gray-900">
-                        {orderSummary.totalProducts}
-                      </dd>
-                    </div>
-                    <div>
-                      <dt className="text-xs font-medium uppercase tracking-wide text-gray-400">
-                        Amount Spent
-                      </dt>
-                      <dd className="mt-1 text-base font-semibold text-gray-900">
-                        ₹ {orderSummary.totalAmount.toLocaleString("en-IN")}
-                      </dd>
-                    </div>
-                    <div>
-                      <dt className="text-xs font-medium uppercase tracking-wide text-gray-400">
-                        Last Order Date
-                      </dt>
-                      <dd className="mt-1 text-xs text-gray-800">
-                        {lastOrderDateFormatted}
-                      </dd>
-                    </div>
-                  </dl>
-                </div>
+                {/* Client users table */}
+                <DataTable<ClientUserStats>
+                  title="Platform Users"
+                  columns={clientUserColumns}
+                  data={mockClientUsers}
+                  pageSize={5}
+                  searchPlaceholder="Search platform users..."
+                  hideFiltersButton
+                  showIndexColumn
+                  indexColumnLabel="Sr No."
+                />
               </div>
             </div>
           </div>
