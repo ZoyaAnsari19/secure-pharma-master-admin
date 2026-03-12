@@ -1,89 +1,91 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import { SideBar } from "@/components/sideBar";
 import { TopBar } from "@/components/topBar";
 import { KpiCards } from "@/components/ui/kpiCards";
 import { DataTable, Column } from "@/components/ui/table";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
 import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import { Shield, UserCheck, UserX, Users } from "lucide-react";
 
-type UserStatus = "Active" | "Blocked";
+type ClientStatus = "Active" | "Inactive";
 
 type UserRow = {
   id: number;
-  name: string;
-  email: string;
-  phone: string;
+  clientName: string;
   clientWebsite: string;
-  ordersCount: number;
-  status: UserStatus;
+  totalUsers: number;
+  affiliateUsers: number;
+  status: ClientStatus;
   joinedDate: string;
 };
 
 const initialUsers: UserRow[] = [
   {
     id: 1,
-    name: "Aditi Sharma",
-    email: "aditi.sharma@example.com",
-    phone: "+91 98765 43210",
+    clientName: "Glow Studio Mumbai",
     clientWebsite: "mumbai.glow.truebeauty.in",
-    ordersCount: 32,
     status: "Active",
+    totalUsers: 320,
+    affiliateUsers: 28,
     joinedDate: "2024-01-10",
   },
   {
     id: 2,
-    name: "Rahul Verma",
-    email: "rahul.verma@example.com",
-    phone: "+91 91234 56789",
+    clientName: "Blush Hub Delhi",
     clientWebsite: "delhi.blush.truebeauty.in",
-    ordersCount: 5,
-    status: "Blocked",
+    status: "Inactive",
+    totalUsers: 85,
+    affiliateUsers: 6,
     joinedDate: "2023-11-22",
   },
   {
     id: 3,
-    name: "Sara Khan",
-    email: "sara.khan@example.com",
-    phone: "+91 99887 76655",
+    clientName: "SkinCraft Pune",
     clientWebsite: "pune.skincraft.truebeauty.in",
-    ordersCount: 18,
     status: "Active",
+    totalUsers: 140,
+    affiliateUsers: 12,
     joinedDate: "2023-09-05",
   },
   {
     id: 4,
-    name: "Vikram Mehta",
-    email: "vikram.mehta@example.com",
-    phone: "+91 87654 32109",
+    clientName: "MinimalGlow Bangalore",
     clientWebsite: "bangalore.minimal.truebeauty.in",
-    ordersCount: 2,
     status: "Active",
+    totalUsers: 52,
+    affiliateUsers: 4,
     joinedDate: "2024-02-01",
   },
   {
     id: 5,
-    name: "Priya Nair",
-    email: "priya.nair@example.com",
-    phone: "+91 76543 21098",
+    clientName: "Radiant Touch Chennai",
     clientWebsite: "chennai.radiant.truebeauty.in",
-    ordersCount: 0,
-    status: "Blocked",
+    status: "Inactive",
+    totalUsers: 19,
+    affiliateUsers: 1,
     joinedDate: "2022-12-14",
   },
 ];
 
 const userColumns: Column<UserRow>[] = [
-  { key: "name", label: "User Name" },
+  { key: "clientName", label: "Client Name" },
   { key: "clientWebsite", label: "Client Website" },
   {
-    key: "ordersCount",
-    label: "Orders Count",
+    key: "totalUsers",
+    label: "Registered Users",
     render: (row) => (
-      <span className="text-sm font-medium text-gray-800">{row.ordersCount}</span>
+      <span className="text-sm font-medium text-gray-800">{row.totalUsers}</span>
+    ),
+  },
+  {
+    key: "affiliateUsers",
+    label: "Affiliate Users",
+    render: (row) => (
+      <span className="text-sm font-medium text-gray-800">
+        {row.affiliateUsers}
+      </span>
     ),
   },
   {
@@ -94,7 +96,7 @@ const userColumns: Column<UserRow>[] = [
         className={`inline-flex rounded-full px-2.5 py-0.5 text-[11px] font-medium ${
           row.status === "Active"
             ? "bg-emerald-50 text-emerald-700"
-            : "bg-rose-50 text-rose-700"
+            : "bg-amber-50 text-amber-700"
         }`}
       >
         {row.status}
@@ -114,9 +116,10 @@ const userColumns: Column<UserRow>[] = [
 ];
 
 export default function UserManagementPage() {
+  const router = useRouter();
   const [users, setUsers] = useState<UserRow[]>(initialUsers);
   const [clientFilter, setClientFilter] = useState<string>("All");
-  const [statusFilter, setStatusFilter] = useState<"All" | UserStatus>("All");
+  const [statusFilter, setStatusFilter] = useState<"All" | ClientStatus>("All");
 
   const clientOptions = useMemo(() => {
     const websites = Array.from(new Set(users.map((u) => u.clientWebsite)));
@@ -133,21 +136,31 @@ export default function UserManagementPage() {
     });
   }, [users, clientFilter, statusFilter]);
 
-  const totalUsers = users.length;
-  const activeUsers = users.filter((u) => u.status === "Active").length;
-  const blockedUsers = users.filter((u) => u.status === "Blocked").length;
-  const newUsers = users.filter((u) => {
+  const totalUsersRaw = users.reduce(
+    (acc, u) => acc + (typeof u.totalUsers === "number" ? u.totalUsers : 0),
+    0
+  );
+  const activeClientsRaw = users.filter((u) => u.status === "Active").length;
+  const inactiveClientsRaw = users.filter((u) => u.status === "Inactive").length;
+  const newUsersRaw = users.filter((u) => {
     const joined = new Date(u.joinedDate);
     const now = new Date();
     const diffDays = (now.getTime() - joined.getTime()) / (1000 * 60 * 60 * 24);
     return diffDays <= 30;
   }).length;
 
+  const totalUsers = Number.isFinite(totalUsersRaw) ? totalUsersRaw : 0;
+  const activeClients = Number.isFinite(activeClientsRaw) ? activeClientsRaw : 0;
+  const inactiveClients = Number.isFinite(inactiveClientsRaw)
+    ? inactiveClientsRaw
+    : 0;
+  const newUsers = Number.isFinite(newUsersRaw) ? newUsersRaw : 0;
+
   const handleToggleBlock = (user: UserRow) => {
     setUsers((prev) =>
       prev.map((u) =>
         u.id === user.id
-          ? { ...u, status: u.status === "Active" ? "Blocked" : "Active" }
+          ? { ...u, status: u.status === "Active" ? "Inactive" : "Active" }
           : u
       )
     );
@@ -175,24 +188,24 @@ export default function UserManagementPage() {
             {/* User statistics cards */}
             <KpiCards
               items={[
-                {
-                  title: "Total Users",
-                  value: totalUsers,
-                  delta: "Across all client websites",
-                  icon: <Users className="h-4 w-4" />,
-                },
-                {
-                  title: "Active Users",
-                  value: activeUsers,
-                  delta: "Can sign in and place orders",
-                  icon: <UserCheck className="h-4 w-4" />,
-                },
-                {
-                  title: "Blocked Users",
-                  value: blockedUsers,
-                  delta: "Access temporarily restricted",
-                  icon: <UserX className="h-4 w-4" />,
-                },
+      {
+        title: "Total Registered Users",
+        value: totalUsers,
+        delta: "Across all client websites",
+        icon: <Users className="h-4 w-4" />,
+      },
+      {
+        title: "Active Clients",
+        value: activeClients,
+        delta: "Clients currently live",
+        icon: <UserCheck className="h-4 w-4" />,
+      },
+      {
+        title: "Inactive Clients",
+        value: inactiveClients,
+        delta: "Clients with low or no activity",
+        icon: <UserX className="h-4 w-4" />,
+      },
                 {
                   title: "New Users (30d)",
                   value: newUsers,
@@ -213,14 +226,21 @@ export default function UserManagementPage() {
               showIndexColumn
               renderActionMenuItems={(row) => (
                 <>
-                  <DropdownMenuItem className="flex items-center gap-2 text-[13px] text-slate-900 hover:bg-gray-50">
+                  <DropdownMenuItem
+                    onClick={() =>
+                      router.push(`/userManagement/userDetails?id=${row.id}`)
+                    }
+                    className="flex items-center gap-2 text-[13px] text-slate-900 hover:bg-gray-50"
+                  >
                     <span>View Profile</span>
                   </DropdownMenuItem>
                   <DropdownMenuItem
                     onClick={() => handleToggleBlock(row)}
                     className="flex items-center gap-2 text-[13px] text-amber-600 hover:bg-amber-50 hover:text-amber-700"
                   >
-                    <span>{row.status === "Active" ? "Block User" : "Unblock User"}</span>
+                    <span>
+                      {row.status === "Active" ? "Deactivate Client" : "Activate Client"}
+                    </span>
                   </DropdownMenuItem>
                 </>
               )}
@@ -240,13 +260,13 @@ export default function UserManagementPage() {
                   <select
                     value={statusFilter}
                     onChange={(e) =>
-                      setStatusFilter(e.target.value as "All" | UserStatus)
+                      setStatusFilter(e.target.value as "All" | ClientStatus)
                     }
                     className="h-9 w-28 rounded-full border border-pink-100 bg-white px-3 text-xs font-medium text-gray-700 shadow-sm outline-none focus:border-pink-300 focus:ring-2 focus:ring-pink-100"
                   >
                     <option value="All">All statuses</option>
                     <option value="Active">Active</option>
-                    <option value="Blocked">Blocked</option>
+                    <option value="Inactive">Inactive</option>
                   </select>
                 </div>
               }
