@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { FiltersBar } from "@/components/ui/filters";
 import { DataTable, Column } from "@/components/ui/table";
 import {
   SideDrawer,
@@ -146,6 +147,7 @@ const adminColumns: Column<AdminRow>[] = [
 
 export default function AdminManagementPage() {
   const [roleFilter, setRoleFilter] = useState("All");
+  const [search, setSearch] = useState("");
   const [admins, setAdmins] = useState<AdminRow[]>(initialAdmins);
   const [addModalOpen, setAddModalOpen] = useState(false);
   const [viewModalOpen, setViewModalOpen] = useState(false);
@@ -744,20 +746,29 @@ export default function AdminManagementPage() {
                 setViewModalOpen(true);
               }}
               searchPlaceholder="Search sub admins..."
+              searchValue={search}
+              onSearchValueChange={setSearch}
               pageSize={8}
               hideFiltersButton
-              rightHeader={
-                <select
-                  value={roleFilter}
-                  onChange={(e) => setRoleFilter(e.target.value)}
-                  className="h-9 rounded-full border border-pink-100 bg-white px-3 text-xs text-slate-600 shadow-sm focus:border-pink-300 focus:outline-none focus:ring-2 focus:ring-pink-100"
-                >
-                  {ROLES.map((r) => (
-                    <option key={r} value={r === "All" ? "All" : r}>
-                      {r === "All" ? "All roles" : r}
-                    </option>
-                  ))}
-                </select>
+              headerContent={
+                <FiltersBar
+                  searchPlaceholder="Search sub admins..."
+                  searchValue={search}
+                  onSearchValueChange={setSearch}
+                  right={
+                    <select
+                      value={roleFilter}
+                      onChange={(e) => setRoleFilter(e.target.value)}
+                      className="h-9 rounded-full border border-pink-100 bg-white px-3 text-xs text-slate-600 shadow-sm focus:border-pink-300 focus:outline-none focus:ring-2 focus:ring-pink-100"
+                    >
+                      {ROLES.map((r) => (
+                        <option key={r} value={r === "All" ? "All" : r}>
+                          {r === "All" ? "All roles" : r}
+                        </option>
+                      ))}
+                    </select>
+                  }
+                />
               }
               renderActions={(row) => (
                 <DropdownMenu>

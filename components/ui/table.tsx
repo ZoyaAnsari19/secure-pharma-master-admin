@@ -1,12 +1,12 @@
 "use client";
 
 import * as React from "react";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import type { ReactNode } from "react";
 import { cn } from "@/lib/utils";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { FiltersBar } from "@/components/ui/filters";
 import { ChevronLeft, ChevronRight, Filter, MoreVertical } from "lucide-react";
 import {
   DropdownMenu,
@@ -118,6 +118,12 @@ export type DataTableProps<T> = {
   rightHeader?: ReactNode;
   pageSize?: number;
   searchPlaceholder?: string;
+  /** Controlled search value (optional). When provided, DataTable will not manage its own search state. */
+  searchValue?: string;
+  /** Controlled search handler (optional). Used when `searchValue` is provided. */
+  onSearchValueChange?: (value: string) => void;
+  /** Optional override for the header controls area (search + filters + rightHeader). */
+  headerContent?: ReactNode;
   /** Hide the default Filters button when using custom filter UI (e.g. role dropdown) */
   hideFiltersButton?: boolean;
   /** When true, show a leading Sr No. column based on filtered + paginated index */
@@ -135,21 +141,38 @@ export function DataTable<T extends { id: string | number }>({
   rightHeader,
   pageSize = 6,
   searchPlaceholder = "Search...",
+  searchValue,
+  onSearchValueChange,
+  headerContent,
   hideFiltersButton = false,
   showIndexColumn = false,
   indexColumnLabel = "Sr No.",
 }: DataTableProps<T>) {
-  const [search, setSearch] = useState("");
+  const [uncontrolledSearch, setUncontrolledSearch] = useState("");
   const [page, setPage] = useState(1);
+
+  const effectiveSearch = searchValue ?? uncontrolledSearch;
+  const setSearch = (value: string) => {
+    if (searchValue !== undefined) {
+      onSearchValueChange?.(value);
+    } else {
+      setUncontrolledSearch(value);
+    }
+  };
+
+  useEffect(() => {
+    setPage(1);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [effectiveSearch]);
 
   const filtered = useMemo(
     () =>
       data.filter((row) =>
         JSON.stringify(row)
           .toLowerCase()
-          .includes(search.toLowerCase())
+          .includes(effectiveSearch.toLowerCase())
       ),
-    [data, search]
+    [data, effectiveSearch]
   );
 
   const pageCount = Math.max(1, Math.ceil(filtered.length / pageSize));
@@ -164,29 +187,28 @@ export function DataTable<T extends { id: string | number }>({
         <div>
           <CardTitle>{title}</CardTitle>
         </div>
-        <div className="flex flex-wrap items-center gap-2">
-          <div className="w-full min-w-[260px] flex-1 sm:w-auto">
-            <Input
-              placeholder={searchPlaceholder}
-              value={search}
-              onChange={(e) => {
-                setSearch(e.target.value);
-                setPage(1);
-              }}
-            />
-          </div>
-          {!hideFiltersButton && (
-            <Button
-              variant="outline"
-              size="sm"
-              className="rounded-full border-pink-100 bg-white text-xs text-slate-600 hover:border-pink-200 hover:bg-pink-50"
-            >
-              <Filter className="mr-1.5 h-3.5 w-3.5" />
-              Filters
-            </Button>
-          )}
-          {rightHeader}
-        </div>
+        {headerContent ?? (
+          <FiltersBar
+            searchPlaceholder={searchPlaceholder}
+            searchValue={effectiveSearch}
+            onSearchValueChange={setSearch}
+            right={
+              <>
+                {!hideFiltersButton && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="rounded-full border-pink-100 bg-white text-xs text-slate-600 hover:border-pink-200 hover:bg-pink-50"
+                  >
+                    <Filter className="mr-1.5 h-3.5 w-3.5" />
+                    Filters
+                  </Button>
+                )}
+                {rightHeader}
+              </>
+            }
+          />
+        )}
       </CardHeader>
       <CardContent>
         <div className="overflow-x-auto rounded-xl border border-gray-100 bg-white">
