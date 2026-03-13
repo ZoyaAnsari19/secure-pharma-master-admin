@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { Suspense, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { SideBar } from "@/components/sideBar";
@@ -219,7 +219,7 @@ const clientUserColumns: Column<ClientUserStats>[] = [
   },
 ];
 
-export default function UserDetailsPage() {
+function UserDetailsPageContent() {
   const searchParams = useSearchParams();
   const [user, setUser] = useState<UserSummary | null>(null);
   const [clientInfo, setClientInfo] = useState<{
@@ -465,3 +465,10 @@ export default function UserDetailsPage() {
   );
 }
 
+export default function UserDetailsPage() {
+  return (
+    <Suspense fallback={<div className="p-6 text-sm text-gray-500">Loading user details...</div>}>
+      <UserDetailsPageContent />
+    </Suspense>
+  );
+}
