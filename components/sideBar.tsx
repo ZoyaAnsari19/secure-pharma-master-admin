@@ -69,7 +69,7 @@ const sidebarSections: { title: string; items: NavItem[] }[] = [
   {
     title: "Marketing",
     items: [
-      { label: "Coupons", icon: <Percent className="h-4 w-4" /> },
+      { label: "Coupons", icon: <Percent className="h-4 w-4" />, href: "/couponManagement" },
       { label: "Notifications", icon: <Bell className="h-4 w-4" /> },
       { label: "Banners", icon: <ImageIcon className="h-4 w-4" /> },
       { label: "Social Media", icon: <Share2 className="h-4 w-4" /> },
