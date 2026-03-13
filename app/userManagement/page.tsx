@@ -224,6 +224,9 @@ export default function UserManagementPage() {
               searchPlaceholder="Search users by name, email or domain..."
               hideFiltersButton
               showIndexColumn
+              onRowClick={(row) =>
+                router.push(`/userManagement/userDetails?id=${row.id}`)
+              }
               renderActionMenuItems={(row) => (
                 <>
                   <DropdownMenuItem

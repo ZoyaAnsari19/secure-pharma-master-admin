@@ -38,6 +38,15 @@ type UserOrder = {
   date: string;
 };
 
+type AffiliateSale = {
+  id: string;
+  affiliateName: string;
+  productName: string;
+  purchasersCount: number;
+  productPriceInr: number;
+  commissionPerOrderInr: number;
+};
+
 type ClientUserStats = {
   id: number;
   name: string;
@@ -138,6 +147,41 @@ const mockOrders: UserOrder[] = [
   },
 ];
 
+const mockAffiliateSales: AffiliateSale[] = [
+  {
+    id: "AFF-001",
+    affiliateName: "Aditi Sharma",
+    productName: "HydraGlow Facial Kit",
+    purchasersCount: 18,
+    productPriceInr: 2499,
+    commissionPerOrderInr: 250,
+  },
+  {
+    id: "AFF-002",
+    affiliateName: "Aditi Sharma",
+    productName: "Vitamin C Brightening Serum",
+    purchasersCount: 12,
+    productPriceInr: 1499,
+    commissionPerOrderInr: 180,
+  },
+  {
+    id: "AFF-003",
+    affiliateName: "Sara Khan",
+    productName: "Acne Defense Cleanser",
+    purchasersCount: 9,
+    productPriceInr: 1999,
+    commissionPerOrderInr: 220,
+  },
+  {
+    id: "AFF-004",
+    affiliateName: "Sara Khan",
+    productName: "Glow Boost Night Cream",
+    purchasersCount: 6,
+    productPriceInr: 1799,
+    commissionPerOrderInr: 200,
+  },
+];
+
 const mockClientUsers: ClientUserStats[] = [
   {
     id: 1,
@@ -216,6 +260,44 @@ const clientUserColumns: Column<ClientUserStats>[] = [
         month: "short",
         year: "numeric",
       }),
+  },
+];
+
+const affiliateColumns: Column<AffiliateSale>[] = [
+  {
+    key: "affiliateName",
+    label: "Affiliate Name",
+  },
+  {
+    key: "productName",
+    label: "Product",
+  },
+  {
+    key: "purchasersCount",
+    label: "Users Purchased",
+    render: (row) => (
+      <span className="text-xs font-semibold text-slate-900">
+        {row.purchasersCount}
+      </span>
+    ),
+  },
+  {
+    key: "productPriceInr",
+    label: "Product Price",
+    render: (row) => (
+      <span className="text-xs font-semibold text-slate-900">
+        ₹ {row.productPriceInr.toLocaleString("en-IN")}
+      </span>
+    ),
+  },
+  {
+    key: "commissionPerOrderInr",
+    label: "Commission / Order",
+    render: (row) => (
+      <span className="text-xs font-semibold text-emerald-700">
+        ₹ {row.commissionPerOrderInr.toLocaleString("en-IN")}
+      </span>
+    ),
   },
 ];
 
@@ -319,6 +401,13 @@ function UserDetailsPageContent() {
 
     return { totalUsers, totalOrders, totalAmount, totalAffiliateUsers };
   }, []);
+
+  const userAffiliateSales = useMemo(() => {
+    if (!user) return [];
+    return mockAffiliateSales.filter(
+      (sale) => sale.affiliateName === user.name
+    );
+  }, [user]);
 
   const statusBadgeClass =
     user?.status === "Active"
@@ -456,6 +545,20 @@ function UserDetailsPageContent() {
                   showIndexColumn
                   indexColumnLabel="Sr No."
                 />
+
+                {/* Affiliate performance table (per affiliate link) */}
+                {userAffiliateSales.length > 0 && (
+                  <DataTable<AffiliateSale>
+                    title="Affiliate Performance"
+                    columns={affiliateColumns}
+                    data={userAffiliateSales}
+                    pageSize={5}
+                    searchPlaceholder="Search affiliate products..."
+                    hideFiltersButton
+                    showIndexColumn
+                    indexColumnLabel="Sr No."
+                  />
+                )}
               </div>
             </div>
           </div>
