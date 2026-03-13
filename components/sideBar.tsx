@@ -57,7 +57,11 @@ const sidebarSections: { title: string; items: NavItem[] }[] = [
   {
     title: "Orders & Finance",
     items: [
-      { label: "Orders", icon: <ShoppingBag className="h-4 w-4" /> },
+      {
+        label: "Order Management",
+        icon: <ShoppingBag className="h-4 w-4" />,
+        href: "/orderManagement",
+      },
       { label: "Refunds / Returns", icon: <Undo2 className="h-4 w-4" /> },
       { label: "Withdraw Requests", icon: <CreditCard className="h-4 w-4" /> },
     ],
