@@ -270,7 +270,7 @@ export function DataTable<T extends { id: string | number }>({
                               <Button
                                 variant="outline"
                                 size="icon"
-                                className="h-7 w-7 rounded-full border border-pink-100 bg-white text-slate-500 shadow-none hover:border-pink-200 hover:bg-pink-50 hover:shadow-none focus:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:border-pink-200"
+                                className="h-7 w-7 rounded-full border border-pink-100 bg-white text-slate-500 shadow-none hover:border-pink-200 hover:bg-pink-50 hover:shadow-none focus:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:ring-transparent focus-visible:border-pink-200"
                               >
                                 <MoreVertical className="h-4 w-4" />
                               </Button>
