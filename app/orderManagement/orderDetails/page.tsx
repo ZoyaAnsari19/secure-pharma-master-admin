@@ -29,6 +29,9 @@ type OrderItem = {
   productName: string;
   quantity: number;
   priceInr: number;
+  /** Optional affiliate information when order came via affiliate link */
+  affiliateName?: string;
+  affiliateCommissionInr?: number;
 };
 
 type OrderDetail = {
@@ -77,6 +80,8 @@ const mockOrders: OrderDetail[] = [
         productName: "HydraGlow Facial Kit",
         quantity: 1,
         priceInr: 2499,
+        affiliateName: "Sara Khan",
+        affiliateCommissionInr: 250,
       },
     ],
     timeline: {
@@ -429,21 +434,27 @@ function OrderDetailsContent() {
                     </div>
                   </CardHeader>
                   <CardContent className="overflow-x-auto">
-                    <Table className="min-w-[640px] text-xs">
+                    <Table className="min-w-[800px] text-xs">
                       <TableHeader>
                         <TableRow>
                           <TableHead className="w-16 text-center">
                             Sr No.
                           </TableHead>
                           <TableHead>Product Name</TableHead>
+                          <TableHead className="w-40">
+                            Affiliate Name
+                          </TableHead>
                           <TableHead className="w-24 text-right">
                             Quantity
                           </TableHead>
                           <TableHead className="w-32 text-right">
-                            Price
+                            Product Price
                           </TableHead>
                           <TableHead className="w-32 text-right">
                             Total
+                          </TableHead>
+                          <TableHead className="w-32 text-right">
+                            Affiliate Commission
                           </TableHead>
                           <TableHead className="w-32 text-right">
                             Order Status
@@ -464,6 +475,9 @@ function OrderDetailsContent() {
                               <TableCell className="text-xs text-slate-800">
                                 {item.productName}
                               </TableCell>
+                              <TableCell className="text-xs text-slate-700">
+                                {item.affiliateName ?? "—"}
+                              </TableCell>
                               <TableCell className="text-right text-xs text-slate-700">
                                 {item.quantity}
                               </TableCell>
@@ -472,6 +486,11 @@ function OrderDetailsContent() {
                               </TableCell>
                               <TableCell className="text-right text-xs font-semibold text-slate-900">
                                 ₹ {lineTotal.toLocaleString("en-IN")}
+                              </TableCell>
+                              <TableCell className="text-right text-[11px] text-emerald-700">
+                                {typeof item.affiliateCommissionInr === "number"
+                                  ? `₹ ${item.affiliateCommissionInr.toLocaleString("en-IN")}`
+                                  : "—"}
                               </TableCell>
                               <TableCell className="text-right text-[11px] text-slate-700">
                                 {order.status}
