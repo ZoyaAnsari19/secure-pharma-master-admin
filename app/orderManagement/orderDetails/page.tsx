@@ -415,26 +415,17 @@ function OrderDetailsContent() {
 
                 {/* Order items table - full width */}
                 <Card>
-                  <CardHeader className="flex flex-col items-start justify-between gap-2 text-left sm:flex-row sm:items-center">
-                    <div className="flex items-center gap-2">
-                      <div className="flex h-8 w-8 items-center justify-center rounded-full bg-pink-50 text-pink-500">
-                        <ShoppingBag className="h-4 w-4" />
-                      </div>
-                      <div>
-                        <CardTitle className="text-sm font-semibold text-gray-900">
-                          Order Items
-                        </CardTitle>
-                        <p className="text-xs text-gray-500">
-                          Products purchased in this order.
-                        </p>
-                      </div>
+                  <CardHeader className="flex flex-row items-center justify-start gap-2 text-left">
+                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-pink-50 text-pink-500">
+                      <ShoppingBag className="h-4 w-4" />
                     </div>
-                    <div className="flex flex-wrap items-center gap-2">
-                      {statusBadge(order.status)}
-                      <span className="inline-flex items-center rounded-full bg-gray-50 px-3 py-1 text-[11px] font-medium text-gray-600">
-                        <CalendarDays className="mr-1.5 h-3.5 w-3.5" />
-                        {formatDateTime(order.orderDate)}
-                      </span>
+                    <div>
+                      <CardTitle className="text-sm font-semibold text-gray-900">
+                        Order Items
+                      </CardTitle>
+                      <p className="text-xs text-gray-500">
+                        Products purchased in this order.
+                      </p>
                     </div>
                   </CardHeader>
                   <CardContent className="overflow-x-auto">
