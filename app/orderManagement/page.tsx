@@ -238,6 +238,9 @@ export default function OrderManagementPage() {
               searchPlaceholder="Search orders by ID, user, client or product..."
               hideFiltersButton
               showIndexColumn
+              onRowClick={(row) =>
+                router.push(`/orderManagement/orderDetails?orderId=${row.id}`)
+              }
               renderActionMenuItems={(row) => (
                 <>
                   <DropdownMenuItem
