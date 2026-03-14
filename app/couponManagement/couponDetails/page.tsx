@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { Suspense, useMemo } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { SideBar } from "@/components/sideBar";
@@ -152,7 +152,7 @@ function statusBadge(status: CouponStatus) {
   );
 }
 
-export default function CouponDetailsPage() {
+function CouponDetailsContent() {
   const searchParams = useSearchParams();
   const couponId = searchParams.get("couponId");
 
@@ -398,5 +398,19 @@ export default function CouponDetailsPage() {
         </main>
       </div>
     </div>
+  );
+}
+
+export default function CouponDetailsPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex min-h-screen items-center justify-center bg-gray-50">
+          <p className="text-sm text-gray-500">Loading...</p>
+        </div>
+      }
+    >
+      <CouponDetailsContent />
+    </Suspense>
   );
 }
