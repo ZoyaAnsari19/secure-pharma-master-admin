@@ -11,11 +11,10 @@ import {
   TicketPercent,
   CheckCircle2,
   XCircle,
-  Clock,
-  BarChart3,
+  ShoppingBag,
 } from "lucide-react";
 
-type CouponStatus = "Active" | "Expired" | "Scheduled";
+type CouponStatus = "Active" | "Used" | "Expired";
 
 type CouponRow = {
   id: string;
@@ -24,10 +23,9 @@ type CouponRow = {
   clientWebsite: string;
   appliesTo: string;
   discountLabel: string;
-  usageLimit: number;
-  usedCount: number;
-  status: CouponStatus;
+  startDate: string;
   expiryDate: string;
+  status: CouponStatus;
 };
 
 const initialCoupons: CouponRow[] = [
@@ -38,10 +36,9 @@ const initialCoupons: CouponRow[] = [
     clientWebsite: "mumbai.glow.truebeauty.in",
     appliesTo: "All products",
     discountLabel: "10% off",
-    usageLimit: 200,
-    usedCount: 142,
-    status: "Active",
+    startDate: "2024-12-20",
     expiryDate: "2025-01-15",
+    status: "Active",
   },
   {
     id: "CPN-FACIAL-20",
@@ -50,10 +47,9 @@ const initialCoupons: CouponRow[] = [
     clientWebsite: "delhi.blush.truebeauty.in",
     appliesTo: "HydraGlow Facial Kit",
     discountLabel: "₹ 500 off",
-    usageLimit: 100,
-    usedCount: 67,
-    status: "Active",
+    startDate: "2025-01-01",
     expiryDate: "2025-03-31",
+    status: "Used",
   },
   {
     id: "CPN-SUMMER-SKIN",
@@ -62,10 +58,9 @@ const initialCoupons: CouponRow[] = [
     clientWebsite: "pune.skincraft.truebeauty.in",
     appliesTo: "Sunscreens category",
     discountLabel: "15% off",
-    usageLimit: 150,
-    usedCount: 150,
-    status: "Expired",
+    startDate: "2024-05-01",
     expiryDate: "2024-06-30",
+    status: "Expired",
   },
   {
     id: "CPN-MINIMAL-5",
@@ -74,10 +69,9 @@ const initialCoupons: CouponRow[] = [
     clientWebsite: "bangalore.minimal.truebeauty.in",
     appliesTo: "MinimalGlow bundle",
     discountLabel: "5% off",
-    usageLimit: 50,
-    usedCount: 18,
-    status: "Active",
+    startDate: "2025-02-01",
     expiryDate: "2025-04-30",
+    status: "Active",
   },
   {
     id: "CPN-RADIANT-LAUNCH",
@@ -86,10 +80,9 @@ const initialCoupons: CouponRow[] = [
     clientWebsite: "chennai.radiant.truebeauty.in",
     appliesTo: "New arrivals",
     discountLabel: "₹ 300 off",
-    usageLimit: 80,
-    usedCount: 0,
-    status: "Scheduled",
+    startDate: "2025-06-01",
     expiryDate: "2025-07-01",
+    status: "Active",
   },
 ];
 
@@ -113,33 +106,11 @@ const couponColumns: Column<CouponRow>[] = [
     ),
   },
   {
-    key: "appliesTo",
-    label: "Product / Category",
+    key: "clientWebsite",
+    label: "Client Website",
     render: (row) => (
-      <span className="max-w-[220px] truncate text-xs text-slate-700 sm:text-sm">
-        {row.appliesTo}
-      </span>
-    ),
-  },
-  {
-    key: "discountLabel",
-    label: "Discount",
-  },
-  {
-    key: "usageLimit",
-    label: "Usage Limit",
-    render: (row) => (
-      <span className="text-xs font-medium text-slate-800 sm:text-sm">
-        {row.usageLimit}
-      </span>
-    ),
-  },
-  {
-    key: "usedCount",
-    label: "Used Count",
-    render: (row) => (
-      <span className="text-xs font-semibold text-slate-900 sm:text-sm">
-        {row.usedCount}
+      <span className="max-w-[180px] truncate text-xs text-slate-600 sm:text-sm">
+        {row.clientWebsite}
       </span>
     ),
   },
@@ -157,11 +128,11 @@ const couponColumns: Column<CouponRow>[] = [
           </span>
         );
       }
-      if (row.status === "Scheduled") {
+      if (row.status === "Used") {
         return (
-          <span className={`${base} bg-sky-50 text-sky-700`}>
-            <Clock className="mr-1.5 h-3 w-3" />
-            Scheduled
+          <span className={`${base} bg-amber-50 text-amber-700`}>
+            <TicketPercent className="mr-1.5 h-3 w-3" />
+            Used
           </span>
         );
       }
@@ -172,16 +143,6 @@ const couponColumns: Column<CouponRow>[] = [
         </span>
       );
     },
-  },
-  {
-    key: "expiryDate",
-    label: "Expiry Date",
-    render: (row) =>
-      new Date(row.expiryDate).toLocaleDateString("en-IN", {
-        day: "2-digit",
-        month: "short",
-        year: "numeric",
-      }),
   },
 ];
 
@@ -209,12 +170,8 @@ export default function CouponManagementPage() {
 
   const totalCoupons = coupons.length;
   const activeCoupons = coupons.filter((c) => c.status === "Active").length;
+  const usedCoupons = coupons.filter((c) => c.status === "Used").length;
   const expiredCoupons = coupons.filter((c) => c.status === "Expired").length;
-  const totalUsageRaw = coupons.reduce(
-    (acc, c) => acc + (Number.isFinite(c.usedCount) ? c.usedCount : 0),
-    0
-  );
-  const totalUsage = Number.isFinite(totalUsageRaw) ? totalUsageRaw : 0;
 
   return (
     <div className="flex min-h-screen bg-gray-50 text-gray-900">
@@ -247,20 +204,20 @@ export default function CouponManagementPage() {
                 {
                   title: "Active Coupons",
                   value: activeCoupons,
-                  delta: "Currently available for users",
+                  delta: "Available for single use",
                   icon: <CheckCircle2 className="h-4 w-4" />,
+                },
+                {
+                  title: "Used Coupons",
+                  value: usedCoupons,
+                  delta: "Redeemed (single-use)",
+                  icon: <ShoppingBag className="h-4 w-4" />,
                 },
                 {
                   title: "Expired Coupons",
                   value: expiredCoupons,
                   delta: "No longer valid",
                   icon: <XCircle className="h-4 w-4" />,
-                },
-                {
-                  title: "Total Coupon Usage",
-                  value: totalUsage,
-                  delta: "Total times coupons were applied",
-                  icon: <BarChart3 className="h-4 w-4" />,
                 },
               ]}
             />
@@ -310,7 +267,7 @@ export default function CouponManagementPage() {
                   >
                     <option value="All">All Statuses</option>
                     <option value="Active">Active</option>
-                    <option value="Scheduled">Scheduled</option>
+                    <option value="Used">Used</option>
                     <option value="Expired">Expired</option>
                   </select>
                 </div>
