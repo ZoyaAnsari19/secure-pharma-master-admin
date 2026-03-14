@@ -35,6 +35,11 @@ import {
   MoreVertical,
   CheckCircle2,
   Clock,
+  MapPin,
+  Tag,
+  Calendar,
+  Link2,
+  FileText,
 } from "lucide-react";
 
 type CreatedBy = "Super Admin" | "Client Admin";
@@ -153,15 +158,6 @@ const notificationColumns: Column<NotificationRow>[] = [
     render: (row) => (
       <span className="max-w-[140px] truncate text-xs text-slate-700 sm:text-sm">
         {row.target}
-      </span>
-    ),
-  },
-  {
-    key: "category",
-    label: "Category",
-    render: (row) => (
-      <span className="text-xs font-medium text-slate-800 sm:text-sm">
-        {row.category}
       </span>
     ),
   },
@@ -366,9 +362,10 @@ export default function NotificationsPage() {
               columns={notificationColumns}
               data={filteredNotifications}
               pageSize={10}
-              searchPlaceholder="Search by title, category..."
+              searchPlaceholder="Search by title..."
               hideFiltersButton
               showIndexColumn
+              onRowClick={(row) => setDetailNotification(row)}
               renderActionMenuItems={(row) => (
                 <>
                   <DropdownMenuItem
@@ -619,98 +616,223 @@ export default function NotificationsPage() {
         </SideDrawerContent>
       </SideDrawer>
 
-      {/* View Details Dialog */}
-      <Dialog open={!!detailNotification} onOpenChange={(open) => !open && setDetailNotification(null)}>
-        <DialogContent className="max-w-lg" showClose={true}>
+      {/* View Details – Side Drawer (same layout as Sub Admin view drawer) */}
+      <SideDrawer open={!!detailNotification} onOpenChange={(open) => !open && setDetailNotification(null)}>
+        <SideDrawerContent className="flex h-full flex-col gap-0 overflow-hidden p-0" showClose={true}>
+          <SideDrawerHeader className="mb-0 flex h-16 flex-shrink-0 -mx-6 flex-row items-center border-b border-gray-200 bg-pink-50 px-6 pr-14">
+            <div className="flex flex-col justify-center gap-0.5">
+              <SideDrawerTitle className="text-base font-semibold leading-tight text-gray-900">
+                Notification Details
+              </SideDrawerTitle>
+              <p className="text-[11px] font-medium uppercase tracking-wider text-gray-500">
+                Read-only view
+              </p>
+            </div>
+          </SideDrawerHeader>
           {detailNotification && (
             <>
-              <DialogHeader>
-                <DialogTitle>{detailNotification.title}</DialogTitle>
-                <DialogDescription>
-                  {detailNotification.category} · {detailNotification.status}
-                </DialogDescription>
-              </DialogHeader>
-              <div className="space-y-4 text-sm">
-                <div>
-                  <p className="text-xs font-medium uppercase tracking-wide text-gray-400">Message</p>
-                  <p className="mt-1 text-slate-700">{detailNotification.message}</p>
-                </div>
-                {detailNotification.description && (
-                  <div>
-                    <p className="text-xs font-medium uppercase tracking-wide text-gray-400">Description</p>
-                    <p className="mt-1 text-slate-700">{detailNotification.description}</p>
-                  </div>
-                )}
-                <dl className="grid gap-3 sm:grid-cols-2">
-                  <div>
-                    <dt className="text-xs font-medium text-gray-400">Created By</dt>
-                    <dd className="text-slate-800">{detailNotification.createdBy}</dd>
-                  </div>
-                  <div>
-                    <dt className="text-xs font-medium text-gray-400">Target</dt>
-                    <dd className="text-slate-800">{detailNotification.target}</dd>
-                  </div>
-                  <div>
-                    <dt className="text-xs font-medium text-gray-400">Created Date</dt>
-                    <dd className="text-slate-800">
-                      {new Date(detailNotification.createdDate).toLocaleString("en-IN", {
-                        day: "2-digit",
-                        month: "short",
-                        year: "numeric",
-                        hour: "2-digit",
-                        minute: "2-digit",
-                      })}
-                    </dd>
-                  </div>
-                  {(detailNotification.locationState || detailNotification.locationCity || detailNotification.locationPincode) && (
-                    <>
-                      <div>
-                        <dt className="text-xs font-medium text-gray-400">State</dt>
-                        <dd className="text-slate-800">{detailNotification.locationState || "—"}</dd>
+              <div className="flex-1 min-h-0 overflow-y-auto px-6 py-5">
+                {/* Basic information */}
+                <section className="rounded-xl border border-gray-100 bg-gray-50/50 p-4 shadow-sm">
+                  <h3 className="mb-4 text-[11px] font-semibold uppercase tracking-wider text-gray-400">
+                    Basic information
+                  </h3>
+                  <div className="space-y-4">
+                    <div className="flex items-start gap-3">
+                      <span className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-pink-100 text-pink-600">
+                        <Bell className="h-4 w-4" />
+                      </span>
+                      <div className="min-w-0 flex-1">
+                        <p className="text-[11px] font-medium uppercase tracking-wider text-gray-400">Title</p>
+                        <p className="mt-0.5 text-sm font-semibold text-gray-900">{detailNotification.title}</p>
                       </div>
-                      <div>
-                        <dt className="text-xs font-medium text-gray-400">City</dt>
-                        <dd className="text-slate-800">{detailNotification.locationCity || "—"}</dd>
-                      </div>
-                      <div>
-                        <dt className="text-xs font-medium text-gray-400">Pincode</dt>
-                        <dd className="text-slate-800">{detailNotification.locationPincode || "—"}</dd>
-                      </div>
-                    </>
-                  )}
-                  {detailNotification.scheduledAt && (
-                    <div>
-                      <dt className="text-xs font-medium text-gray-400">Scheduled At</dt>
-                      <dd className="text-slate-800">
-                        {new Date(detailNotification.scheduledAt).toLocaleString("en-IN", {
-                          day: "2-digit",
-                          month: "short",
-                          year: "numeric",
-                          hour: "2-digit",
-                          minute: "2-digit",
-                        })}
-                      </dd>
                     </div>
-                  )}
-                </dl>
-                {detailNotification.link && (
-                  <div>
-                    <p className="text-xs font-medium text-gray-400">Link</p>
-                    <a
-                      href={detailNotification.link}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="mt-1 text-pink-600 hover:underline"
-                    >
-                      {detailNotification.link}
-                    </a>
+                    <div className="h-px bg-gray-200/80" />
+                    <div className="flex items-start gap-3">
+                      <span className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-violet-100 text-violet-600">
+                        <Tag className="h-4 w-4" />
+                      </span>
+                      <div className="min-w-0 flex-1">
+                        <p className="text-[11px] font-medium uppercase tracking-wider text-gray-400">Category</p>
+                        <p className="mt-0.5 text-sm font-semibold text-gray-900">{detailNotification.category}</p>
+                      </div>
+                    </div>
+                    <div className="h-px bg-gray-200/80" />
+                    <div className="flex items-start gap-3">
+                      <span className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-emerald-100 text-emerald-600">
+                        <CheckCircle2 className="h-4 w-4" />
+                      </span>
+                      <div className="min-w-0 flex-1">
+                        <p className="text-[11px] font-medium uppercase tracking-wider text-gray-400">Status</p>
+                        <span
+                          className={`mt-0.5 inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-semibold ${
+                            detailNotification.status === "Sent"
+                              ? "bg-emerald-100 text-emerald-800"
+                              : detailNotification.status === "Scheduled"
+                                ? "bg-amber-100 text-amber-800"
+                                : "bg-gray-100 text-gray-600"
+                          }`}
+                        >
+                          {detailNotification.status}
+                        </span>
+                      </div>
+                    </div>
+                    <div className="h-px bg-gray-200/80" />
+                    <div className="flex items-start gap-3">
+                      <span className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-sky-100 text-sky-600">
+                        <UserCog className="h-4 w-4" />
+                      </span>
+                      <div className="min-w-0 flex-1">
+                        <p className="text-[11px] font-medium uppercase tracking-wider text-gray-400">Created By</p>
+                        <p className="mt-0.5 text-sm font-semibold text-gray-900">{detailNotification.createdBy}</p>
+                      </div>
+                    </div>
+                    <div className="h-px bg-gray-200/80" />
+                    <div className="flex items-start gap-3">
+                      <span className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-amber-100 text-amber-600">
+                        <Building2 className="h-4 w-4" />
+                      </span>
+                      <div className="min-w-0 flex-1">
+                        <p className="text-[11px] font-medium uppercase tracking-wider text-gray-400">Target</p>
+                        <p className="mt-0.5 text-sm font-semibold text-gray-900">{detailNotification.target}</p>
+                      </div>
+                    </div>
+                    <div className="h-px bg-gray-200/80" />
+                    <div className="flex items-start gap-3">
+                      <span className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-gray-200/80 text-gray-500">
+                        <Calendar className="h-4 w-4" />
+                      </span>
+                      <div className="min-w-0 flex-1">
+                        <p className="text-[11px] font-medium uppercase tracking-wider text-gray-400">Created Date</p>
+                        <p className="mt-0.5 text-sm font-semibold text-gray-900">
+                          {new Date(detailNotification.createdDate).toLocaleString("en-IN", {
+                            day: "2-digit",
+                            month: "short",
+                            year: "numeric",
+                            hour: "2-digit",
+                            minute: "2-digit",
+                          })}
+                        </p>
+                      </div>
+                    </div>
                   </div>
+                </section>
+
+                <div className="my-4 h-px bg-gray-200/60" />
+
+                {/* Description */}
+                <section className="rounded-xl border border-gray-100 bg-gray-50/50 p-4 shadow-sm">
+                  <h3 className="mb-4 text-[11px] font-semibold uppercase tracking-wider text-gray-400">
+                    Description
+                  </h3>
+                  <div className="flex items-start gap-3">
+                    <span className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-slate-100 text-slate-600">
+                      <FileText className="h-4 w-4" />
+                    </span>
+                    <div className="min-w-0 flex-1">
+                      <p className="text-[11px] font-medium uppercase tracking-wider text-gray-400">Description</p>
+                      <p className="mt-0.5 text-sm text-gray-900">{detailNotification.description || "—"}</p>
+                    </div>
+                  </div>
+                </section>
+
+                {(detailNotification.locationState || detailNotification.locationCity || detailNotification.locationPincode) && (
+                  <>
+                    <div className="my-4 h-px bg-gray-200/60" />
+                    <section className="rounded-xl border border-gray-100 bg-gray-50/50 p-4 shadow-sm">
+                      <h3 className="mb-4 text-[11px] font-semibold uppercase tracking-wider text-gray-400">
+                        Location
+                      </h3>
+                      <div className="space-y-4">
+                        <div className="flex items-start gap-3">
+                          <span className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-emerald-100 text-emerald-600">
+                            <MapPin className="h-4 w-4" />
+                          </span>
+                          <div className="min-w-0 flex-1 grid grid-cols-3 gap-3">
+                            <div>
+                              <p className="text-[11px] font-medium uppercase tracking-wider text-gray-400">State</p>
+                              <p className="mt-0.5 text-sm font-semibold text-gray-900">{detailNotification.locationState || "—"}</p>
+                            </div>
+                            <div>
+                              <p className="text-[11px] font-medium uppercase tracking-wider text-gray-400">City</p>
+                              <p className="mt-0.5 text-sm font-semibold text-gray-900">{detailNotification.locationCity || "—"}</p>
+                            </div>
+                            <div>
+                              <p className="text-[11px] font-medium uppercase tracking-wider text-gray-400">Pincode</p>
+                              <p className="mt-0.5 text-sm font-semibold text-gray-900">{detailNotification.locationPincode || "—"}</p>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </section>
+                  </>
                 )}
+
+                <div className="my-4 h-px bg-gray-200/60" />
+
+                {/* Schedule & link */}
+                <section className="rounded-xl border border-gray-100 bg-gray-50/50 p-4 shadow-sm">
+                  <h3 className="mb-4 text-[11px] font-semibold uppercase tracking-wider text-gray-400">
+                    Schedule & link
+                  </h3>
+                  <div className="space-y-4">
+                    <div className="flex items-start gap-3">
+                      <span className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-amber-100 text-amber-600">
+                        <Clock className="h-4 w-4" />
+                      </span>
+                      <div className="min-w-0 flex-1">
+                        <p className="text-[11px] font-medium uppercase tracking-wider text-gray-400">Scheduled At</p>
+                        <p className="mt-0.5 text-sm font-semibold text-gray-900">
+                          {detailNotification.scheduledAt
+                            ? new Date(detailNotification.scheduledAt).toLocaleString("en-IN", {
+                                day: "2-digit",
+                                month: "short",
+                                year: "numeric",
+                                hour: "2-digit",
+                                minute: "2-digit",
+                              })
+                            : "—"}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="h-px bg-gray-200/80" />
+                    <div className="flex items-start gap-3">
+                      <span className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-sky-100 text-sky-600">
+                        <Link2 className="h-4 w-4" />
+                      </span>
+                      <div className="min-w-0 flex-1">
+                        <p className="text-[11px] font-medium uppercase tracking-wider text-gray-400">Link</p>
+                        {detailNotification.link ? (
+                          <a
+                            href={detailNotification.link}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="mt-0.5 block break-all text-sm font-medium text-pink-600 hover:underline"
+                          >
+                            {detailNotification.link}
+                          </a>
+                        ) : (
+                          <p className="mt-0.5 text-sm text-gray-400">—</p>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </section>
               </div>
+              <SideDrawerFooter className="flex-shrink-0 border-t border-gray-200/80 bg-gray-50/80 px-6 py-4">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setDetailNotification(null)}
+                  className="w-full sm:w-auto"
+                >
+                  Close
+                </Button>
+              </SideDrawerFooter>
             </>
           )}
-        </DialogContent>
-      </Dialog>
+        </SideDrawerContent>
+      </SideDrawer>
 
       {/* Delete confirmation */}
       <Dialog open={!!deleteId} onOpenChange={(open) => !open && setDeleteId(null)}>
