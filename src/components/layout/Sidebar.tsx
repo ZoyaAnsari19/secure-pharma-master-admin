@@ -23,7 +23,6 @@ import {
   X,
   ChevronLeft,
   ChevronRight,
-  Building2,
   Truck,
   Store,
 } from "lucide-react";
@@ -48,7 +47,6 @@ const sidebarSections: { title: string; items: NavItem[] }[] = [
     title: "Platform Management",
     items: [
       { label: "Sub Admin Management", icon: <Shield className="h-4 w-4" />, href: "/dashboard/admin-management" },
-      { label: "Client Management", icon: <Building2 className="h-4 w-4" />, href: "/dashboard/client-management" },
       { label: "User Management", icon: <Users className="h-4 w-4" />, href: "/dashboard/user-management" },
       { label: "Distributor Management", icon: <Truck className="h-4 w-4" />, href: "/dashboard/distributor-management" },
       { label: "Franchise Management", icon: <Store className="h-4 w-4" />, href: "/dashboard/franchise-management" },
