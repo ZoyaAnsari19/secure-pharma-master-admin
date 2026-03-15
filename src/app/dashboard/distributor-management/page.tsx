@@ -43,6 +43,8 @@ type DistributorRow = {
   state: string;
   email: string;
   phone: string;
+  gstNumber?: string;
+  pinCode?: string;
   assignedArea: string;
   walletBalance: number;
   totalOrders: number;
@@ -62,6 +64,8 @@ const initialDistributors: DistributorRow[] = [
     state: "Maharashtra",
     email: "rajesh@kumardist.com",
     phone: "9876543210",
+    gstNumber: "27AABCU9603R1ZM",
+    pinCode: "400001",
     assignedArea: "Mumbai Metro",
     walletBalance: 125000,
     totalOrders: 342,
@@ -76,6 +80,8 @@ const initialDistributors: DistributorRow[] = [
     state: "Delhi",
     email: "priya@sharmawholesale.in",
     phone: "9123456789",
+    gstNumber: "07AAGCS1234M1ZV",
+    pinCode: "110001",
     assignedArea: "North Delhi",
     walletBalance: 78000,
     totalOrders: 198,
@@ -90,6 +96,8 @@ const initialDistributors: DistributorRow[] = [
     state: "Karnataka",
     email: "amit@patelco.in",
     phone: "9988776655",
+    gstNumber: "",
+    pinCode: "560001",
     assignedArea: "Bengaluru Urban",
     walletBalance: 0,
     totalOrders: 56,
@@ -104,6 +112,8 @@ const initialDistributors: DistributorRow[] = [
     state: "Telangana",
     email: "sneha@reddydist.com",
     phone: "8765432109",
+    gstNumber: "36AABCR1234A1ZK",
+    pinCode: "500001",
     assignedArea: "Secunderabad",
     walletBalance: 210000,
     totalOrders: 521,
@@ -118,6 +128,8 @@ const initialDistributors: DistributorRow[] = [
     state: "Tamil Nadu",
     email: "vikram@singhlogistics.in",
     phone: "7654321098",
+    gstNumber: "33AABCS5678B1ZP",
+    pinCode: "600001",
     assignedArea: "Chennai Central",
     walletBalance: 45000,
     totalOrders: 89,
@@ -132,6 +144,8 @@ const initialDistributors: DistributorRow[] = [
     state: "Maharashtra",
     email: "anita@desaient.com",
     phone: "6543210987",
+    gstNumber: "27AAGFD9876C1ZQ",
+    pinCode: "411001",
     assignedArea: "Pune City",
     walletBalance: 167000,
     totalOrders: 412,
@@ -226,6 +240,9 @@ export default function DistributorManagementPage() {
   const [form, setForm] = useState<AddFormState>(initialForm);
   const [viewingDistributor, setViewingDistributor] = useState<DistributorRow | null>(null);
   const [viewModalOpen, setViewModalOpen] = useState(false);
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  const [editingDistributor, setEditingDistributor] = useState<DistributorRow | null>(null);
+  const [editForm, setEditForm] = useState<AddFormState>(initialForm);
 
   const filtered = useMemo(() => {
     return distributors.filter((d) => {
@@ -283,6 +300,8 @@ export default function DistributorManagementPage() {
       state: form.state,
       email: form.email,
       phone: form.phone,
+      gstNumber: form.gstNumber || undefined,
+      pinCode: form.pinCode || undefined,
       assignedArea: form.assignedArea,
       walletBalance: Number(form.walletBalance) || 0,
       totalOrders: 0,
@@ -305,6 +324,51 @@ export default function DistributorManagementPage() {
 
   const handleDelete = (id: number) => {
     setDistributors((prev) => prev.filter((d) => d.id !== id));
+  };
+
+  const openEditDrawer = (row: DistributorRow) => {
+    setEditingDistributor(row);
+    setEditForm({
+      name: row.name,
+      companyName: row.companyName,
+      email: row.email,
+      phone: row.phone,
+      gstNumber: row.gstNumber ?? "",
+      city: row.city,
+      state: row.state,
+      pinCode: row.pinCode ?? "",
+      assignedArea: row.assignedArea,
+      walletBalance: String(row.walletBalance),
+      status: row.status,
+    });
+    setEditModalOpen(true);
+  };
+
+  const handleUpdateDistributor = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingDistributor) return;
+    setDistributors((prev) =>
+      prev.map((d) =>
+        d.id === editingDistributor.id
+          ? {
+              ...d,
+              name: editForm.name,
+              companyName: editForm.companyName,
+              email: editForm.email,
+              phone: editForm.phone,
+              gstNumber: editForm.gstNumber || undefined,
+              pinCode: editForm.pinCode || undefined,
+              city: editForm.city,
+              state: editForm.state,
+              assignedArea: editForm.assignedArea,
+              walletBalance: Number(editForm.walletBalance) || 0,
+              status: editForm.status,
+            }
+          : d
+      )
+    );
+    setEditModalOpen(false);
+    setEditingDistributor(null);
   };
 
   return (
@@ -553,9 +617,9 @@ export default function DistributorManagementPage() {
                         </h3>
                         <dl className="space-y-2 text-sm">
                           <div>
-                            <dt className="text-[11px] text-gray-500">City, State</dt>
+                            <dt className="text-[11px] text-gray-500">State, City</dt>
                             <dd className="font-medium text-gray-900">
-                              {viewingDistributor.city}, {viewingDistributor.state}
+                              {viewingDistributor.state}, {viewingDistributor.city}
                             </dd>
                           </div>
                           <div>
@@ -599,6 +663,210 @@ export default function DistributorManagementPage() {
                       </div>
                     </div>
                   </div>
+                )}
+                {viewingDistributor && (
+                  <SideDrawerFooter className="flex-shrink-0 justify-start border-t border-gray-200 bg-gray-50/80 px-6 py-4">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => {
+                        setViewModalOpen(false);
+                        setViewingDistributor(null);
+                      }}
+                    >
+                      Cancel
+                    </Button>
+                  </SideDrawerFooter>
+                )}
+              </SideDrawerContent>
+            </SideDrawer>
+
+            {/* Edit distributor side drawer (prefilled) */}
+            <SideDrawer
+              open={editModalOpen}
+              onOpenChange={(open) => {
+                setEditModalOpen(open);
+                if (!open) setEditingDistributor(null);
+              }}
+            >
+              <SideDrawerContent className="gap-4">
+                <SideDrawerHeader>
+                  <SideDrawerTitle>Edit Distributor</SideDrawerTitle>
+                </SideDrawerHeader>
+                {editingDistributor && (
+                  <form onSubmit={handleUpdateDistributor} className="grid gap-4">
+                    <div>
+                      <label className="mb-1.5 block text-xs font-medium text-gray-600">
+                        Distributor Name
+                      </label>
+                      <Input
+                        value={editForm.name}
+                        onChange={(e) => setEditForm((f) => ({ ...f, name: e.target.value }))}
+                        placeholder="e.g. Rajesh Kumar"
+                        required
+                      />
+                    </div>
+                    <div>
+                      <label className="mb-1.5 block text-xs font-medium text-gray-600">
+                        Company Name
+                      </label>
+                      <Input
+                        value={editForm.companyName}
+                        onChange={(e) => setEditForm((f) => ({ ...f, companyName: e.target.value }))}
+                        placeholder="e.g. Kumar Distributors Pvt Ltd"
+                        required
+                      />
+                    </div>
+                    <div>
+                      <label className="mb-1.5 block text-xs font-medium text-gray-600">
+                        Email
+                      </label>
+                      <Input
+                        type="email"
+                        value={editForm.email}
+                        onChange={(e) => setEditForm((f) => ({ ...f, email: e.target.value }))}
+                        placeholder="distributor@company.com"
+                        required
+                      />
+                    </div>
+                    <div>
+                      <label className="mb-1.5 block text-xs font-medium text-gray-600">
+                        Phone
+                      </label>
+                      <Input
+                        type="tel"
+                        value={editForm.phone}
+                        onChange={(e) => {
+                          const v = e.target.value.replace(/\D/g, "").slice(0, 10);
+                          setEditForm((f) => ({ ...f, phone: v }));
+                        }}
+                        placeholder="e.g. 9876543210"
+                        maxLength={10}
+                        required
+                      />
+                    </div>
+                    <div>
+                      <label className="mb-1.5 block text-xs font-medium text-gray-600">
+                        GST Number
+                      </label>
+                      <Input
+                        value={editForm.gstNumber}
+                        onChange={(e) => setEditForm((f) => ({ ...f, gstNumber: e.target.value }))}
+                        placeholder="e.g. 27AABCU9603R1ZM"
+                      />
+                    </div>
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <label className="mb-1.5 block text-xs font-medium text-gray-600">
+                          State
+                        </label>
+                        <select
+                          value={editForm.state}
+                          onChange={(e) =>
+                            setEditForm((f) => ({ ...f, state: e.target.value, city: "" }))
+                          }
+                          className="h-9 w-full rounded-lg border border-gray-200 bg-white px-3 text-sm text-gray-700 focus:border-pink-300 focus:outline-none focus:ring-2 focus:ring-pink-100"
+                          required
+                        >
+                          <option value="">Select state</option>
+                          {INDIAN_STATES.map((s) => (
+                            <option key={s} value={s}>
+                              {s}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                      <div>
+                        <label className="mb-1.5 block text-xs font-medium text-gray-600">
+                          City
+                        </label>
+                        <select
+                          value={editForm.city}
+                          onChange={(e) => setEditForm((f) => ({ ...f, city: e.target.value }))}
+                          className="h-9 w-full rounded-lg border border-gray-200 bg-white px-3 text-sm text-gray-700 focus:border-pink-300 focus:outline-none focus:ring-2 focus:ring-pink-100"
+                          required
+                          disabled={!editForm.state}
+                        >
+                          <option value="">Select city</option>
+                          {(STATE_CITIES[editForm.state] ?? []).map((c) => (
+                            <option key={c} value={c}>
+                              {c}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                    </div>
+                    <div>
+                      <label className="mb-1.5 block text-xs font-medium text-gray-600">
+                        Pin Code
+                      </label>
+                      <Input
+                        value={editForm.pinCode}
+                        onChange={(e) => {
+                          const v = e.target.value.replace(/\D/g, "").slice(0, 6);
+                          setEditForm((f) => ({ ...f, pinCode: v }));
+                        }}
+                        placeholder="e.g. 400001"
+                        maxLength={6}
+                      />
+                    </div>
+                    <div>
+                      <label className="mb-1.5 block text-xs font-medium text-gray-600">
+                        Assigned Area
+                      </label>
+                      <Input
+                        value={editForm.assignedArea}
+                        onChange={(e) => setEditForm((f) => ({ ...f, assignedArea: e.target.value }))}
+                        placeholder="e.g. Mumbai Metro"
+                      />
+                    </div>
+                    <div>
+                      <label className="mb-1.5 block text-xs font-medium text-gray-600">
+                        Wallet Balance (₹)
+                      </label>
+                      <Input
+                        type="number"
+                        min={0}
+                        value={editForm.walletBalance}
+                        onChange={(e) => setEditForm((f) => ({ ...f, walletBalance: e.target.value }))}
+                        placeholder="0"
+                      />
+                    </div>
+                    <div>
+                      <label className="mb-1.5 block text-xs font-medium text-gray-600">
+                        Status
+                      </label>
+                      <select
+                        value={editForm.status}
+                        onChange={(e) =>
+                          setEditForm((f) => ({
+                            ...f,
+                            status: e.target.value as AddFormState["status"],
+                          }))
+                        }
+                        className="h-9 w-full rounded-lg border border-gray-200 bg-white px-3 text-sm text-gray-700 focus:border-pink-300 focus:outline-none focus:ring-2 focus:ring-pink-100"
+                      >
+                        <option value="Active">Active</option>
+                        <option value="Inactive">Inactive</option>
+                        <option value="Suspended">Suspended</option>
+                      </select>
+                    </div>
+                    <SideDrawerFooter>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => {
+                          setEditModalOpen(false);
+                          setEditingDistributor(null);
+                        }}
+                      >
+                        Cancel
+                      </Button>
+                      <Button type="submit" variant="primary">
+                        Save changes
+                      </Button>
+                    </SideDrawerFooter>
+                  </form>
                 )}
               </SideDrawerContent>
             </SideDrawer>
@@ -672,7 +940,10 @@ export default function DistributorManagementPage() {
                       <Eye className="mr-2 h-3.5 w-3.5 text-slate-500" />
                       View
                     </DropdownMenuItem>
-                    <DropdownMenuItem className="text-[13px] text-slate-700 hover:bg-pink-50">
+                    <DropdownMenuItem
+                      onClick={() => openEditDrawer(row)}
+                      className="text-[13px] text-slate-700 hover:bg-pink-50"
+                    >
                       <Pencil className="mr-2 h-3.5 w-3.5 text-slate-500" />
                       Edit
                     </DropdownMenuItem>
