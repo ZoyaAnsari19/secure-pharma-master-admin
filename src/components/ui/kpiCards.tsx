@@ -1,7 +1,7 @@
 import { ReactNode } from "react";
 import { ArrowUpRight } from "lucide-react";
 
-const CARD_VARIANTS = [
+export const CARD_VARIANTS = [
   { iconBg: "bg-blue-50", iconText: "text-blue-600", badgeBg: "bg-blue-50", badgeText: "text-blue-700" },
   { iconBg: "bg-emerald-50", iconText: "text-emerald-600", badgeBg: "bg-emerald-50", badgeText: "text-emerald-700" },
   { iconBg: "bg-violet-50", iconText: "text-violet-600", badgeBg: "bg-violet-50", badgeText: "text-violet-700" },

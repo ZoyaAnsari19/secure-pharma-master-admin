@@ -7,18 +7,11 @@ import {
   CardTitle,
   CardDescription,
 } from "@/components/ui/card";
-import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from "@/components/ui/tabs";
 import { RevenueOverviewChart } from "@/components/charts/RevenueOverviewChart";
 import { OrdersOverviewChart } from "@/components/charts/OrdersOverviewChart";
-import { UserGrowthChart } from "@/components/charts/UserGrowthChart";
-import { AffiliateEarningsChart } from "@/components/charts/AffiliateEarningsChart";
+import { UserDistributionChart } from "@/components/charts/UserDistributionChart";
 import { DataTable, Column } from "@/components/ui/table";
-import { KpiCards } from "@/components/ui/kpiCards";
+import { KpiCard, CARD_VARIANTS } from "@/components/ui/kpiCards";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { Topbar } from "@/components/layout/Topbar";
 import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
@@ -27,152 +20,138 @@ import {
   ShoppingBag,
   IndianRupee,
   Package,
-  Wallet,
   Truck,
   Building2,
+  Store,
+  Clock,
+  AlertTriangle,
+  Boxes,
+  Wallet,
 } from "lucide-react";
 
 const statCards = [
-  {
-    label: "Total Distributer",
-    value: "156",
-    delta: "+5 this month",
-    icon: Truck,
-  },
-  {
-    label: "Total Franchise",
-    value: "42",
-    delta: "+3 this month",
-    icon: Building2,
-  },
-  {
-    label: "Total Users/Agents",
-    value: "12,543",
-    delta: "+12.5%",
-    icon: Users,
-  },
-  {
-    label: "Total Orders",
-    value: "3,421",
-    delta: "+8.2%",
-    icon: ShoppingBag,
-  },
-  {
-    label: "Total Revenue",
-    value: "₹45,231.00",
-    delta: "+15.3%",
-    icon: IndianRupee,
-  },
-  {
-    label: "Total Products",
-    value: "684",
-    delta: "+3.1%",
-    icon: Package,
-  },
-  {
-    label: "Pending Withdraw Requests",
-    value: "22",
-    delta: "Pending today",
-    icon: Wallet,
-  },
+  { label: "Total Orders", value: "12,847", delta: "+8.2% vs last month", icon: ShoppingBag },
+  { label: "Total Revenue", value: "₹18.42L", delta: "+15.3% vs last month", icon: IndianRupee },
+  { label: "Total Products", value: "684", delta: "+3.1%", icon: Package },
+  { label: "Total Customers", value: "11,219", delta: "+12.5%", icon: Users },
+  { label: "Distributors", value: "156", delta: "+5 this month", icon: Truck },
+  { label: "Franchise", value: "42", delta: "+3 this month", icon: Building2 },
+  { label: "Retailers", value: "892", delta: "+18 this month", icon: Store },
+  { label: "Pending Orders", value: "47", delta: "Require action", icon: Clock },
+  { label: "Low Stock Products", value: "23", delta: "Below threshold", icon: AlertTriangle },
+  { label: "Pending Withdrawal Request", value: "22", delta: "Pending today", icon: Wallet },
 ];
 
-const adminColumns: Column<{ id: number; name: string; email: string; role: string; status: string; lastActive: string }>[] = [
-  { key: "name", label: "Admin" },
-  { key: "email", label: "Email" },
-  { key: "role", label: "Role" },
-  { key: "status", label: "Status" },
-  { key: "lastActive", label: "Last Active" },
-];
-const adminRows = [
-  { id: 1, name: "Priya Sharma", email: "priya@truebeauty.in", role: "Master Admin", status: "Active", lastActive: "2 min ago" },
-  { id: 2, name: "Ankit Verma", email: "ankit@truebeauty.in", role: "Operations", status: "Active", lastActive: "12 min ago" },
-  { id: 3, name: "Sara Khan", email: "sara@truebeauty.in", role: "Marketing", status: "Suspended", lastActive: "3 days ago" },
-  { id: 4, name: "Rahul Jain", email: "rahul@truebeauty.in", role: "Support", status: "Active", lastActive: "58 min ago" },
-  { id: 5, name: "Divya Mehta", email: "divya@truebeauty.in", role: "Finance", status: "Active", lastActive: "1 hr ago" },
+const inventoryMetrics = [
+  { label: "Total Stock (units)", value: "124,580", sub: "Across all SKUs" },
+  { label: "Low Stock", value: "23", sub: "Need reorder" },
+  { label: "Expiring Soon (30d)", value: "8", sub: "Products" },
 ];
 
-const userColumns: Column<{ id: number; name: string; email: string; tier: string; orders: string; status: string }>[] = [
-  { key: "name", label: "User" },
-  { key: "email", label: "Email" },
-  { key: "tier", label: "Tier" },
-  { key: "orders", label: "Orders" },
-  { key: "status", label: "Status" },
+const topProductsColumns: Column<
+  { id: number; name: string; sku: string; sold: number; revenue: string; trend: string }
+>[] = [
+  { key: "name", label: "Product" },
+  { key: "sku", label: "SKU" },
+  { key: "sold", label: "Units Sold" },
+  { key: "revenue", label: "Revenue" },
+  {
+    key: "trend",
+    label: "Trend",
+    render: (row) => (
+      <span className="inline-flex items-center rounded-full bg-emerald-50 px-2 py-0.5 text-xs font-medium text-emerald-700">
+        {row.trend}
+      </span>
+    ),
+  },
 ];
-const userRows = [
-  { id: 1, name: "Nisha Gupta", email: "nisha@example.com", tier: "Gold", orders: "48", status: "Active" },
-  { id: 2, name: "Karan Patel", email: "karan@example.com", tier: "Silver", orders: "21", status: "Active" },
-  { id: 3, name: "Anjali Rao", email: "anjali@example.com", tier: "Platinum", orders: "82", status: "VIP" },
-  { id: 4, name: "Vikram Singh", email: "vikram@example.com", tier: "Bronze", orders: "9", status: "On hold" },
-  { id: 5, name: "Simran Kaur", email: "simran@example.com", tier: "Gold", orders: "32", status: "Active" },
-];
-
-const withdrawColumns: Column<{ id: number; affiliate: string; amount: string; method: string; status: string; requestedOn: string }>[] = [
-  { key: "affiliate", label: "Affiliate" },
-  { key: "amount", label: "Amount" },
-  { key: "method", label: "Method" },
-  { key: "status", label: "Status" },
-  { key: "requestedOn", label: "Requested On" },
-];
-const withdrawRows = [
-  { id: 1, affiliate: "GlowWithIra", amount: "₹18,500", method: "UPI", status: "Pending", requestedOn: "Today, 09:32 AM" },
-  { id: 2, affiliate: "BlushByMeera", amount: "₹12,300", method: "Bank transfer", status: "Processing", requestedOn: "Today, 08:15 AM" },
-  { id: 3, affiliate: "SkinStory", amount: "₹9,750", method: "UPI", status: "Completed", requestedOn: "Yesterday, 05:40 PM" },
-  { id: 4, affiliate: "MinimalGlow", amount: "₹7,120", method: "Bank transfer", status: "Pending", requestedOn: "Yesterday, 01:17 PM" },
+const topProductsRows = [
+  { id: 1, name: "Glow Serum Pro", sku: "TB-GS-001", sold: 1240, revenue: "₹3.72L", trend: "+24%" },
+  { id: 2, name: "Hydra Moisturizer", sku: "TB-HM-002", sold: 982, revenue: "₹2.94L", trend: "+18%" },
+  { id: 3, name: "Vitamin C Serum", sku: "TB-VC-003", sold: 756, revenue: "₹2.27L", trend: "+12%" },
+  { id: 4, name: "Sunscreen SPF 50", sku: "TB-SS-004", sold: 654, revenue: "₹1.31L", trend: "+31%" },
+  { id: 5, name: "Night Repair Cream", sku: "TB-NR-005", sold: 521, revenue: "₹1.56L", trend: "+8%" },
 ];
 
-const orderColumns: Column<{ id: number; orderId: string; customer: string; total: string; status: string; placedOn: string }>[] = [
+const statusClass: Record<string, string> = {
+  Pending: "bg-amber-50 text-amber-700",
+  Processing: "bg-blue-50 text-blue-700",
+  Shipped: "bg-violet-50 text-violet-700",
+  Delivered: "bg-emerald-50 text-emerald-700",
+};
+
+const recentOrdersColumns: Column<
+  { id: number; orderId: string; customer: string; total: string; status: string; placedOn: string }
+>[] = [
   { key: "orderId", label: "Order ID" },
   { key: "customer", label: "Customer" },
   { key: "total", label: "Total" },
-  { key: "status", label: "Status" },
+  {
+    key: "status",
+    label: "Status",
+    render: (row) => (
+      <span
+        className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ${statusClass[row.status] ?? "bg-slate-100 text-slate-700"}`}
+      >
+        {row.status}
+      </span>
+    ),
+  },
   { key: "placedOn", label: "Placed On" },
 ];
-const orderRows = [
-  { id: 1, orderId: "#TB-9821", customer: "Riya Malhotra", total: "₹2,340", status: "Delivered", placedOn: "Today, 10:02 AM" },
-  { id: 2, orderId: "#TB-9819", customer: "Sagar Arora", total: "₹1,120", status: "Shipped", placedOn: "Today, 09:48 AM" },
-  { id: 3, orderId: "#TB-9807", customer: "Palak Sethi", total: "₹3,890", status: "Processing", placedOn: "Yesterday, 04:37 PM" },
-  { id: 4, orderId: "#TB-9798", customer: "Neeraj Kumar", total: "₹780", status: "Pending", placedOn: "Yesterday, 01:19 PM" },
+const recentOrdersRows = [
+  { id: 1, orderId: "#TB-9842", customer: "Riya Malhotra", total: "₹2,340", status: "Delivered", placedOn: "Today, 10:02 AM" },
+  { id: 2, orderId: "#TB-9841", customer: "Sagar Arora", total: "₹1,120", status: "Shipped", placedOn: "Today, 09:48 AM" },
+  { id: 3, orderId: "#TB-9840", customer: "Palak Sethi", total: "₹3,890", status: "Processing", placedOn: "Today, 09:15 AM" },
+  { id: 4, orderId: "#TB-9839", customer: "Neeraj Kumar", total: "₹780", status: "Pending", placedOn: "Yesterday, 04:37 PM" },
+  { id: 5, orderId: "#TB-9838", customer: "Anjali Rao", total: "₹1,540", status: "Delivered", placedOn: "Yesterday, 01:19 PM" },
 ];
 
 export default function DashboardPage() {
   return (
-    <div className="flex min-h-screen bg-gray-50 text-gray-900">
+    <div className="flex min-h-screen bg-slate-50/80 text-slate-900">
       <Sidebar />
       <div className="flex min-h-screen flex-1 flex-col">
         <Topbar />
         <main className="beauty-scroll flex-1 overflow-y-auto">
           <div className="mx-auto w-full max-w-[1400px] p-4 sm:p-6 lg:p-8">
-            <div className="space-y-6">
-              <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-                <div>
-                  <h1 className="text-2xl font-semibold tracking-tight text-gray-800">
-                    Master Admin ✨
-                  </h1>
-                </div>
+            <div className="space-y-8">
+              <div className="flex flex-col gap-1">
+                <h1 className="text-2xl font-semibold tracking-tight text-slate-800">
+                  Master Admin
+                </h1>
+                <p className="text-sm text-slate-500">
+                  E-commerce ERP & supply chain overview
+                </p>
               </div>
 
-              <KpiCards
-                items={statCards.map((card) => {
+              {/* Summary KPI cards — 9 metrics */}
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                {statCards.map((card, index) => {
                   const Icon = card.icon;
-                  return {
-                    title: card.label,
-                    value: card.value,
-                    delta: card.delta,
-                    icon: <Icon className="h-4 w-4" />,
-                  };
+                  return (
+                    <KpiCard
+                      key={card.label}
+                      title={card.label}
+                      value={card.value}
+                      delta={card.delta}
+                      icon={<Icon className="h-4 w-4" />}
+                      variant={CARD_VARIANTS[index % CARD_VARIANTS.length]}
+                    />
+                  );
                 })}
-              />
+              </div>
 
+              {/* Charts row: Monthly revenue + Daily orders */}
               <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-                <Card className="rounded-xl border border-gray-100 bg-white p-6 shadow-sm">
+                <Card className="rounded-xl border border-slate-200/80 bg-white shadow-sm">
                   <CardHeader>
                     <div>
-                      <CardTitle className="text-lg font-semibold text-gray-800">
-                        Revenue Overview
+                      <CardTitle className="text-lg font-semibold text-slate-800">
+                        Monthly Revenue Trend
                       </CardTitle>
-                      <CardDescription className="text-sm text-gray-500">
-                        Last 6 months performance
+                      <CardDescription className="text-sm text-slate-500">
+                        Last 6 months
                       </CardDescription>
                     </div>
                   </CardHeader>
@@ -180,14 +159,14 @@ export default function DashboardPage() {
                     <RevenueOverviewChart />
                   </CardContent>
                 </Card>
-                <Card className="rounded-xl border border-gray-100 bg-white p-6 shadow-sm">
+                <Card className="rounded-xl border border-slate-200/80 bg-white shadow-sm">
                   <CardHeader>
                     <div>
-                      <CardTitle className="text-lg font-semibold text-gray-800">
-                        Orders Overview
+                      <CardTitle className="text-lg font-semibold text-slate-800">
+                        Daily Orders
                       </CardTitle>
-                      <CardDescription className="text-sm text-gray-500">
-                        Order breakdown by day
+                      <CardDescription className="text-sm text-slate-500">
+                        Orders by day (last 7 days)
                       </CardDescription>
                     </div>
                   </CardHeader>
@@ -197,125 +176,88 @@ export default function DashboardPage() {
                 </Card>
               </div>
 
-              <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-                <Card className="rounded-xl border border-gray-100 bg-white p-6 shadow-sm">
+              {/* User distribution donut + Inventory overview */}
+              <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+                <Card className="rounded-xl border border-slate-200/80 bg-white shadow-sm lg:col-span-2">
                   <CardHeader>
                     <div>
-                      <CardTitle className="text-lg font-semibold text-gray-800">
-                        User Growth
+                      <CardTitle className="text-lg font-semibold text-slate-800">
+                        User Distribution by Role
                       </CardTitle>
-                      <CardDescription className="text-sm text-gray-500">
-                        New vs returning users
+                      <CardDescription className="text-sm text-slate-500">
+                        Distributor, franchise, retailer, networker, customer
                       </CardDescription>
                     </div>
                   </CardHeader>
                   <CardContent>
-                    <UserGrowthChart />
+                    <UserDistributionChart />
                   </CardContent>
                 </Card>
-                <Card className="rounded-xl border border-gray-100 bg-white p-6 shadow-sm">
+                <Card className="rounded-xl border border-slate-200/80 bg-white shadow-sm">
                   <CardHeader>
-                    <div>
-                      <CardTitle className="text-lg font-semibold text-gray-800">
-                        Affiliate Earnings
-                      </CardTitle>
-                      <CardDescription className="text-sm text-gray-500">
-                        Top affiliate performance
-                      </CardDescription>
+                    <div className="flex items-center gap-2">
+                      <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-slate-100 text-slate-600">
+                        <Boxes className="h-4 w-4" />
+                      </div>
+                      <div>
+                        <CardTitle className="text-lg font-semibold text-slate-800">
+                          Inventory Overview
+                        </CardTitle>
+                        <CardDescription className="text-sm text-slate-500">
+                          Stock health at a glance
+                        </CardDescription>
+                      </div>
                     </div>
                   </CardHeader>
-                  <CardContent>
-                    <AffiliateEarningsChart />
+                  <CardContent className="space-y-4">
+                    {inventoryMetrics.map((m, i) => (
+                      <div
+                        key={m.label}
+                        className="flex items-center justify-between rounded-lg border border-slate-100 bg-slate-50/50 px-4 py-3"
+                      >
+                        <div>
+                          <p className="text-xs font-medium text-slate-500">{m.label}</p>
+                          <p className="text-xs text-slate-400">{m.sub}</p>
+                        </div>
+                        <p className="text-lg font-semibold tabular-nums text-slate-800">
+                          {m.value}
+                        </p>
+                      </div>
+                    ))}
                   </CardContent>
                 </Card>
               </div>
 
-              <Tabs defaultValue="admins">
-                <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
-                  <TabsList>
-                    <TabsTrigger value="admins">Admin Management</TabsTrigger>
-                    <TabsTrigger value="users">User Management</TabsTrigger>
-                    <TabsTrigger value="withdraw">
-                      Withdraw Requests
-                    </TabsTrigger>
-                    <TabsTrigger value="orders">Orders</TabsTrigger>
-                  </TabsList>
-                </div>
-                <TabsContent value="admins">
-                  <DataTable
-                    title="Admin Management"
-                    columns={adminColumns}
-                    data={adminRows}
-                    renderActionMenuItems={() => (
-                      <>
-                        <DropdownMenuItem>Edit</DropdownMenuItem>
-                        <DropdownMenuItem className="text-amber-600">
-                          Suspend
-                        </DropdownMenuItem>
-                        <DropdownMenuItem className="text-rose-600">
-                          Delete
-                        </DropdownMenuItem>
-                      </>
-                    )}
-                  />
-                </TabsContent>
-                <TabsContent value="users">
-                  <DataTable
-                    title="User Management"
-                    columns={userColumns}
-                    data={userRows}
-                    renderActionMenuItems={() => (
-                      <>
-                        <DropdownMenuItem>Edit</DropdownMenuItem>
-                        <DropdownMenuItem className="text-amber-600">
-                          Suspend
-                        </DropdownMenuItem>
-                        <DropdownMenuItem className="text-rose-600">
-                          Delete
-                        </DropdownMenuItem>
-                      </>
-                    )}
-                  />
-                </TabsContent>
-                <TabsContent value="withdraw">
-                  <DataTable
-                    title="Withdraw Requests"
-                    columns={withdrawColumns}
-                    data={withdrawRows}
-                    renderActionMenuItems={() => (
-                      <>
-                        <DropdownMenuItem className="text-emerald-600">
-                          Approve
-                        </DropdownMenuItem>
-                        <DropdownMenuItem className="text-amber-600">
-                          Hold
-                        </DropdownMenuItem>
-                        <DropdownMenuItem className="text-rose-600">
-                          Reject
-                        </DropdownMenuItem>
-                      </>
-                    )}
-                  />
-                </TabsContent>
-                <TabsContent value="orders">
-                  <DataTable
-                    title="Recent Orders"
-                    columns={orderColumns}
-                    data={orderRows}
-                    renderActionMenuItems={() => (
-                      <>
-                        <DropdownMenuItem>View</DropdownMenuItem>
-                        <DropdownMenuItem className="text-amber-600">
-                          Refund
-                        </DropdownMenuItem>
-                        <DropdownMenuItem className="text-rose-600">
-                          Cancel
-                        </DropdownMenuItem>
-                      </>
-                    )}
-                  />
-                </TabsContent>
-              </Tabs>
+              {/* Top selling products — full width */}
+              <DataTable
+                title="Top Selling Products"
+                columns={topProductsColumns}
+                data={topProductsRows}
+                pageSize={5}
+                searchPlaceholder="Search products..."
+                renderActionMenuItems={() => (
+                  <>
+                    <DropdownMenuItem>View details</DropdownMenuItem>
+                    <DropdownMenuItem>Edit stock</DropdownMenuItem>
+                  </>
+                )}
+              />
+
+              {/* Recent orders — full width below */}
+              <DataTable
+                title="Recent Orders"
+                columns={recentOrdersColumns}
+                data={recentOrdersRows}
+                pageSize={5}
+                searchPlaceholder="Search orders..."
+                renderActionMenuItems={() => (
+                  <>
+                    <DropdownMenuItem>View</DropdownMenuItem>
+                    <DropdownMenuItem className="text-amber-600">Refund</DropdownMenuItem>
+                    <DropdownMenuItem className="text-rose-600">Cancel</DropdownMenuItem>
+                  </>
+                )}
+              />
             </div>
           </div>
         </main>
