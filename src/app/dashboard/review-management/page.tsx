@@ -17,6 +17,11 @@ import {
   ThumbsDown,
   Trash2,
   AlertOctagon,
+  Eye,
+  Hash,
+  Package,
+  User,
+  Calendar,
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -24,6 +29,13 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  SideDrawer,
+  SideDrawerContent,
+  SideDrawerHeader,
+  SideDrawerTitle,
+  SideDrawerFooter,
+} from "@/components/ui/sideDrawer";
 
 type ReviewStatus = "Pending" | "Approved" | "Rejected" | "Spam";
 
@@ -140,11 +152,21 @@ const reviewColumns: Column<ReviewRow>[] = [
   {
     key: "reviewText",
     label: "Review",
-    render: (row) => (
-      <span className="max-w-[220px] truncate text-gray-600" title={row.reviewText}>
-        {row.reviewText}
-      </span>
-    ),
+    render: (row) => {
+      const maxWords = 12;
+      const words = row.reviewText.trim().split(/\s+/);
+      const truncated = words.length > maxWords
+        ? words.slice(0, maxWords).join(" ") + " ..."
+        : row.reviewText;
+      return (
+        <span
+          className="block max-w-[240px] truncate text-gray-600"
+          title={row.reviewText}
+        >
+          {truncated}
+        </span>
+      );
+    },
   },
   {
     key: "date",
@@ -183,6 +205,8 @@ export default function ReviewManagementPage() {
   const [ratingFilter, setRatingFilter] = useState<string>("All");
   const [productFilter, setProductFilter] = useState<string>("All");
   const [statusFilter, setStatusFilter] = useState<string>("All");
+  const [viewDrawerOpen, setViewDrawerOpen] = useState(false);
+  const [viewingReview, setViewingReview] = useState<ReviewRow | null>(null);
 
   const filtered = useMemo(() => {
     return reviews.filter((r) => {
@@ -233,6 +257,11 @@ export default function ReviewManagementPage() {
     setReviews((prev) =>
       prev.map((r) => (r.id === id ? { ...r, status: "Spam" as ReviewStatus } : r))
     );
+  };
+
+  const openViewDrawer = (row: ReviewRow) => {
+    setViewingReview(row);
+    setViewDrawerOpen(true);
   };
 
   return (
@@ -305,6 +334,13 @@ export default function ReviewManagementPage() {
               renderActionMenuItems={(row) => (
                 <>
                   <DropdownMenuItem
+                    onClick={() => openViewDrawer(row)}
+                    className="cursor-pointer text-[13px] font-medium text-black hover:bg-slate-50 focus:bg-slate-50"
+                  >
+                    <Eye className="mr-2 h-3.5 w-3.5 text-blue-600" />
+                    View
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
                     onClick={() => handleApprove(row.id)}
                     className="cursor-pointer text-[13px] font-medium text-black hover:bg-slate-50 focus:bg-slate-50"
                   >
@@ -335,6 +371,178 @@ export default function ReviewManagementPage() {
                 </>
               )}
             />
+
+            <SideDrawer
+              open={viewDrawerOpen}
+              onOpenChange={(open) => {
+                setViewDrawerOpen(open);
+                if (!open) setViewingReview(null);
+              }}
+            >
+              <SideDrawerContent className="flex h-full flex-col gap-0 overflow-hidden p-0">
+                <SideDrawerHeader className="-mx-6 mb-0 flex h-16 flex-shrink-0 flex-row items-center border-b border-gray-200 bg-pink-50 px-6 pr-14">
+                  <div className="flex flex-col justify-center gap-0.5">
+                    <SideDrawerTitle className="text-base font-semibold leading-tight text-gray-900">
+                      Review Details
+                    </SideDrawerTitle>
+                    <p className="text-[11px] font-medium uppercase tracking-wider text-gray-500">
+                      Read-only view
+                    </p>
+                  </div>
+                </SideDrawerHeader>
+                {viewingReview && (
+                  <>
+                    <div className="flex-1 min-h-0 overflow-y-auto px-6 py-5">
+                      {/* Basic information */}
+                      <section className="rounded-xl border border-gray-100 bg-gray-50/50 p-4 shadow-sm">
+                        <h3 className="mb-4 text-[11px] font-semibold uppercase tracking-wider text-gray-400">
+                          Basic information
+                        </h3>
+                        <div className="space-y-4">
+                          <div className="flex items-start gap-3">
+                            <span className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-sky-100 text-sky-600">
+                              <Hash className="h-4 w-4" />
+                            </span>
+                            <div className="min-w-0 flex-1">
+                              <p className="text-[11px] font-medium uppercase tracking-wider text-gray-400">
+                                Review ID
+                              </p>
+                              <p className="mt-0.5 text-sm font-semibold text-gray-900">
+                                {viewingReview.id}
+                              </p>
+                            </div>
+                          </div>
+                          <div className="h-px bg-gray-200/80" />
+                          <div className="flex items-start gap-3">
+                            <span className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-violet-100 text-violet-600">
+                              <Package className="h-4 w-4" />
+                            </span>
+                            <div className="min-w-0 flex-1">
+                              <p className="text-[11px] font-medium uppercase tracking-wider text-gray-400">
+                                Product
+                              </p>
+                              <p className="mt-0.5 text-sm font-semibold text-gray-900">
+                                {viewingReview.productName}
+                              </p>
+                            </div>
+                          </div>
+                          <div className="h-px bg-gray-200/80" />
+                          <div className="flex items-start gap-3">
+                            <span className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-emerald-100 text-emerald-600">
+                              <User className="h-4 w-4" />
+                            </span>
+                            <div className="min-w-0 flex-1">
+                              <p className="text-[11px] font-medium uppercase tracking-wider text-gray-400">
+                                User
+                              </p>
+                              <p className="mt-0.5 text-sm font-semibold text-gray-900">
+                                {viewingReview.userName}
+                              </p>
+                            </div>
+                          </div>
+                          <div className="h-px bg-gray-200/80" />
+                          <div className="flex items-start gap-3">
+                            <span className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-gray-200/80 text-gray-500">
+                              <Calendar className="h-4 w-4" />
+                            </span>
+                            <div className="min-w-0 flex-1">
+                              <p className="text-[11px] font-medium uppercase tracking-wider text-gray-400">
+                                Date
+                              </p>
+                              <p className="mt-0.5 text-sm font-semibold text-gray-900">
+                                {new Date(viewingReview.date).toLocaleDateString("en-IN", {
+                                  day: "2-digit",
+                                  month: "short",
+                                  year: "numeric",
+                                })}
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      </section>
+
+                      <div className="my-4 h-px bg-gray-200/60" />
+
+                      {/* Rating & review content */}
+                      <section className="rounded-xl border border-gray-100 bg-gray-50/50 p-4 shadow-sm">
+                        <h3 className="mb-4 text-[11px] font-semibold uppercase tracking-wider text-gray-400">
+                          Rating & review
+                        </h3>
+                        <div className="space-y-4">
+                          <div className="flex items-start gap-3">
+                            <span className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-amber-100 text-amber-600">
+                              <Star className="h-4 w-4 fill-amber-500 text-amber-500" />
+                            </span>
+                            <div className="min-w-0 flex-1">
+                              <p className="text-[11px] font-medium uppercase tracking-wider text-gray-400">
+                                Rating
+                              </p>
+                              <p className="mt-0.5 inline-flex items-center gap-1 rounded-full bg-amber-50 px-2.5 py-1 text-sm font-semibold text-amber-800">
+                                {viewingReview.rating} / 5
+                              </p>
+                            </div>
+                          </div>
+                          <div className="h-px bg-gray-200/80" />
+                          <div className="flex items-start gap-3">
+                            <span className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-pink-100 text-pink-600">
+                              <MessageSquare className="h-4 w-4" />
+                            </span>
+                            <div className="min-w-0 flex-1">
+                              <p className="text-[11px] font-medium uppercase tracking-wider text-gray-400">
+                                Review
+                              </p>
+                              <p className="mt-0.5 text-sm text-gray-700 leading-relaxed">
+                                {viewingReview.reviewText}
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      </section>
+
+                      <div className="my-4 h-px bg-gray-200/60" />
+
+                      {/* Status */}
+                      <section className="rounded-xl border border-gray-100 bg-gray-50/50 p-4 shadow-sm">
+                        <h3 className="mb-4 text-[11px] font-semibold uppercase tracking-wider text-gray-400">
+                          Status
+                        </h3>
+                        <div className="flex items-center justify-between gap-3">
+                          <p className="text-[11px] font-medium uppercase tracking-wider text-gray-400">
+                            Moderation status
+                          </p>
+                          <span
+                            className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${
+                              viewingReview.status === "Approved"
+                                ? "bg-emerald-100 text-emerald-800 ring-1 ring-emerald-200/60"
+                                : viewingReview.status === "Pending"
+                                  ? "bg-amber-100 text-amber-800 ring-1 ring-amber-200/60"
+                                  : viewingReview.status === "Rejected"
+                                    ? "bg-rose-100 text-rose-800 ring-1 ring-rose-200/60"
+                                    : "bg-gray-100 text-gray-700 ring-1 ring-gray-200/60"
+                            }`}
+                          >
+                            {viewingReview.status}
+                          </span>
+                        </div>
+                      </section>
+                    </div>
+                    <SideDrawerFooter className="flex-shrink-0 border-t border-gray-200/80 bg-gray-50/80 px-6 py-4">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => {
+                          setViewDrawerOpen(false);
+                          setViewingReview(null);
+                        }}
+                        className="w-full sm:w-auto"
+                      >
+                        Close
+                      </Button>
+                    </SideDrawerFooter>
+                  </>
+                )}
+              </SideDrawerContent>
+            </SideDrawer>
           </div>
         </main>
       </div>
