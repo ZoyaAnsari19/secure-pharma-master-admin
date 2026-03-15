@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import {
   Card,
   CardContent,
@@ -16,6 +17,15 @@ import { Sidebar } from "@/components/layout/Sidebar";
 import { Topbar } from "@/components/layout/Topbar";
 import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+  DialogDescription,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import {
   Users,
   ShoppingBag,
   IndianRupee,
@@ -27,6 +37,16 @@ import {
   AlertTriangle,
   Boxes,
   Wallet,
+  Eye,
+  Pencil,
+  PackageOpen,
+  Hash,
+  TrendingUp,
+  BarChart3,
+  User,
+  Receipt,
+  RotateCcw,
+  XCircle,
 } from "lucide-react";
 
 const statCards = [
@@ -48,9 +68,7 @@ const inventoryMetrics = [
   { label: "Expiring Soon (30d)", value: "8", sub: "Products" },
 ];
 
-const topProductsColumns: Column<
-  { id: number; name: string; sku: string; sold: number; revenue: string; trend: string }
->[] = [
+const topProductsColumns: Column<TopProductRow>[] = [
   { key: "name", label: "Product" },
   { key: "sku", label: "SKU" },
   { key: "sold", label: "Units Sold" },
@@ -65,7 +83,16 @@ const topProductsColumns: Column<
     ),
   },
 ];
-const topProductsRows = [
+type TopProductRow = {
+  id: number;
+  name: string;
+  sku: string;
+  sold: number;
+  revenue: string;
+  trend: string;
+};
+
+const topProductsRows: TopProductRow[] = [
   { id: 1, name: "Glow Serum Pro", sku: "TB-GS-001", sold: 1240, revenue: "₹3.72L", trend: "+24%" },
   { id: 2, name: "Hydra Moisturizer", sku: "TB-HM-002", sold: 982, revenue: "₹2.94L", trend: "+18%" },
   { id: 3, name: "Vitamin C Serum", sku: "TB-VC-003", sold: 756, revenue: "₹2.27L", trend: "+12%" },
@@ -80,9 +107,16 @@ const statusClass: Record<string, string> = {
   Delivered: "bg-emerald-50 text-emerald-700",
 };
 
-const recentOrdersColumns: Column<
-  { id: number; orderId: string; customer: string; total: string; status: string; placedOn: string }
->[] = [
+type RecentOrderRow = {
+  id: number;
+  orderId: string;
+  customer: string;
+  total: string;
+  status: string;
+  placedOn: string;
+};
+
+const recentOrdersColumns: Column<RecentOrderRow>[] = [
   { key: "orderId", label: "Order ID" },
   { key: "customer", label: "Customer" },
   { key: "total", label: "Total" },
@@ -99,7 +133,7 @@ const recentOrdersColumns: Column<
   },
   { key: "placedOn", label: "Placed On" },
 ];
-const recentOrdersRows = [
+const recentOrdersRows: RecentOrderRow[] = [
   { id: 1, orderId: "#TB-9842", customer: "Riya Malhotra", total: "₹2,340", status: "Delivered", placedOn: "Today, 10:02 AM" },
   { id: 2, orderId: "#TB-9841", customer: "Sagar Arora", total: "₹1,120", status: "Shipped", placedOn: "Today, 09:48 AM" },
   { id: 3, orderId: "#TB-9840", customer: "Palak Sethi", total: "₹3,890", status: "Processing", placedOn: "Today, 09:15 AM" },
@@ -108,6 +142,26 @@ const recentOrdersRows = [
 ];
 
 export default function DashboardPage() {
+  const [viewingProduct, setViewingProduct] = useState<TopProductRow | null>(null);
+  const [editingProduct, setEditingProduct] = useState<TopProductRow | null>(null);
+  const [editStockValue, setEditStockValue] = useState<string>("");
+  const [viewingOrder, setViewingOrder] = useState<RecentOrderRow | null>(null);
+
+  const openViewModal = (row: TopProductRow) => {
+    setViewingProduct(row);
+  };
+  const openEditModal = (row: TopProductRow) => {
+    setEditingProduct(row);
+    // Prefill with mock current stock (in real app would come from API)
+    setEditStockValue(String(Math.max(100, row.sold + 50)));
+  };
+
+  const handleSaveEditStock = (e: React.FormEvent) => {
+    e.preventDefault();
+    // TODO: persist editStockValue
+    setEditingProduct(null);
+  };
+
   return (
     <div className="flex min-h-screen bg-slate-50/80 text-slate-900">
       <Sidebar />
@@ -235,10 +289,22 @@ export default function DashboardPage() {
                 data={topProductsRows}
                 pageSize={5}
                 searchPlaceholder="Search products..."
-                renderActionMenuItems={() => (
+                renderActionMenuItems={(row) => (
                   <>
-                    <DropdownMenuItem>View details</DropdownMenuItem>
-                    <DropdownMenuItem>Edit stock</DropdownMenuItem>
+                    <DropdownMenuItem
+                      className="text-sm font-medium text-gray-900"
+                      onClick={() => openViewModal(row)}
+                    >
+                      <Eye className="h-4 w-4" />
+                      View details
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      className="text-sm font-medium text-gray-900"
+                      onClick={() => openEditModal(row)}
+                    >
+                      <Pencil className="h-4 w-4" />
+                      Edit stock
+                    </DropdownMenuItem>
                   </>
                 )}
               />
@@ -250,14 +316,287 @@ export default function DashboardPage() {
                 data={recentOrdersRows}
                 pageSize={5}
                 searchPlaceholder="Search orders..."
-                renderActionMenuItems={() => (
+                renderActionMenuItems={(row) => (
                   <>
-                    <DropdownMenuItem>View</DropdownMenuItem>
-                    <DropdownMenuItem className="text-amber-600">Refund</DropdownMenuItem>
-                    <DropdownMenuItem className="text-rose-600">Cancel</DropdownMenuItem>
+                    <DropdownMenuItem
+                      className="text-sm font-medium text-gray-900"
+                      onClick={() => setViewingOrder(row)}
+                    >
+                      <Eye className="h-4 w-4" />
+                      View
+                    </DropdownMenuItem>
+                    <DropdownMenuItem className="text-sm font-medium text-amber-600">
+                      <RotateCcw className="h-4 w-4" />
+                      Refund
+                    </DropdownMenuItem>
+                    <DropdownMenuItem className="text-sm font-medium text-rose-600">
+                      <XCircle className="h-4 w-4" />
+                      Cancel
+                    </DropdownMenuItem>
                   </>
                 )}
               />
+
+              {/* View product details — modal (read-only) */}
+              <Dialog
+                open={!!viewingProduct}
+                onOpenChange={(open) => !open && setViewingProduct(null)}
+              >
+                <DialogContent className="max-h-[90vh] max-w-lg overflow-y-auto">
+                  <DialogHeader>
+                    <DialogTitle>Product Details</DialogTitle>
+                    <DialogDescription>Read-only view</DialogDescription>
+                  </DialogHeader>
+                  {viewingProduct && (
+                    <>
+                      <div className="space-y-4">
+                        <section className="rounded-xl border border-gray-100 bg-gray-50/50 p-4 shadow-sm">
+                          <h3 className="mb-4 text-[11px] font-semibold uppercase tracking-wider text-gray-400">
+                            Basic information
+                          </h3>
+                          <div className="space-y-4">
+                            <div className="flex items-start gap-3">
+                              <span className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-pink-100 text-pink-600">
+                                <PackageOpen className="h-4 w-4" />
+                              </span>
+                              <div className="min-w-0 flex-1">
+                                <p className="text-[11px] font-medium uppercase tracking-wider text-gray-400">
+                                  Product name
+                                </p>
+                                <p className="mt-0.5 text-sm font-semibold text-gray-900">
+                                  {viewingProduct.name}
+                                </p>
+                              </div>
+                            </div>
+                            <div className="h-px bg-gray-200/80" />
+                            <div className="flex items-start gap-3">
+                              <span className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-sky-100 text-sky-600">
+                                <Hash className="h-4 w-4" />
+                              </span>
+                              <div className="min-w-0 flex-1">
+                                <p className="text-[11px] font-medium uppercase tracking-wider text-gray-400">
+                                  SKU
+                                </p>
+                                <p className="mt-0.5 text-sm font-semibold text-gray-900">
+                                  {viewingProduct.sku}
+                                </p>
+                              </div>
+                            </div>
+                          </div>
+                        </section>
+                        <section className="rounded-xl border border-gray-100 bg-gray-50/50 p-4 shadow-sm">
+                          <h3 className="mb-4 text-[11px] font-semibold uppercase tracking-wider text-gray-400">
+                            Sales & performance
+                          </h3>
+                          <div className="space-y-4">
+                            <div className="flex items-start gap-3">
+                              <span className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-emerald-100 text-emerald-600">
+                                <ShoppingBag className="h-4 w-4" />
+                              </span>
+                              <div className="min-w-0 flex-1">
+                                <p className="text-[11px] font-medium uppercase tracking-wider text-gray-400">
+                                  Units sold
+                                </p>
+                                <p className="mt-0.5 text-sm font-semibold text-gray-900">
+                                  {viewingProduct.sold.toLocaleString()}
+                                </p>
+                              </div>
+                            </div>
+                            <div className="h-px bg-gray-200/80" />
+                            <div className="flex items-start gap-3">
+                              <span className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-violet-100 text-violet-600">
+                                <BarChart3 className="h-4 w-4" />
+                              </span>
+                              <div className="min-w-0 flex-1">
+                                <p className="text-[11px] font-medium uppercase tracking-wider text-gray-400">
+                                  Revenue
+                                </p>
+                                <p className="mt-0.5 text-sm font-semibold text-gray-900">
+                                  {viewingProduct.revenue}
+                                </p>
+                              </div>
+                            </div>
+                            <div className="h-px bg-gray-200/80" />
+                            <div className="flex items-center justify-between gap-3">
+                              <p className="text-[11px] font-medium uppercase tracking-wider text-gray-400">
+                                Trend
+                              </p>
+                              <span className="inline-flex items-center rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700">
+                                <TrendingUp className="mr-1.5 h-3.5 w-3.5" />
+                                {viewingProduct.trend}
+                              </span>
+                            </div>
+                          </div>
+                        </section>
+                      </div>
+                      <DialogFooter className="!justify-start">
+                        <Button
+                          type="button"
+                          variant="outline"
+                          onClick={() => setViewingProduct(null)}
+                        >
+                          Close
+                        </Button>
+                      </DialogFooter>
+                    </>
+                  )}
+                </DialogContent>
+              </Dialog>
+
+              {/* View order details — modal (read-only, same style as Product Details) */}
+              <Dialog
+                open={!!viewingOrder}
+                onOpenChange={(open) => !open && setViewingOrder(null)}
+              >
+                <DialogContent className="max-h-[90vh] max-w-lg overflow-y-auto">
+                  <DialogHeader>
+                    <DialogTitle>Order Details</DialogTitle>
+                    <DialogDescription>Read-only view</DialogDescription>
+                  </DialogHeader>
+                  {viewingOrder && (
+                    <>
+                      <div className="space-y-4">
+                        <section className="rounded-xl border border-gray-100 bg-gray-50/50 p-4 shadow-sm">
+                          <h3 className="mb-4 text-[11px] font-semibold uppercase tracking-wider text-gray-400">
+                            Order information
+                          </h3>
+                          <div className="space-y-4">
+                            <div className="flex items-start gap-3">
+                              <span className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-pink-100 text-pink-600">
+                                <Receipt className="h-4 w-4" />
+                              </span>
+                              <div className="min-w-0 flex-1">
+                                <p className="text-[11px] font-medium uppercase tracking-wider text-gray-400">
+                                  Order ID
+                                </p>
+                                <p className="mt-0.5 text-sm font-semibold text-gray-900">
+                                  {viewingOrder.orderId}
+                                </p>
+                              </div>
+                            </div>
+                            <div className="h-px bg-gray-200/80" />
+                            <div className="flex items-start gap-3">
+                              <span className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-sky-100 text-sky-600">
+                                <User className="h-4 w-4" />
+                              </span>
+                              <div className="min-w-0 flex-1">
+                                <p className="text-[11px] font-medium uppercase tracking-wider text-gray-400">
+                                  Customer
+                                </p>
+                                <p className="mt-0.5 text-sm font-semibold text-gray-900">
+                                  {viewingOrder.customer}
+                                </p>
+                              </div>
+                            </div>
+                            <div className="h-px bg-gray-200/80" />
+                            <div className="flex items-start gap-3">
+                              <span className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-emerald-100 text-emerald-600">
+                                <IndianRupee className="h-4 w-4" />
+                              </span>
+                              <div className="min-w-0 flex-1">
+                                <p className="text-[11px] font-medium uppercase tracking-wider text-gray-400">
+                                  Total
+                                </p>
+                                <p className="mt-0.5 text-sm font-semibold text-gray-900">
+                                  {viewingOrder.total}
+                                </p>
+                              </div>
+                            </div>
+                            <div className="h-px bg-gray-200/80" />
+                            <div className="flex items-center justify-between gap-3">
+                              <p className="text-[11px] font-medium uppercase tracking-wider text-gray-400">
+                                Status
+                              </p>
+                              <span
+                                className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${statusClass[viewingOrder.status] ?? "bg-slate-100 text-slate-700"}`}
+                              >
+                                {viewingOrder.status}
+                              </span>
+                            </div>
+                            <div className="h-px bg-gray-200/80" />
+                            <div className="flex items-start gap-3">
+                              <span className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-violet-100 text-violet-600">
+                                <Clock className="h-4 w-4" />
+                              </span>
+                              <div className="min-w-0 flex-1">
+                                <p className="text-[11px] font-medium uppercase tracking-wider text-gray-400">
+                                  Placed on
+                                </p>
+                                <p className="mt-0.5 text-sm font-semibold text-gray-900">
+                                  {viewingOrder.placedOn}
+                                </p>
+                              </div>
+                            </div>
+                          </div>
+                        </section>
+                      </div>
+                      <DialogFooter className="!justify-start">
+                        <Button
+                          type="button"
+                          variant="outline"
+                          onClick={() => setViewingOrder(null)}
+                        >
+                          Close
+                        </Button>
+                      </DialogFooter>
+                    </>
+                  )}
+                </DialogContent>
+              </Dialog>
+
+              {/* Edit stock — prefill modal */}
+              <Dialog
+                open={!!editingProduct}
+                onOpenChange={(open) => {
+                  if (!open) {
+                    setEditingProduct(null);
+                    setEditStockValue("");
+                  }
+                }}
+              >
+                <DialogContent className="max-w-md">
+                  <DialogHeader>
+                    <DialogTitle>Edit stock</DialogTitle>
+                    {editingProduct && (
+                      <DialogDescription>{editingProduct.name}</DialogDescription>
+                    )}
+                  </DialogHeader>
+                  {editingProduct && (
+                    <form onSubmit={handleSaveEditStock} className="grid gap-4">
+                      <div className="space-y-2">
+                        <label
+                          htmlFor="edit-stock"
+                          className="text-sm font-medium text-gray-700"
+                        >
+                          Current stock (units)
+                        </label>
+                        <input
+                          id="edit-stock"
+                          type="number"
+                          min={0}
+                          value={editStockValue}
+                          onChange={(e) => setEditStockValue(e.target.value)}
+                          placeholder="e.g. 500"
+                          className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-900 shadow-sm focus:border-pink-300 focus:outline-none focus:ring-1 focus:ring-pink-200"
+                        />
+                      </div>
+                      <DialogFooter className="!justify-between">
+                        <Button
+                          type="button"
+                          variant="outline"
+                          onClick={() => {
+                            setEditingProduct(null);
+                            setEditStockValue("");
+                          }}
+                        >
+                          Cancel
+                        </Button>
+                        <Button type="submit" variant="primary">Save</Button>
+                      </DialogFooter>
+                    </form>
+                  )}
+                </DialogContent>
+              </Dialog>
             </div>
           </div>
         </main>

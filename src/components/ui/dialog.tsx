@@ -42,7 +42,11 @@ const DialogContent = React.forwardRef<
     >
       {showClose && (
         <DialogPrimitive.Close asChild>
-          <Button variant="ghost" size="icon" className="absolute right-4 top-4 h-8 w-8 rounded-full">
+          <Button
+            variant="outline"
+            size="icon"
+            className="absolute right-4 top-4 h-8 w-8 rounded-full border-pink-200 bg-white text-gray-700 shadow-sm ring-1 ring-pink-200/60 hover:border-pink-300 hover:bg-pink-50 hover:text-gray-900"
+          >
             <X className="h-4 w-4" />
           </Button>
         </DialogPrimitive.Close>
