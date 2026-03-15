@@ -24,32 +24,30 @@ import { SideBar } from "@/components/sideBar";
 import { TopBar } from "@/components/topBar";
 import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import {
-  ArrowUpRight,
   Users,
   ShoppingBag,
   IndianRupee,
   Package,
-  UserCheck,
   Wallet,
-  ShieldCheck,
-  ClipboardList,
+  Truck,
+  Building2,
 } from "lucide-react";
 
 const statCards = [
   {
-    label: "Total Sub Admins",
-    value: "24",
-    delta: "+2 this month",
-    icon: ShieldCheck,
+    label: "Total Distributer",
+    value: "156",
+    delta: "+5 this month",
+    icon: Truck,
   },
   {
-    label: "Total Clients",
-    value: "320",
-    delta: "+4.3% this month",
-    icon: ClipboardList,
+    label: "Total Franchise",
+    value: "42",
+    delta: "+3 this month",
+    icon: Building2,
   },
   {
-    label: "Total Users",
+    label: "Total Users/Agents",
     value: "12,543",
     delta: "+12.5%",
     icon: Users,
@@ -71,12 +69,6 @@ const statCards = [
     value: "684",
     delta: "+3.1%",
     icon: Package,
-  },
-  {
-    label: "Total Affiliates",
-    value: "1,245",
-    delta: "+6.1%",
-    icon: UserCheck,
   },
   {
     label: "Pending Withdraw Requests",
