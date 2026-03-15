@@ -176,6 +176,19 @@ const INDIAN_STATES = [
   "Telangana", "West Bengal", "Gujarat", "Rajasthan", "Uttar Pradesh",
 ];
 
+const STATE_CITIES: Record<string, string[]> = {
+  "Andhra Pradesh": ["Visakhapatnam", "Vijayawada", "Guntur", "Nellore", "Kurnool", "Kakinada", "Rajahmundry", "Tirupati", "Kadapa", "Anantapur"],
+  Delhi: ["New Delhi", "North Delhi", "South Delhi", "East Delhi", "West Delhi", "Central Delhi", "Dwarka", "Rohini", "Saket", "Karol Bagh"],
+  Karnataka: ["Bangalore", "Mysore", "Hubli", "Mangalore", "Belgaum", "Gulbarga", "Davanagere", "Bellary", "Bijapur", "Shimoga"],
+  Maharashtra: ["Mumbai", "Pune", "Nagpur", "Thane", "Nashik", "Aurangabad", "Solapur", "Kolhapur", "Amravati", "Navi Mumbai"],
+  "Tamil Nadu": ["Chennai", "Coimbatore", "Madurai", "Tiruchirappalli", "Salem", "Tirunelveli", "Tiruppur", "Erode", "Vellore", "Thoothukudi"],
+  Telangana: ["Hyderabad", "Warangal", "Nizamabad", "Karimnagar", "Khammam", "Mahbubnagar", "Nalgonda", "Adilabad", "Suryapet", "Siddipet"],
+  "West Bengal": ["Kolkata", "Howrah", "Durgapur", "Asansol", "Siliguri", "Bardhaman", "Malda", "Baharampur", "Habra", "Kharagpur"],
+  Gujarat: ["Ahmedabad", "Surat", "Vadodara", "Rajkot", "Bhavnagar", "Jamnagar", "Junagadh", "Gandhinagar", "Anand", "Nadiad"],
+  Rajasthan: ["Jaipur", "Jodhpur", "Udaipur", "Kota", "Bikaner", "Ajmer", "Bhilwara", "Alwar", "Bharatpur", "Sikar"],
+  "Uttar Pradesh": ["Lucknow", "Kanpur", "Ghaziabad", "Agra", "Varanasi", "Meerut", "Allahabad", "Bareilly", "Aligarh", "Moradabad"],
+};
+
 type AddFormState = {
   name: string;
   companyName: string;
@@ -228,8 +241,8 @@ export default function DistributorManagementPage() {
 
   const kpiItems = useMemo(() => {
     const active = distributors.filter((d) => d.status === "Active").length;
+    const suspended = distributors.filter((d) => d.status === "Suspended").length;
     const totalWallet = distributors.reduce((s, d) => s + d.walletBalance, 0);
-    const totalOrders = distributors.reduce((s, d) => s + d.totalOrders, 0);
     return [
       {
         title: "Total Distributors",
@@ -242,6 +255,12 @@ export default function DistributorManagementPage() {
         value: active,
         delta: "Currently active",
         icon: <Package className="h-4 w-4" />,
+      },
+      {
+        title: "Suspended Distributors",
+        value: suspended,
+        delta: "Access suspended",
+        icon: <PauseCircle className="h-4 w-4" />,
       },
       {
         title: "Total Wallet Balance",
@@ -374,28 +393,39 @@ export default function DistributorManagementPage() {
                     <div className="grid grid-cols-2 gap-3">
                       <div>
                         <label className="mb-1.5 block text-xs font-medium text-gray-600">
-                          City
-                        </label>
-                        <Input
-                          value={form.city}
-                          onChange={(e) => setForm((f) => ({ ...f, city: e.target.value }))}
-                          placeholder="City"
-                          required
-                        />
-                      </div>
-                      <div>
-                        <label className="mb-1.5 block text-xs font-medium text-gray-600">
                           State
                         </label>
                         <select
                           value={form.state}
-                          onChange={(e) => setForm((f) => ({ ...f, state: e.target.value }))}
+                          onChange={(e) =>
+                            setForm((f) => ({ ...f, state: e.target.value, city: "" }))
+                          }
                           className="h-9 w-full rounded-lg border border-gray-200 bg-white px-3 text-sm text-gray-700 focus:border-pink-300 focus:outline-none focus:ring-2 focus:ring-pink-100"
+                          required
                         >
                           <option value="">Select state</option>
                           {INDIAN_STATES.map((s) => (
                             <option key={s} value={s}>
                               {s}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                      <div>
+                        <label className="mb-1.5 block text-xs font-medium text-gray-600">
+                          City
+                        </label>
+                        <select
+                          value={form.city}
+                          onChange={(e) => setForm((f) => ({ ...f, city: e.target.value }))}
+                          className="h-9 w-full rounded-lg border border-gray-200 bg-white px-3 text-sm text-gray-700 focus:border-pink-300 focus:outline-none focus:ring-2 focus:ring-pink-100"
+                          required
+                          disabled={!form.state}
+                        >
+                          <option value="">Select city</option>
+                          {(STATE_CITIES[form.state] ?? []).map((c) => (
+                            <option key={c} value={c}>
+                              {c}
                             </option>
                           ))}
                         </select>
