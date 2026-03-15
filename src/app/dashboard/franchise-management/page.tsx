@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { FiltersBar } from "@/components/ui/filters";
@@ -68,11 +69,11 @@ const initialFranchises: FranchiseRow[] = [
   {
     id: 1,
     franchiseId: "FRN-001",
-    name: "Metro Mart Andheri",
+    name: "Arun Mehta",
     companyName: "Metro Retail Pvt Ltd",
     city: "Mumbai",
     state: "Maharashtra",
-    email: "andheri@metromart.in",
+    email: "arun.mehta@metromart.in",
     phone: "9876543210",
     gstNumber: "27AABCU9603R1ZM",
     pinCode: "400058",
@@ -84,11 +85,11 @@ const initialFranchises: FranchiseRow[] = [
   {
     id: 2,
     franchiseId: "FRN-002",
-    name: "QuickMart North Delhi",
+    name: "Neha Gupta",
     companyName: "QuickMart Franchise Ltd",
     city: "Delhi",
     state: "Delhi",
-    email: "north@quickmart.in",
+    email: "neha.gupta@quickmart.in",
     phone: "9123456789",
     gstNumber: "07AAGCS1234M1ZV",
     pinCode: "110001",
@@ -100,11 +101,11 @@ const initialFranchises: FranchiseRow[] = [
   {
     id: 3,
     franchiseId: "FRN-003",
-    name: "SuperStore Koramangala",
+    name: "Karthik Iyer",
     companyName: "SuperStore India",
     city: "Bangalore",
     state: "Karnataka",
-    email: "koramangala@superstore.in",
+    email: "karthik.iyer@superstore.in",
     phone: "9988776655",
     pinCode: "560034",
     assignedDistributor: "Amit Patel",
@@ -115,11 +116,11 @@ const initialFranchises: FranchiseRow[] = [
   {
     id: 4,
     franchiseId: "FRN-004",
-    name: "Daily Needs Secunderabad",
+    name: "Lakshmi Reddy",
     companyName: "Daily Needs Retail",
     city: "Hyderabad",
     state: "Telangana",
-    email: "sec@dailyneeds.in",
+    email: "lakshmi.reddy@dailyneeds.in",
     phone: "8765432109",
     gstNumber: "36AABCR1234A1ZK",
     pinCode: "500003",
@@ -131,11 +132,11 @@ const initialFranchises: FranchiseRow[] = [
   {
     id: 5,
     franchiseId: "FRN-005",
-    name: "City Mart T Nagar",
+    name: "Venkatesh Murthy",
     companyName: "City Mart Chennai",
     city: "Chennai",
     state: "Tamil Nadu",
-    email: "tnagar@citymart.in",
+    email: "venkatesh.murthy@citymart.in",
     phone: "7654321098",
     gstNumber: "33AABCS5678B1ZP",
     pinCode: "600017",
@@ -147,11 +148,11 @@ const initialFranchises: FranchiseRow[] = [
   {
     id: 6,
     franchiseId: "FRN-006",
-    name: "Pune Central",
+    name: "Meera Joshi",
     companyName: "Pune Central Retail",
     city: "Pune",
     state: "Maharashtra",
-    email: "info@punecentral.in",
+    email: "meera.joshi@punecentral.in",
     phone: "6543210987",
     gstNumber: "27AAGFD9876C1ZQ",
     pinCode: "411001",
@@ -240,7 +241,10 @@ const initialForm: AddFormState = {
   status: "Active",
 };
 
+const FRANCHISE_DETAILS_STORAGE_KEY = "franchiseDetailsView";
+
 export default function FranchiseManagementPage() {
+  const router = useRouter();
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("All");
   const [distributorFilter, setDistributorFilter] = useState<string>("All");
@@ -248,8 +252,6 @@ export default function FranchiseManagementPage() {
   const [franchises, setFranchises] = useState<FranchiseRow[]>(initialFranchises);
   const [addModalOpen, setAddModalOpen] = useState(false);
   const [form, setForm] = useState<AddFormState>(initialForm);
-  const [viewingFranchise, setViewingFranchise] = useState<FranchiseRow | null>(null);
-  const [viewModalOpen, setViewModalOpen] = useState(false);
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [editingFranchise, setEditingFranchise] = useState<FranchiseRow | null>(null);
   const [editForm, setEditForm] = useState<AddFormState>(initialForm);
@@ -335,6 +337,13 @@ export default function FranchiseManagementPage() {
 
   const handleDelete = (id: number) => {
     setFranchises((prev) => prev.filter((f) => f.id !== id));
+  };
+
+  const openFranchiseDetails = (row: FranchiseRow) => {
+    if (typeof window !== "undefined") {
+      sessionStorage.setItem(FRANCHISE_DETAILS_STORAGE_KEY, JSON.stringify(row));
+    }
+    router.push(`/dashboard/franchise-management/franchise-details?id=${row.id}`);
   };
 
   const openEditDrawer = (row: FranchiseRow) => {
@@ -584,126 +593,6 @@ export default function FranchiseManagementPage() {
 
             <KpiCards items={kpiItems} />
 
-            {/* View franchise side drawer */}
-            <SideDrawer
-              open={viewModalOpen}
-              onOpenChange={(open) => {
-                setViewModalOpen(open);
-                if (!open) setViewingFranchise(null);
-              }}
-            >
-              <SideDrawerContent className="flex h-full flex-col gap-0 overflow-hidden p-0">
-                <SideDrawerHeader className="-mx-6 mb-0 flex h-16 flex-shrink-0 flex-row items-center border-b border-gray-200 bg-pink-50 px-6 pr-14">
-                  <div className="flex flex-col justify-center gap-0.5">
-                    <SideDrawerTitle className="text-base font-semibold leading-tight text-gray-900">
-                      Franchise Details
-                    </SideDrawerTitle>
-                    <p className="text-[11px] font-medium uppercase tracking-wider text-gray-500">
-                      Read-only view
-                    </p>
-                  </div>
-                </SideDrawerHeader>
-                {viewingFranchise && (
-                  <div className="flex-1 min-h-0 overflow-y-auto px-6 py-5">
-                    <div className="space-y-4">
-                      <div className="rounded-xl border border-gray-100 bg-gray-50/50 p-4 shadow-sm">
-                        <h3 className="mb-3 text-[11px] font-semibold uppercase tracking-wider text-gray-400">
-                          Basic Info
-                        </h3>
-                        <dl className="space-y-2 text-sm">
-                          <div>
-                            <dt className="text-[11px] text-gray-500">Franchise ID</dt>
-                            <dd className="font-medium text-gray-900">{viewingFranchise.franchiseId}</dd>
-                          </div>
-                          <div>
-                            <dt className="text-[11px] text-gray-500">Name</dt>
-                            <dd className="font-medium text-gray-900">{viewingFranchise.name}</dd>
-                          </div>
-                          <div>
-                            <dt className="text-[11px] text-gray-500">Company</dt>
-                            <dd className="font-medium text-gray-900">{viewingFranchise.companyName}</dd>
-                          </div>
-                          <div>
-                            <dt className="text-[11px] text-gray-500">Email / Phone</dt>
-                            <dd className="font-medium text-gray-900">{viewingFranchise.email}</dd>
-                            <dd className="text-gray-600">{viewingFranchise.phone}</dd>
-                          </div>
-                        </dl>
-                      </div>
-                      <div className="rounded-xl border border-gray-100 bg-gray-50/50 p-4 shadow-sm">
-                        <h3 className="mb-3 text-[11px] font-semibold uppercase tracking-wider text-gray-400">
-                          Location & Distributor
-                        </h3>
-                        <dl className="space-y-2 text-sm">
-                          <div>
-                            <dt className="text-[11px] text-gray-500">State, City</dt>
-                            <dd className="font-medium text-gray-900">
-                              {viewingFranchise.state}, {viewingFranchise.city}
-                            </dd>
-                          </div>
-                          <div>
-                            <dt className="text-[11px] text-gray-500">Pin Code</dt>
-                            <dd className="font-medium text-gray-900">{viewingFranchise.pinCode ?? "—"}</dd>
-                          </div>
-                          <div>
-                            <dt className="text-[11px] text-gray-500">Assigned Distributor</dt>
-                            <dd className="font-medium text-gray-900">{viewingFranchise.assignedDistributor}</dd>
-                          </div>
-                        </dl>
-                      </div>
-                      <div className="rounded-xl border border-gray-100 bg-gray-50/50 p-4 shadow-sm">
-                        <h3 className="mb-3 text-[11px] font-semibold uppercase tracking-wider text-gray-400">
-                          Performance
-                        </h3>
-                        <dl className="space-y-2 text-sm">
-                          <div>
-                            <dt className="text-[11px] text-gray-500">Wallet Balance</dt>
-                            <dd className="font-semibold text-gray-900">
-                              ₹{viewingFranchise.walletBalance.toLocaleString("en-IN")}
-                            </dd>
-                          </div>
-                          <div>
-                            <dt className="text-[11px] text-gray-500">Total Orders</dt>
-                            <dd className="font-semibold text-gray-900">{viewingFranchise.totalOrders}</dd>
-                          </div>
-                          <div>
-                            <dt className="text-[11px] text-gray-500">Status</dt>
-                            <dd>
-                              <span
-                                className={`inline-flex rounded-full px-2.5 py-0.5 text-[11px] font-medium ${
-                                  viewingFranchise.status === "Active"
-                                    ? "bg-emerald-50 text-emerald-700"
-                                    : viewingFranchise.status === "Suspended"
-                                      ? "bg-amber-50 text-amber-700"
-                                      : "bg-gray-100 text-gray-600"
-                                }`}
-                              >
-                                {viewingFranchise.status}
-                              </span>
-                            </dd>
-                          </div>
-                        </dl>
-                      </div>
-                    </div>
-                  </div>
-                )}
-                {viewingFranchise && (
-                  <SideDrawerFooter className="flex-shrink-0 justify-start border-t border-gray-200 bg-gray-50/80 px-6 py-4">
-                    <Button
-                      type="button"
-                      variant="outline"
-                      onClick={() => {
-                        setViewModalOpen(false);
-                        setViewingFranchise(null);
-                      }}
-                    >
-                      Cancel
-                    </Button>
-                  </SideDrawerFooter>
-                )}
-              </SideDrawerContent>
-            </SideDrawer>
-
             {/* Edit franchise side drawer */}
             <SideDrawer
               open={editModalOpen}
@@ -906,10 +795,7 @@ export default function FranchiseManagementPage() {
               title="Franchises"
               columns={franchiseColumns}
               data={filtered}
-              onRowClick={(row) => {
-                setViewingFranchise(row);
-                setViewModalOpen(true);
-              }}
+              onRowClick={(row) => openFranchiseDetails(row)}
               searchPlaceholder="Search by name, company, ID, city..."
               searchValue={search}
               onSearchValueChange={setSearch}
@@ -974,10 +860,7 @@ export default function FranchiseManagementPage() {
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end" className="min-w-[140px]">
                     <DropdownMenuItem
-                      onClick={() => {
-                        setViewingFranchise(row);
-                        setViewModalOpen(true);
-                      }}
+                      onClick={() => openFranchiseDetails(row)}
                       className="cursor-pointer text-[13px] font-medium text-black hover:bg-slate-50 focus:bg-slate-50"
                     >
                       <Eye className="mr-2 h-3.5 w-3.5 text-blue-600" />
