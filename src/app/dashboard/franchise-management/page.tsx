@@ -169,16 +169,6 @@ const franchiseColumns: Column<FranchiseRow>[] = [
   { key: "city", label: "City" },
   { key: "assignedDistributor", label: "Assigned Distributor" },
   {
-    key: "email",
-    label: "Contact",
-    render: (row) => (
-      <span className="text-gray-700">
-        {row.email}
-        <span className="block text-[11px] text-gray-500">{row.phone}</span>
-      </span>
-    ),
-  },
-  {
     key: "totalOrders",
     label: "Orders",
     render: (row) => (
