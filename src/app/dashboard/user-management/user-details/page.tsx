@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { Suspense, useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { Sidebar } from "@/components/layout/Sidebar";
@@ -248,7 +248,7 @@ function getMockReturnRefundHistory(_userId: string): ReturnRefundRecord[] {
   ];
 }
 
-export default function UserDetailsPage() {
+function UserDetailsContent() {
   const searchParams = useSearchParams();
   const id = searchParams.get("id");
   const [user, setUser] = useState<UserDetails | null>(null);
@@ -880,5 +880,27 @@ export default function UserDetailsPage() {
         </main>
       </div>
     </div>
+  );
+}
+
+function UserDetailsFallback() {
+  return (
+    <div className="flex min-h-screen bg-gray-50 text-gray-900">
+      <Sidebar />
+      <div className="flex min-h-screen flex-1 flex-col">
+        <Topbar />
+        <main className="flex flex-1 items-center justify-center">
+          <div className="h-8 w-8 animate-spin rounded-full border-2 border-gray-300 border-t-gray-600" />
+        </main>
+      </div>
+    </div>
+  );
+}
+
+export default function UserDetailsPage() {
+  return (
+    <Suspense fallback={<UserDetailsFallback />}>
+      <UserDetailsContent />
+    </Suspense>
   );
 }

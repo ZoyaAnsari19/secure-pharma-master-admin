@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { Suspense, useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { Sidebar } from "@/components/layout/Sidebar";
@@ -39,7 +39,7 @@ type FranchiseDetails = {
   status: "Active" | "Inactive" | "Suspended";
 };
 
-export default function FranchiseDetailsPage() {
+function FranchiseDetailsContent() {
   const searchParams = useSearchParams();
   const id = searchParams.get("id");
   const [franchise, setFranchise] = useState<FranchiseDetails | null>(null);
@@ -356,5 +356,27 @@ export default function FranchiseDetailsPage() {
         </main>
       </div>
     </div>
+  );
+}
+
+function FranchiseDetailsFallback() {
+  return (
+    <div className="flex min-h-screen bg-gray-50 text-gray-900">
+      <Sidebar />
+      <div className="flex min-h-screen flex-1 flex-col">
+        <Topbar />
+        <main className="flex flex-1 items-center justify-center">
+          <div className="h-8 w-8 animate-spin rounded-full border-2 border-pink-500 border-t-transparent" />
+        </main>
+      </div>
+    </div>
+  );
+}
+
+export default function FranchiseDetailsPage() {
+  return (
+    <Suspense fallback={<FranchiseDetailsFallback />}>
+      <FranchiseDetailsContent />
+    </Suspense>
   );
 }
