@@ -292,17 +292,17 @@ export default function DashboardPage() {
                 renderActionMenuItems={(row) => (
                   <>
                     <DropdownMenuItem
-                      className="text-sm font-medium text-gray-900"
+                      className="text-sm font-medium text-gray-900 hover:text-gray-900"
                       onClick={() => openViewModal(row)}
                     >
-                      <Eye className="h-4 w-4" />
+                      <Eye className="h-4 w-4 shrink-0 text-blue-600" />
                       View details
                     </DropdownMenuItem>
                     <DropdownMenuItem
-                      className="text-sm font-medium text-gray-900"
+                      className="text-sm font-medium text-gray-900 hover:text-gray-900"
                       onClick={() => openEditModal(row)}
                     >
-                      <Pencil className="h-4 w-4" />
+                      <Pencil className="h-4 w-4 shrink-0 text-emerald-600" />
                       Edit stock
                     </DropdownMenuItem>
                   </>
@@ -319,18 +319,18 @@ export default function DashboardPage() {
                 renderActionMenuItems={(row) => (
                   <>
                     <DropdownMenuItem
-                      className="text-sm font-medium text-gray-900"
+                      className="text-sm font-medium text-gray-900 hover:text-gray-900"
                       onClick={() => setViewingOrder(row)}
                     >
-                      <Eye className="h-4 w-4" />
+                      <Eye className="h-4 w-4 shrink-0 text-blue-600" />
                       View
                     </DropdownMenuItem>
-                    <DropdownMenuItem className="text-sm font-medium text-amber-600">
-                      <RotateCcw className="h-4 w-4" />
+                    <DropdownMenuItem className="text-sm font-medium text-amber-600 hover:text-amber-700">
+                      <RotateCcw className="h-4 w-4 shrink-0 text-amber-600" />
                       Refund
                     </DropdownMenuItem>
-                    <DropdownMenuItem className="text-sm font-medium text-rose-600">
-                      <XCircle className="h-4 w-4" />
+                    <DropdownMenuItem className="text-sm font-medium text-rose-600 hover:text-rose-700">
+                      <XCircle className="h-4 w-4 shrink-0 text-rose-600" />
                       Cancel
                     </DropdownMenuItem>
                   </>
