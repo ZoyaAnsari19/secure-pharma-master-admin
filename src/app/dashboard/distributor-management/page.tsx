@@ -929,36 +929,36 @@ export default function DistributorManagementPage() {
                       <MoreVertical className="h-4 w-4" />
                     </Button>
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
+                  <DropdownMenuContent align="end" className="min-w-[140px]">
                     <DropdownMenuItem
                       onClick={() => {
                         setViewingDistributor(row);
                         setViewModalOpen(true);
                       }}
-                      className="text-[13px] text-slate-700 hover:bg-pink-50"
+                      className="cursor-pointer text-[13px] font-medium text-black hover:bg-slate-50 focus:bg-slate-50"
                     >
-                      <Eye className="mr-2 h-3.5 w-3.5 text-slate-500" />
+                      <Eye className="mr-2 h-3.5 w-3.5 text-blue-600" />
                       View
                     </DropdownMenuItem>
                     <DropdownMenuItem
                       onClick={() => openEditDrawer(row)}
-                      className="text-[13px] text-slate-700 hover:bg-pink-50"
+                      className="cursor-pointer text-[13px] font-medium text-black hover:bg-slate-50 focus:bg-slate-50"
                     >
-                      <Pencil className="mr-2 h-3.5 w-3.5 text-slate-500" />
+                      <Pencil className="mr-2 h-3.5 w-3.5 text-emerald-600" />
                       Edit
                     </DropdownMenuItem>
                     <DropdownMenuItem
                       onClick={() => handleSuspend(row.id)}
-                      className="text-[13px] text-amber-600 hover:bg-amber-50"
+                      className="cursor-pointer text-[13px] font-medium text-black hover:bg-slate-50 focus:bg-slate-50"
                     >
-                      <PauseCircle className="mr-2 h-3.5 w-3.5" />
+                      <PauseCircle className="mr-2 h-3.5 w-3.5 text-orange-500" />
                       {row.status === "Active" ? "Suspend" : "Activate"}
                     </DropdownMenuItem>
                     <DropdownMenuItem
                       onClick={() => handleDelete(row.id)}
-                      className="text-[13px] text-rose-600 hover:bg-rose-50"
+                      className="cursor-pointer text-[13px] font-medium text-red-600 hover:bg-slate-50 focus:bg-slate-50"
                     >
-                      <Trash2 className="mr-2 h-3.5 w-3.5" />
+                      <Trash2 className="mr-2 h-3.5 w-3.5 text-red-600" />
                       Delete
                     </DropdownMenuItem>
                   </DropdownMenuContent>
