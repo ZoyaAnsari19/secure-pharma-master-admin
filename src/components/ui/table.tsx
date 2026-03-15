@@ -74,7 +74,7 @@ const TableHead = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <th
     ref={ref}
-    className={cn("px-4 py-3 text-left align-middle", className)}
+    className={cn("px-6 py-3 text-left align-middle", className)}
     {...props}
   />
 ));
@@ -246,7 +246,7 @@ export function DataTable<T extends { id: string | number }>({
                     }
                   >
                     {showIndexColumn && (
-                      <TableCell className="px-4 text-center text-xs text-gray-500">
+                      <TableCell className="px-6 text-center text-xs text-gray-500">
                         {absoluteIndex + 1}
                       </TableCell>
                     )}

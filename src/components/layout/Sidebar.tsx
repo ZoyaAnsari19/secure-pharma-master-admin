@@ -24,6 +24,7 @@ import {
   ChevronLeft,
   ChevronRight,
   Building2,
+  Truck,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -48,6 +49,7 @@ const sidebarSections: { title: string; items: NavItem[] }[] = [
       { label: "Sub Admin Management", icon: <Shield className="h-4 w-4" />, href: "/dashboard/admin-management" },
       { label: "Client Management", icon: <Building2 className="h-4 w-4" />, href: "/dashboard/client-management" },
       { label: "User Management", icon: <Users className="h-4 w-4" />, href: "/dashboard/user-management" },
+      { label: "Distributor Management", icon: <Truck className="h-4 w-4" />, href: "/dashboard/distributor-management" },
     ],
   },
   {
