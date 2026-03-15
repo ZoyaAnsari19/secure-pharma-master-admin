@@ -136,7 +136,7 @@ export function Sidebar({ onOpenChange }: SidebarProps) {
                 True Beauty
               </span>
               <span className="text-[11px] font-medium text-gray-500">
-                Super Admin
+                Master Admin
               </span>
             </div>
           )}

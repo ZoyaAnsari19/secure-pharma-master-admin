@@ -85,7 +85,7 @@ const adminColumns: Column<{ id: number; name: string; email: string; role: stri
   { key: "lastActive", label: "Last Active" },
 ];
 const adminRows = [
-  { id: 1, name: "Priya Sharma", email: "priya@truebeauty.in", role: "Super Admin", status: "Active", lastActive: "2 min ago" },
+  { id: 1, name: "Priya Sharma", email: "priya@truebeauty.in", role: "Master Admin", status: "Active", lastActive: "2 min ago" },
   { id: 2, name: "Ankit Verma", email: "ankit@truebeauty.in", role: "Operations", status: "Active", lastActive: "12 min ago" },
   { id: 3, name: "Sara Khan", email: "sara@truebeauty.in", role: "Marketing", status: "Suspended", lastActive: "3 days ago" },
   { id: 4, name: "Rahul Jain", email: "rahul@truebeauty.in", role: "Support", status: "Active", lastActive: "58 min ago" },
@@ -147,7 +147,7 @@ export default function DashboardPage() {
               <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
                 <div>
                   <h1 className="text-2xl font-semibold tracking-tight text-gray-800">
-                    Super Admin ✨
+                    Master Admin ✨
                   </h1>
                 </div>
               </div>

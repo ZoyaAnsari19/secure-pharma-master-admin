@@ -20,7 +20,7 @@ export function Topbar() {
             Dashboard
           </p>
           <p className="text-sm font-semibold text-gray-800">
-            Super Admin Overview
+            Master Admin Overview
           </p>
         </div>
 
@@ -53,7 +53,7 @@ export function Topbar() {
                   </AvatarFallback>
                 </Avatar>
                 <div className="hidden text-xs md:block">
-                  <p className="font-semibold text-gray-800">Super Admin</p>
+                  <p className="font-semibold text-gray-800">Master Admin</p>
                   <p className="text-[11px] text-gray-500">
                     truebeauty@admin.com
                   </p>
