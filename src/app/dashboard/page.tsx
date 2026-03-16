@@ -12,6 +12,7 @@ import { RevenueOverviewChart } from "@/components/charts/RevenueOverviewChart";
 import { OrdersOverviewChart } from "@/components/charts/OrdersOverviewChart";
 import { UserDistributionChart } from "@/components/charts/UserDistributionChart";
 import { InventoryStatusChart } from "@/components/charts/InventoryStatusChart";
+import { TopSellingBarChart } from "@/components/charts/TopSellingBarChart";
 import { DataTable, Column } from "@/components/ui/table";
 import { KpiCard, CARD_VARIANTS } from "@/components/ui/kpiCards";
 import { Sidebar } from "@/components/layout/Sidebar";
@@ -294,7 +295,30 @@ export default function DashboardPage() {
                 </Card>
               </div>
 
-              {/* Top selling products — full width */}
+              {/* Top selling products — bar chart card */}
+              <Card className="rounded-xl border border-slate-200/80 bg-white shadow-sm">
+                <CardHeader>
+                  <div>
+                    <CardTitle className="text-lg font-semibold text-slate-800">
+                      Top Selling Products
+                    </CardTitle>
+                    <CardDescription className="text-sm text-slate-500">
+                      Ranked by units sold
+                    </CardDescription>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <TopSellingBarChart
+                    data={topProductsRows.map((p) => ({
+                      name: p.name,
+                      value: p.sold,
+                    }))}
+                    metricLabel="Units sold"
+                  />
+                </CardContent>
+              </Card>
+
+              {/* Top selling products table — full width */}
               <DataTable
                 title="Top Selling Products"
                 columns={topProductsColumns}
