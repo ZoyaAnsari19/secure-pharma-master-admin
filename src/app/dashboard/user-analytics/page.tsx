@@ -204,9 +204,6 @@ export default function UserAnalyticsPage() {
     useState<(typeof ROLE_OPTIONS)[number]>("All roles");
   const [cityFilter, setCityFilter] =
     useState<(typeof CITY_OPTIONS)[number]>("All cities");
-  const [dateRange, setDateRange] = useState<
-    "Last 7 days" | "Last 30 days" | "Last 90 days" | "This year"
-  >("Last 30 days");
 
   const trendData =
     trendView === "Daily"
@@ -244,75 +241,84 @@ export default function UserAnalyticsPage() {
                 </p>
               </div>
 
-              <Card className="rounded-xl border border-slate-200/80 bg-white shadow-sm">
-                <CardHeader className="flex flex-row items-center justify-between gap-4">
-                  <div>
-                    <CardTitle className="text-lg font-semibold text-slate-800">
-                      User Growth Trend
-                    </CardTitle>
-                    <CardDescription className="text-sm text-slate-500">
-                      Track new users and created users over time
-                    </CardDescription>
-                  </div>
+              <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+                <Card className="rounded-xl border border-slate-200/80 bg-white shadow-sm">
+                  <CardHeader className="flex flex-row items-center justify-between gap-4">
+                    <div>
+                      <CardTitle className="text-lg font-semibold text-slate-800">
+                        User Growth Trend
+                      </CardTitle>
+                      <CardDescription className="text-sm text-slate-500">
+                        Track new users and created users over time
+                      </CardDescription>
+                    </div>
                   <div className="flex flex-col items-end gap-2 sm:flex-row sm:items-center sm:gap-3">
                     <div className="inline-flex rounded-full bg-slate-50 p-1 text-xs font-medium text-slate-600">
-                      {(["Daily", "Weekly", "Monthly"] as const).map((view) => (
-                        <button
-                          key={view}
-                          type="button"
-                          onClick={() => setTrendView(view)}
-                          className={`rounded-full px-3 py-1 transition ${
-                            trendView === view
-                              ? "bg-white text-pink-600 shadow-sm"
-                              : "text-slate-500 hover:text-slate-700"
-                          }`}
-                        >
-                          {view}
-                        </button>
-                      ))}
+                        {(["Daily", "Weekly", "Monthly"] as const).map((view) => (
+                          <button
+                            key={view}
+                            type="button"
+                            onClick={() => setTrendView(view)}
+                            className={`rounded-full px-3 py-1 transition ${
+                              trendView === view
+                                ? "bg-white text-pink-600 shadow-sm"
+                                : "text-slate-500 hover:text-slate-700"
+                            }`}
+                          >
+                            {view}
+                          </button>
+                        ))}
+                      </div>
                     </div>
-                    <select
-                      className="h-8 rounded-full border border-slate-200 bg-white px-3 text-xs text-slate-700 shadow-sm focus:border-pink-300 focus:outline-none focus:ring-1 focus:ring-pink-200"
-                      value={dateRange}
-                      onChange={(e) =>
-                        setDateRange(
-                          e.target.value as
-                            | "Last 7 days"
-                            | "Last 30 days"
-                            | "Last 90 days"
-                            | "This year"
-                        )
-                      }
-                    >
-                      <option value="Last 7 days">Last 7 days</option>
-                      <option value="Last 30 days">Last 30 days</option>
-                      <option value="Last 90 days">Last 90 days</option>
-                      <option value="This year">This year</option>
-                    </select>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <SalesAnalyticsChart
-                    chartType="stackedBar"
-                    data={trendData}
-                    xKey="label"
-                    seriesKeys={["newUsers", "createdUsers"]}
-                    heightClassName="h-72"
-                    valueFormatter={(v) => v.toLocaleString()}
-                  />
-                </CardContent>
-              </Card>
+                  </CardHeader>
+                  <CardContent>
+                    <SalesAnalyticsChart
+                      chartType="stackedBar"
+                      data={trendData}
+                      xKey="label"
+                      seriesKeys={["newUsers", "createdUsers"]}
+                      heightClassName="h-72"
+                      valueFormatter={(v) => v.toLocaleString()}
+                    />
+                  </CardContent>
+                </Card>
+
+                <Card className="rounded-xl border border-slate-200/80 bg-white shadow-sm">
+                  <CardHeader className="flex flex-row items-center justify-between gap-4">
+                    <div>
+                      <CardTitle className="text-lg font-semibold text-slate-800">
+                        Created Users / Network Growth
+                      </CardTitle>
+                      <CardDescription className="text-sm text-slate-500">
+                        How direct registrations and network size are evolving
+                        over time
+                      </CardDescription>
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    <SalesAnalyticsChart
+                      chartType="stackedBar"
+                      data={createdUsersNetworkGrowth}
+                      xKey="label"
+                      seriesKeys={["direct", "network"]}
+                      heightClassName="h-72"
+                      valueFormatter={(v) => v.toLocaleString()}
+                    />
+                  </CardContent>
+                </Card>
+              </div>
 
               <div className="grid grid-cols-1 items-stretch gap-6 lg:grid-cols-3">
                 <Card className="h-full rounded-xl border border-slate-200/80 bg-white shadow-sm lg:col-span-1">
                   <CardHeader>
-                    <CardTitle className="text-lg font-semibold text-slate-800">
-                      User Distribution by Role
-                    </CardTitle>
-                    <CardDescription className="text-sm text-slate-500">
-                      Breakdown of users across distributor, franchise,
-                      retailer and more
-                    </CardDescription>
+                    <div className="flex flex-col gap-0.5">
+                      <CardTitle className="text-lg font-semibold text-slate-800 whitespace-nowrap">
+                        User Distribution by Role
+                      </CardTitle>
+                      <CardDescription className="text-sm text-slate-500">
+                        Breakdown of users across distributor, franchise, retailer and more
+                      </CardDescription>
+                    </div>
                   </CardHeader>
                   <CardContent>
                     <SalesAnalyticsChart
@@ -334,12 +340,14 @@ export default function UserAnalyticsPage() {
 
                 <Card className="h-full rounded-xl border border-slate-200/80 bg-white shadow-sm lg:col-span-1">
                   <CardHeader>
-                    <CardTitle className="text-lg font-semibold text-slate-800">
-                      User Activity Overview
-                    </CardTitle>
-                    <CardDescription className="text-sm text-slate-500">
-                      Active vs inactive sessions across the day
-                    </CardDescription>
+                    <div className="flex flex-col gap-0.5">
+                      <CardTitle className="text-lg font-semibold text-slate-800 whitespace-nowrap">
+                        User Activity Overview
+                      </CardTitle>
+                      <CardDescription className="text-sm text-slate-500">
+                        Active vs inactive sessions across the day
+                      </CardDescription>
+                    </div>
                   </CardHeader>
                   <CardContent>
                     <SalesAnalyticsChart
@@ -354,12 +362,14 @@ export default function UserAnalyticsPage() {
 
                 <Card className="h-full rounded-xl border border-slate-200/80 bg-white shadow-sm lg:col-span-1">
                   <CardHeader>
-                    <CardTitle className="text-lg font-semibold text-slate-800">
-                      User Registration by Location
-                    </CardTitle>
-                    <CardDescription className="text-sm text-slate-500">
-                      Top cities contributing to new registrations
-                    </CardDescription>
+                    <div className="flex flex-col gap-0.5">
+                      <CardTitle className="text-lg font-semibold text-slate-800 whitespace-nowrap">
+                        User Registration by Location
+                      </CardTitle>
+                      <CardDescription className="text-sm text-slate-500">
+                        Top cities contributing to new registrations
+                      </CardDescription>
+                    </div>
                   </CardHeader>
                   <CardContent>
                     <SalesAnalyticsChart
@@ -372,30 +382,6 @@ export default function UserAnalyticsPage() {
                   </CardContent>
                 </Card>
               </div>
-
-              <Card className="rounded-xl border border-slate-200/80 bg-white shadow-sm">
-                <CardHeader className="flex flex-row items-center justify-between gap-4">
-                  <div>
-                    <CardTitle className="text-lg font-semibold text-slate-800">
-                      Created Users / Network Growth
-                    </CardTitle>
-                    <CardDescription className="text-sm text-slate-500">
-                      How direct registrations and network size are evolving
-                      over time
-                    </CardDescription>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <SalesAnalyticsChart
-                    chartType="stackedBar"
-                    data={createdUsersNetworkGrowth}
-                    xKey="label"
-                    seriesKeys={["direct", "network"]}
-                    heightClassName="h-64"
-                    valueFormatter={(v) => v.toLocaleString()}
-                  />
-                </CardContent>
-              </Card>
 
               <Card className="rounded-xl border border-slate-200/80 bg-white shadow-sm">
                 <CardHeader>
