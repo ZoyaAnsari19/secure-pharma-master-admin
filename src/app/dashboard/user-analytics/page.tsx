@@ -111,6 +111,33 @@ const userRegistrationByLocation: LocationPoint[] = [
   { location: "Ahmedabad", registrations: 520 },
 ];
 
+const ROLE_DONUT_DATA = [
+  { name: "Distributor", value: 156, color: "#0ea5e9" },
+  { name: "Franchise", value: 42, color: "#8b5cf6" },
+  { name: "Retailer", value: 892, color: "#f59e0b" },
+  { name: "Networker", value: 234, color: "#ec4899" },
+  { name: "Customer", value: 11219, color: "#10b981" },
+] as { name: string; value: number; color: string }[];
+
+const TOTAL_ROLE_USERS = ROLE_DONUT_DATA.reduce(
+  (sum, item) => sum + item.value,
+  0
+);
+
+const TOTAL_ACTIVITY = userActivityOverview.reduce(
+  (acc, item) => {
+    acc.active += item.active;
+    acc.inactive += item.inactive;
+    return acc;
+  },
+  { active: 0, inactive: 0 }
+);
+
+const TOTAL_REGISTRATIONS = userRegistrationByLocation.reduce(
+  (sum, item) => sum + item.registrations,
+  0
+);
+
 const createdUsersNetworkGrowth: NetworkGrowthPoint[] = [
   { label: "Q1", direct: 280, network: 620 },
   { label: "Q2", direct: 320, network: 710 },
@@ -316,25 +343,45 @@ export default function UserAnalyticsPage() {
                         User Distribution by Role
                       </CardTitle>
                       <CardDescription className="text-sm text-slate-500">
-                        Breakdown of users across distributor, franchise, retailer and more
+                        Distributor, franchise, retailer, networker, customer
                       </CardDescription>
                     </div>
                   </CardHeader>
                   <CardContent>
                     <SalesAnalyticsChart
                       chartType="donut"
-                      data={[
-                        { name: "Distributor", value: 156 },
-                        { name: "Franchise", value: 42 },
-                        { name: "Retailer", value: 892 },
-                        { name: "Networker", value: 234 },
-                        { name: "Customer", value: 11219 },
-                      ]}
+                      data={ROLE_DONUT_DATA}
                       nameKey="name"
                       valueKey="value"
-                      heightClassName="h-80"
+                      heightClassName="h-64"
+                      colors={ROLE_DONUT_DATA.map((d) => d.color)}
                       valueFormatter={(v) => v.toLocaleString()}
                     />
+                    <div className="mt-4 space-y-1.5">
+                      {ROLE_DONUT_DATA.map((item) => {
+                        const percentage =
+                          (item.value / TOTAL_ROLE_USERS) * 100;
+                        return (
+                          <div
+                            key={item.name}
+                            className="flex items-center justify-between rounded-lg bg-slate-50 px-3 py-1.5"
+                          >
+                            <div className="flex items-center gap-2">
+                              <span
+                                className="h-2.5 w-2.5 rounded-full"
+                                style={{ backgroundColor: item.color }}
+                              />
+                              <span className="text-xs font-medium text-slate-700">
+                                {item.name}
+                              </span>
+                            </div>
+                            <span className="text-xs font-semibold text-slate-800">
+                              {percentage.toFixed(1)}%
+                            </span>
+                          </div>
+                        );
+                      })}
+                    </div>
                   </CardContent>
                 </Card>
 
@@ -355,8 +402,40 @@ export default function UserAnalyticsPage() {
                       data={userActivityOverview}
                       xKey="label"
                       seriesKeys={["active", "inactive"]}
+                      heightClassName="h-56"
                       valueFormatter={(v) => v.toLocaleString()}
                     />
+                    <div className="mt-4 space-y-1.5">
+                      {[
+                        { label: "Active", value: TOTAL_ACTIVITY.active },
+                        { label: "Inactive", value: TOTAL_ACTIVITY.inactive },
+                      ].map((item, index) => {
+                        const percentage =
+                          (item.value /
+                            (TOTAL_ACTIVITY.active + TOTAL_ACTIVITY.inactive)) *
+                          100;
+                        const color = index === 0 ? "#ec4899" : "#6366f1";
+                        return (
+                          <div
+                            key={item.label}
+                            className="flex items-center justify-between rounded-lg bg-slate-50 px-3 py-1.5"
+                          >
+                            <div className="flex items-center gap-2">
+                              <span
+                                className="h-2.5 w-2.5 rounded-full"
+                                style={{ backgroundColor: color }}
+                              />
+                              <span className="text-xs font-medium text-slate-700">
+                                {item.label}
+                              </span>
+                            </div>
+                            <span className="text-xs font-semibold text-slate-800">
+                              {percentage.toFixed(1)}%
+                            </span>
+                          </div>
+                        );
+                      })}
+                    </div>
                   </CardContent>
                 </Card>
 
@@ -377,56 +456,49 @@ export default function UserAnalyticsPage() {
                       data={userRegistrationByLocation}
                       xKey="location"
                       yKey="registrations"
+                      heightClassName="h-56"
                       valueFormatter={(v) => v.toLocaleString()}
                     />
+                    <div className="mt-4 space-y-1.5">
+                      {userRegistrationByLocation.map((item, index) => {
+                        const percentage =
+                          (item.registrations / TOTAL_REGISTRATIONS) * 100;
+                        const colors = ["#ec4899", "#8b5cf6", "#0ea5e9", "#f97316", "#10b981"];
+                        return (
+                          <div
+                            key={item.location}
+                            className="flex items-center justify-between rounded-lg bg-slate-50 px-3 py-1.5"
+                          >
+                            <div className="flex items-center gap-2">
+                              <span
+                                className="h-2.5 w-2.5 rounded-full"
+                                style={{ backgroundColor: colors[index % colors.length] }}
+                              />
+                              <span className="text-xs font-medium text-slate-700">
+                                {item.location}
+                              </span>
+                            </div>
+                            <span className="text-xs font-semibold text-slate-800">
+                              {percentage.toFixed(1)}%
+                            </span>
+                          </div>
+                        );
+                      })}
+                    </div>
                   </CardContent>
                 </Card>
               </div>
 
               <Card className="rounded-xl border border-slate-200/80 bg-white shadow-sm">
                 <CardHeader>
-                  <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                    <div>
-                      <CardTitle className="text-lg font-semibold text-slate-800">
-                        Detailed User Analytics
-                      </CardTitle>
-                      <CardDescription className="text-sm text-slate-500">
-                        Drill into individual user performance, orders and
-                        revenue contribution
-                      </CardDescription>
-                    </div>
-                    <div className="flex flex-wrap items-center gap-2">
-                      <select
-                        className="h-8 rounded-full border border-slate-200 bg-white px-3 text-xs text-slate-700 shadow-sm focus:border-pink-300 focus:outline-none focus:ring-1 focus:ring-pink-200"
-                        value={roleFilter}
-                        onChange={(e) =>
-                          setRoleFilter(
-                            e.target.value as (typeof ROLE_OPTIONS)[number]
-                          )
-                        }
-                      >
-                        {ROLE_OPTIONS.map((roleOption) => (
-                          <option key={roleOption} value={roleOption}>
-                            {roleOption}
-                          </option>
-                        ))}
-                      </select>
-                      <select
-                        className="h-8 rounded-full border border-slate-200 bg-white px-3 text-xs text-slate-700 shadow-sm focus:border-pink-300 focus:outline-none focus:ring-1 focus:ring-pink-200"
-                        value={cityFilter}
-                        onChange={(e) =>
-                          setCityFilter(
-                            e.target.value as (typeof CITY_OPTIONS)[number]
-                          )
-                        }
-                      >
-                        {CITY_OPTIONS.map((cityOption) => (
-                          <option key={cityOption} value={cityOption}>
-                            {cityOption}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
+                  <div>
+                    <CardTitle className="text-lg font-semibold text-slate-800">
+                      Detailed User Analytics
+                    </CardTitle>
+                    <CardDescription className="text-sm text-slate-500">
+                      Drill into individual user performance, orders and revenue
+                      contribution
+                    </CardDescription>
                   </div>
                 </CardHeader>
                 <CardContent>
@@ -439,6 +511,40 @@ export default function UserAnalyticsPage() {
                     hideFiltersButton
                     showIndexColumn
                     indexColumnLabel="Sr No."
+                    rightHeader={
+                      <div className="flex flex-wrap items-center gap-2">
+                        <select
+                          className="h-8 rounded-full border border-slate-200 bg-white px-3 text-xs text-slate-700 shadow-sm focus:border-pink-300 focus:outline-none focus:ring-1 focus:ring-pink-200"
+                          value={roleFilter}
+                          onChange={(e) =>
+                            setRoleFilter(
+                              e.target.value as (typeof ROLE_OPTIONS)[number]
+                            )
+                          }
+                        >
+                          {ROLE_OPTIONS.map((roleOption) => (
+                            <option key={roleOption} value={roleOption}>
+                              {roleOption}
+                            </option>
+                          ))}
+                        </select>
+                        <select
+                          className="h-8 rounded-full border border-slate-200 bg-white px-3 text-xs text-slate-700 shadow-sm focus:border-pink-300 focus:outline-none focus:ring-1 focus:ring-pink-200"
+                          value={cityFilter}
+                          onChange={(e) =>
+                            setCityFilter(
+                              e.target.value as (typeof CITY_OPTIONS)[number]
+                            )
+                          }
+                        >
+                          {CITY_OPTIONS.map((cityOption) => (
+                            <option key={cityOption} value={cityOption}>
+                              {cityOption}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                    }
                   />
                 </CardContent>
               </Card>
