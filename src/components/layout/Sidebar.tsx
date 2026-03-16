@@ -129,25 +129,27 @@ export function Sidebar({ onOpenChange }: SidebarProps) {
   const SidebarContent = (
     <div className="flex h-full flex-col bg-white">
       <div className="flex h-16 items-center justify-between border-b border-gray-100 px-4 pr-3">
-        <Link href="/dashboard" className="flex items-center gap-2">
-          <div className="relative h-9 w-9 overflow-hidden rounded-full bg-white shadow-sm">
+        <Link
+          href="/dashboard"
+          className="flex items-center gap-2 overflow-hidden"
+          onClick={closeMobile}
+        >
+          <div className="relative h-10 w-40 sm:h-11 sm:w-44 md:h-12 md:w-52 lg:h-14 lg:w-60">
             <Image
               src="/images/logo.png"
-              alt="Secure Pharma logo"
+              alt="Secure Pharma Organics & Food Industries"
               fill
-              sizes="36px"
-              className="object-contain p-1"
+              className="object-contain"
+              sizes="(min-width: 1024px) 208px, (min-width: 768px) 176px, 160px"
               priority
             />
           </div>
           {!isCollapsed && (
-            <div className="flex flex-col">
-              <span className="text-sm font-semibold tracking-tight text-gray-900">
+            <div className="flex flex-col leading-none">
+              <span className="text-xs sm:text-sm font-semibold tracking-tight text-gray-900 whitespace-nowrap">
                 Secure Pharma
               </span>
-              <span className="text-[11px] font-medium text-gray-500">
-                Master Admin
-              </span>
+              
             </div>
           )}
         </Link>
@@ -252,16 +254,28 @@ export function Sidebar({ onOpenChange }: SidebarProps) {
           <div className="fixed inset-0 z-40 flex">
             <div className="relative flex w-64 flex-col border-r border-gray-200 bg-white pb-4 pt-3 shadow-xl">
               <div className="flex items-center justify-between px-4">
-                <Link href="/dashboard" className="flex items-center gap-2">
-                  <div className="relative h-8 w-28">
+                <Link
+                  href="/dashboard"
+                  className="flex items-center gap-2 overflow-hidden"
+                  onClick={closeMobile}
+                >
+                  <div className="relative h-10 w-40 sm:h-11 sm:w-44 md:h-12 md:w-52">
                     <Image
                       src="/images/logo.png"
-                      alt="Secure Pharma logo"
+                      alt="Secure Pharma Organics & Food Industries"
                       fill
-                      sizes="112px"
                       className="object-contain"
+                      sizes="(min-width: 768px) 176px, 160px"
                       priority
                     />
+                  </div>
+                  <div className="flex flex-col leading-none">
+                    <span className="text-xs sm:text-sm font-semibold tracking-tight text-gray-900 whitespace-nowrap">
+                      Secure Pharma
+                    </span>
+                    <span className="text-[9px] sm:text-[10px] font-medium text-gray-500">
+                      Organics &amp; Food Industries
+                    </span>
                   </div>
                 </Link>
                 <button
