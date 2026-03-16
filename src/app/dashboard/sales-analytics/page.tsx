@@ -3,9 +3,13 @@
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { Topbar } from "@/components/layout/Topbar";
-import { SaleRevenueLineChart, RevenuePoint } from "@/components/charts/analytics/sales-reports/SaleRevenueLineChart";
 import { DataTable, Column } from "@/components/ui/table";
-import { ProductSalesBarChart, ProductSalesDatum } from "@/components/charts/analytics/sales-reports/ProductSalesBarChart";
+import { SalesAnalyticsChart } from "@/components/charts/analytics/SalesAnalyticsChart";
+
+type RevenuePoint = {
+  label: string;
+  amount: number;
+};
 
 const monthlyRevenue: RevenuePoint[] = [
   { label: "Jan", amount: 320000 },
@@ -56,6 +60,11 @@ const revenueRows: RevenueRow[] = [
   { id: 5, period: "Fri (last week)", granularity: "Daily", revenue: "₹20,110", growth: "+12.2%" },
 ];
 
+type ProductSalesDatum = {
+  name: string;
+  value: number;
+};
+
 const topProductSales: ProductSalesDatum[] = [
   { name: "Glow Serum Pro", value: 372000 },
   { name: "Hydra Moisturizer", value: 294000 },
@@ -89,15 +98,18 @@ export default function SalesAnalyticsPage() {
                       Revenue Trend
                     </CardTitle>
                     <CardDescription className="text-sm text-slate-500">
-                      Switch between monthly, weekly and daily revenue
+                      Monthly revenue trend (toggle coming soon)
                     </CardDescription>
                   </div>
                 </CardHeader>
                 <CardContent>
-                  <SaleRevenueLineChart
-                    monthly={monthlyRevenue}
-                    weekly={weeklyRevenue}
-                    daily={dailyRevenue}
+                  <SalesAnalyticsChart
+                    chartType="line"
+                    data={monthlyRevenue}
+                    xKey="label"
+                    yKey="amount"
+                    heightClassName="h-72"
+                    valueFormatter={(v) => `₹${v.toLocaleString()}`}
                   />
                 </CardContent>
               </Card>
@@ -115,7 +127,13 @@ export default function SalesAnalyticsPage() {
                     </div>
                   </CardHeader>
                   <CardContent>
-                    <ProductSalesBarChart data={topProductSales} metric="revenue" />
+                    <SalesAnalyticsChart
+                      chartType="horizontalBar"
+                      data={topProductSales}
+                      labelKey="name"
+                      valueKey="value"
+                      valueFormatter={(v) => `₹${v.toLocaleString()}`}
+                    />
                   </CardContent>
                 </Card>
 
