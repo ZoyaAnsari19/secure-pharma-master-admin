@@ -79,6 +79,7 @@ const sidebarSections: { title: string; items: NavItem[] }[] = [
     items: [
       { label: "Sales Reports", icon: <LineChart className="h-4 w-4" />, href: "/dashboard/sales-analytics" },
       { label: "User Reports", icon: <BarChart3 className="h-4 w-4" />, href: "/dashboard/user-analytics" },
+      { label: "Product Reports", icon: <Package className="h-4 w-4" />, href: "/dashboard/product-analytics" },
       { label: "Inventory Reports", icon: <PieChart className="h-4 w-4" />, href: "/dashboard/inventory-analytics" },
     ],
   },
