@@ -3,8 +3,9 @@
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { Topbar } from "@/components/layout/Topbar";
-import { SaleRevenueLineChart, RevenuePoint } from "@/components/charts/SaleRevenueLineChart";
+import { SaleRevenueLineChart, RevenuePoint } from "@/components/charts/analytics/sales-reports/SaleRevenueLineChart";
 import { DataTable, Column } from "@/components/ui/table";
+import { ProductSalesBarChart, ProductSalesDatum } from "@/components/charts/analytics/sales-reports/ProductSalesBarChart";
 
 const monthlyRevenue: RevenuePoint[] = [
   { label: "Jan", amount: 320000 },
@@ -55,6 +56,14 @@ const revenueRows: RevenueRow[] = [
   { id: 5, period: "Fri (last week)", granularity: "Daily", revenue: "₹20,110", growth: "+12.2%" },
 ];
 
+const topProductSales: ProductSalesDatum[] = [
+  { name: "Glow Serum Pro", value: 372000 },
+  { name: "Hydra Moisturizer", value: 294000 },
+  { name: "Vitamin C Serum", value: 227000 },
+  { name: "Sunscreen SPF 50", value: 131000 },
+  { name: "Night Repair Cream", value: 156000 },
+];
+
 export default function SalesAnalyticsPage() {
   return (
     <div className="flex min-h-screen bg-slate-50/80 text-slate-900">
@@ -77,15 +86,19 @@ export default function SalesAnalyticsPage() {
                 <CardHeader>
                   <div>
                     <CardTitle className="text-lg font-semibold text-slate-800">
-                      Monthly Revenue
+                      Revenue Trend
                     </CardTitle>
                     <CardDescription className="text-sm text-slate-500">
-                      Revenue trend for the last 6 months
+                      Switch between monthly, weekly and daily revenue
                     </CardDescription>
                   </div>
                 </CardHeader>
                 <CardContent>
-                  <SaleRevenueLineChart data={monthlyRevenue} granularity="monthly" />
+                  <SaleRevenueLineChart
+                    monthly={monthlyRevenue}
+                    weekly={weeklyRevenue}
+                    daily={dailyRevenue}
+                  />
                 </CardContent>
               </Card>
 
@@ -94,42 +107,26 @@ export default function SalesAnalyticsPage() {
                   <CardHeader>
                     <div>
                       <CardTitle className="text-lg font-semibold text-slate-800">
-                        Weekly Revenue
+                        Top Selling Products (by revenue)
                       </CardTitle>
                       <CardDescription className="text-sm text-slate-500">
-                        Revenue by week in the current month
+                        Highest earning products in the current period
                       </CardDescription>
                     </div>
                   </CardHeader>
                   <CardContent>
-                    <SaleRevenueLineChart data={weeklyRevenue} granularity="weekly" />
+                    <ProductSalesBarChart data={topProductSales} metric="revenue" />
                   </CardContent>
                 </Card>
 
-                <Card className="h-full rounded-xl border border-slate-200/80 bg-white shadow-sm">
-                  <CardHeader>
-                    <div>
-                      <CardTitle className="text-lg font-semibold text-slate-800">
-                        Daily Revenue
-                      </CardTitle>
-                      <CardDescription className="text-sm text-slate-500">
-                        Revenue for the last 7 days
-                      </CardDescription>
-                    </div>
-                  </CardHeader>
-                  <CardContent>
-                    <SaleRevenueLineChart data={dailyRevenue} granularity="daily" />
-                  </CardContent>
-                </Card>
+                <DataTable
+                  title="Revenue Breakdown"
+                  columns={revenueColumns}
+                  data={revenueRows}
+                  pageSize={5}
+                  searchPlaceholder="Search by period..."
+                />
               </div>
-
-              <DataTable
-                title="Revenue Breakdown"
-                columns={revenueColumns}
-                data={revenueRows}
-                pageSize={5}
-                searchPlaceholder="Search by period..."
-              />
             </div>
           </div>
         </main>
