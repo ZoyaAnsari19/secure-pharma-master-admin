@@ -11,6 +11,7 @@ import {
 import { RevenueOverviewChart } from "@/components/charts/RevenueOverviewChart";
 import { OrdersOverviewChart } from "@/components/charts/OrdersOverviewChart";
 import { UserDistributionChart } from "@/components/charts/UserDistributionChart";
+import { InventoryStatusChart } from "@/components/charts/InventoryStatusChart";
 import { DataTable, Column } from "@/components/ui/table";
 import { KpiCard, CARD_VARIANTS } from "@/components/ui/kpiCards";
 import { Sidebar } from "@/components/layout/Sidebar";
@@ -66,6 +67,7 @@ const inventoryMetrics = [
   { label: "Total Stock (units)", value: "124,580", sub: "Across all SKUs" },
   { label: "Low Stock", value: "23", sub: "Need reorder" },
   { label: "Expiring Soon (30d)", value: "8", sub: "Products" },
+  { label: "Out of Stock", value: "5", sub: "Critical" },
 ];
 
 const topProductsColumns: Column<TopProductRow>[] = [
@@ -231,8 +233,8 @@ export default function DashboardPage() {
               </div>
 
               {/* User distribution donut + Inventory overview */}
-              <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-                <Card className="rounded-xl border border-slate-200/80 bg-white shadow-sm lg:col-span-2">
+              <div className="grid grid-cols-1 gap-6 lg:grid-cols-2 items-stretch">
+                <Card className="h-full rounded-xl border border-slate-200/80 bg-white shadow-sm">
                   <CardHeader>
                     <div>
                       <CardTitle className="text-lg font-semibold text-slate-800">
@@ -247,7 +249,7 @@ export default function DashboardPage() {
                     <UserDistributionChart />
                   </CardContent>
                 </Card>
-                <Card className="rounded-xl border border-slate-200/80 bg-white shadow-sm">
+                <Card className="h-full rounded-xl border border-slate-200/80 bg-white shadow-sm">
                   <CardHeader>
                     <div className="flex items-center gap-2">
                       <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-slate-100 text-slate-600">
@@ -264,20 +266,30 @@ export default function DashboardPage() {
                     </div>
                   </CardHeader>
                   <CardContent className="space-y-4">
-                    {inventoryMetrics.map((m, i) => (
-                      <div
-                        key={m.label}
-                        className="flex items-center justify-between rounded-lg border border-slate-100 bg-slate-50/50 px-4 py-3"
-                      >
-                        <div>
-                          <p className="text-xs font-medium text-slate-500">{m.label}</p>
+                    <InventoryStatusChart
+                      data={[
+                        { name: "Total stock", value: 124580 },
+                        { name: "Low stock", value: 23 },
+                        { name: "Expiring soon", value: 8 },
+                        { name: "Out of stock", value: 5 },
+                      ]}
+                    />
+                    <div className="grid grid-cols-2 gap-2">
+                      {inventoryMetrics.map((m) => (
+                        <div
+                          key={m.label}
+                          className="flex flex-col rounded-lg border border-slate-100 bg-slate-50/60 px-3 py-2"
+                        >
+                          <p className="text-[11px] font-medium text-slate-500">
+                            {m.label}
+                          </p>
                           <p className="text-xs text-slate-400">{m.sub}</p>
+                          <p className="mt-1 text-base font-semibold tabular-nums text-slate-800">
+                            {m.value}
+                          </p>
                         </div>
-                        <p className="text-lg font-semibold tabular-nums text-slate-800">
-                          {m.value}
-                        </p>
-                      </div>
-                    ))}
+                      ))}
+                    </div>
                   </CardContent>
                 </Card>
               </div>

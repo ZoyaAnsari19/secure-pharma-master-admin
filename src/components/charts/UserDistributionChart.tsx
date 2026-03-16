@@ -25,48 +25,77 @@ const data = [
   { name: "Customer", value: 11219, fill: ROLE_COLORS[4] },
 ];
 
+const TOTAL_USERS = data.reduce((sum, item) => sum + item.value, 0);
+
 export function UserDistributionChart() {
   return (
-    <div className="h-64 w-full">
-      <ResponsiveContainer width="100%" height="100%">
-        <RechartsPieChart margin={{ top: 8, right: 8, left: 8, bottom: 8 }}>
-          <Pie
-            data={data}
-            cx="50%"
-            cy="50%"
-            innerRadius="55%"
-            outerRadius="80%"
-            paddingAngle={2}
-            dataKey="value"
-            nameKey="name"
-            stroke="white"
-            strokeWidth={2}
-          >
-            {data.map((_, index) => (
-              <Cell key={`cell-${index}`} fill={data[index].fill} />
-            ))}
-          </Pie>
-          <Tooltip
-            formatter={(value: number) => [value.toLocaleString(), "Users"]}
-            contentStyle={{
-              borderRadius: 12,
-              border: "1px solid #e5e7eb",
-              boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
-              fontSize: 12,
-            }}
-          />
-          <Legend
-            layout="vertical"
-            align="right"
-            verticalAlign="middle"
-            iconType="circle"
-            iconSize={8}
-            formatter={(value, entry) => (
-              <span className="text-xs text-gray-600">{value}</span>
-            )}
-          />
-        </RechartsPieChart>
-      </ResponsiveContainer>
+    <div className="flex h-96 w-full flex-col">
+      <div className="h-72">
+        <ResponsiveContainer width="100%" height="100%">
+          <RechartsPieChart margin={{ top: 8, right: 8, left: 8, bottom: 8 }}>
+            <Pie
+              data={data}
+              cx="50%"
+              cy="50%"
+              innerRadius="55%"
+              outerRadius="80%"
+              paddingAngle={2}
+              dataKey="value"
+              nameKey="name"
+              stroke="white"
+              strokeWidth={2}
+            >
+              {data.map((_, index) => (
+                <Cell key={`cell-${index}`} fill={data[index].fill} />
+              ))}
+            </Pie>
+            <Tooltip
+              formatter={(value: number) => [value.toLocaleString(), "Users"]}
+              contentStyle={{
+                borderRadius: 12,
+                border: "1px solid #e5e7eb",
+                boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
+                fontSize: 12,
+              }}
+            />
+            <Legend
+              layout="vertical"
+              align="right"
+              verticalAlign="middle"
+              iconType="circle"
+              iconSize={8}
+              formatter={(value) => (
+                <span className="text-xs text-gray-600">{value}</span>
+              )}
+            />
+          </RechartsPieChart>
+        </ResponsiveContainer>
+      </div>
+
+      <div className="mt-4 space-y-1">
+        {data.map((item, index) => {
+          const percentage = ((item.value / TOTAL_USERS) * 100).toFixed(1);
+          return (
+            <div
+              key={item.name}
+              className="flex items-center justify-between rounded-md bg-slate-50 px-3 py-1.5"
+            >
+              <div className="flex items-center gap-2">
+                <span
+                  className="h-2.5 w-2.5 rounded-full"
+                  style={{ backgroundColor: item.fill }}
+                />
+                <span className="text-xs font-medium text-slate-700">
+                  {item.name}
+                </span>
+              </div>
+              <span className="text-xs font-semibold text-slate-800">
+                {percentage}%
+              </span>
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 }
