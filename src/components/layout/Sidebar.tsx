@@ -135,7 +135,7 @@ export function Sidebar({ onOpenChange }: SidebarProps) {
           {!isCollapsed && (
             <div className="flex flex-col">
               <span className="text-sm font-semibold tracking-tight text-gray-900">
-                True Beauty
+                Secure Pharma
               </span>
               <span className="text-[11px] font-medium text-gray-500">
                 Master Admin

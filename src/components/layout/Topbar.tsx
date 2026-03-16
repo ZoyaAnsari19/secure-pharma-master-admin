@@ -20,7 +20,7 @@ export function Topbar() {
             Dashboard
           </p>
           <p className="text-sm font-semibold text-gray-800">
-            Master Admin Overview
+            Secure Pharma Master Admin Overview
           </p>
         </div>
 
