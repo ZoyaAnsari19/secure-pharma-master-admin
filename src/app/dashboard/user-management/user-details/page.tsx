@@ -205,16 +205,16 @@ function getMockCreatedUsers(_userId: string): CreatedUser[] {
   return [
     { id: 101, userId: "USR-101", name: "Riya Mehta", email: "riya@example.com", role: "Retailer", registeredDate: "2024-03-10" },
     { id: 102, userId: "USR-102", name: "Arjun Nair", email: "arjun@example.com", role: "Customer", registeredDate: "2024-03-08" },
-    { id: 103, userId: "USR-103", name: "Kavya Reddy", email: "kavya@example.com", role: "Seller", registeredDate: "2024-03-05" },
+    { id: 103, userId: "USR-103", name: "Kavya Reddy", email: "kavya@example.com", role: "Agent", registeredDate: "2024-03-05" },
     { id: 104, userId: "USR-104", name: "Vikram Joshi", email: "vikram@example.com", role: "Networker", registeredDate: "2024-02-28" },
     { id: 105, userId: "USR-105", name: "Ananya Singh", email: "ananya@example.com", role: "Customer", registeredDate: "2024-02-25" },
     { id: 106, userId: "USR-106", name: "Rohan Patel", email: "rohan@example.com", role: "Retailer", registeredDate: "2024-02-20" },
-    { id: 107, userId: "USR-107", name: "Isha Gupta", email: "isha@example.com", role: "Seller", registeredDate: "2024-02-15" },
+    { id: 107, userId: "USR-107", name: "Isha Gupta", email: "isha@example.com", role: "Agent", registeredDate: "2024-02-15" },
     { id: 108, userId: "USR-108", name: "Aditya Kumar", email: "aditya@example.com", role: "Customer", registeredDate: "2024-02-10" },
     { id: 109, userId: "USR-109", name: "Sneha Iyer", email: "sneha@example.com", role: "Networker", registeredDate: "2024-02-05" },
     { id: 110, userId: "USR-110", name: "Manish Desai", email: "manish@example.com", role: "Retailer", registeredDate: "2024-01-28" },
     { id: 111, userId: "USR-111", name: "Pooja Sharma", email: "pooja@example.com", role: "Customer", registeredDate: "2024-01-22" },
-    { id: 112, userId: "USR-112", name: "Karan Malhotra", email: "karan@example.com", role: "Seller", registeredDate: "2024-01-18" },
+    { id: 112, userId: "USR-112", name: "Karan Malhotra", email: "karan@example.com", role: "Agent", registeredDate: "2024-01-18" },
   ];
 }
 

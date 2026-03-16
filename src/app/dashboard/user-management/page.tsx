@@ -45,7 +45,7 @@ type UserRole =
   | "Retailer"
   | "Networker"
   | "Customer"
-  | "Seller";
+  | "Agent";
 
 type UserRow = {
   id: number;
@@ -70,7 +70,7 @@ const ROLE_OPTIONS: UserRole[] = [
   "Retailer",
   "Networker",
   "Customer",
-  "Seller",
+  "Agent",
 ];
 const STATUS_OPTIONS = ["All", "Active", "Inactive", "Suspended"] as const;
 const CITIES = ["All", "Mumbai", "Delhi", "Bangalore", "Chennai", "Kolkata", "Hyderabad", "Pune"];
@@ -108,7 +108,7 @@ const initialUsers: UserRow[] = [
     name: "Sara Khan",
     email: "sara@truebeauty.in",
     phone: "9988776655",
-    role: "Seller",
+    role: "Agent",
     city: "Bangalore",
     state: "Karnataka",
     pinCode: "560001",
