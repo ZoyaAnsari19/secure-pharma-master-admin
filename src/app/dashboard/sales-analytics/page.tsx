@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Sidebar } from "@/components/layout/Sidebar";
 import { Topbar } from "@/components/layout/Topbar";
 import { DataTable, Column } from "@/components/ui/table";
-import { SalesAnalyticsChart } from "@/components/charts/analytics/SalesAnalyticsChart";
+import { SalesAnalyticsChart } from "@/components/charts/SalesAnalyticsChart";
 
 type RevenuePoint = {
   label: string;

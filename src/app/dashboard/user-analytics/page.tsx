@@ -11,7 +11,7 @@ import {
   CardDescription,
 } from "@/components/ui/card";
 import { DataTable, Column } from "@/components/ui/table";
-import { SalesAnalyticsChart } from "@/components/charts/analytics/SalesAnalyticsChart";
+import { SalesAnalyticsChart } from "@/components/charts/SalesAnalyticsChart";
 
 type TrendView = "Daily" | "Weekly" | "Monthly";
 
