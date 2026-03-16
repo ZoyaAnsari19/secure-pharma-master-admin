@@ -76,7 +76,7 @@ const sidebarSections: { title: string; items: NavItem[] }[] = [
   {
     title: "Analytics",
     items: [
-      { label: "Sales Reports", icon: <LineChart className="h-4 w-4" /> },
+      { label: "Sales Reports", icon: <LineChart className="h-4 w-4" />, href: "/sales-analytics" },
       { label: "User Reports", icon: <BarChart3 className="h-4 w-4" /> },
       { label: "Affiliate Reports", icon: <PieChart className="h-4 w-4" /> },
     ],
