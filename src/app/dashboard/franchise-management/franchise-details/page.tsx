@@ -172,14 +172,14 @@ function FranchiseDetailsContent() {
                       <h1 className="text-xl font-semibold tracking-tight text-gray-900 sm:text-2xl">
                         {franchise.name}
                       </h1>
-                      <p className="mt-0.5 text-sm text-gray-600">{franchise.companyName}</p>
-                      <div className="mt-3 flex flex-wrap items-center gap-2">
+                      <div className="mt-1 flex flex-wrap items-center gap-2 text-sm">
+                        <p className="text-gray-600">{franchise.companyName}</p>
                         <span
                           className={`inline-flex rounded-full px-3 py-1 text-xs font-medium ${statusStyles}`}
                         >
                           {franchise.status}
                         </span>
-                        <span className="rounded-full bg-gray-100 px-3 py-1 text-xs font-medium text-gray-700">
+                        <span className="inline-flex rounded-full bg-gray-100 px-3 py-1 text-xs font-medium text-gray-700">
                           {franchise.franchiseId}
                         </span>
                       </div>
@@ -192,9 +192,9 @@ function FranchiseDetailsContent() {
               </div>
             </div>
 
-            {/* Detail cards grid */}
-            <div className="grid gap-6 lg:grid-cols-2">
-              {/* Basic Info */}
+            {/* Detail cards */}
+            {/* Basic Info + Location combined (full width) */}
+            <div className="space-y-6">
               <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
                 <div className="mb-4 flex items-center gap-2">
                   <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-50 text-blue-600">
@@ -204,89 +204,88 @@ function FranchiseDetailsContent() {
                     Basic Info
                   </h2>
                 </div>
-                <dl className="grid grid-cols-2 gap-x-6 gap-y-4">
-                  <div>
-                    <dt className="text-xs font-medium uppercase tracking-wider text-gray-400">
-                      Franchise ID
-                    </dt>
-                    <dd className="mt-1 flex items-center gap-2 text-sm font-medium text-gray-900">
-                      <Hash className="h-3.5 w-3.5 text-gray-400" />
-                      {franchise.franchiseId}
-                    </dd>
+                <dl className="space-y-6">
+                  {/* First row: ID, Name, Email in one row */}
+                  <div className="grid gap-6 md:grid-cols-3">
+                    <div>
+                      <dt className="text-xs font-medium uppercase tracking-wider text-gray-400">
+                        Franchise ID
+                      </dt>
+                      <dd className="mt-1 flex items-center gap-2 text-sm font-medium text-gray-900">
+                        <Hash className="h-3.5 w-3.5 text-gray-400" />
+                        {franchise.franchiseId}
+                      </dd>
+                    </div>
+                    <div>
+                      <dt className="text-xs font-medium uppercase tracking-wider text-gray-400">
+                        Franchise Name
+                      </dt>
+                      <dd className="mt-1 text-sm font-medium text-gray-900">
+                        {franchise.name}
+                      </dd>
+                    </div>
+                    <div>
+                      <dt className="text-xs font-medium uppercase tracking-wider text-gray-400">
+                        Email
+                      </dt>
+                      <dd className="mt-1 flex items-center gap-2 text-sm font-medium text-gray-900">
+                        <Mail className="h-3.5 w-3.5 text-gray-400" />
+                        <a
+                          href={`mailto:${franchise.email}`}
+                          className="text-pink-600 hover:underline"
+                        >
+                          {franchise.email}
+                        </a>
+                      </dd>
+                    </div>
                   </div>
-                  <div>
-                    <dt className="text-xs font-medium uppercase tracking-wider text-gray-400">
-                      Franchise Name
-                    </dt>
-                    <dd className="mt-1 text-sm font-medium text-gray-900">{franchise.name}</dd>
-                  </div>
-                  <div>
-                    <dt className="text-xs font-medium uppercase tracking-wider text-gray-400">
-                      Company Name
-                    </dt>
-                    <dd className="mt-1 text-sm font-medium text-gray-900">{franchise.companyName}</dd>
-                  </div>
-                  <div>
-                    <dt className="text-xs font-medium uppercase tracking-wider text-gray-400">
-                      GST Number
-                    </dt>
-                    <dd className="mt-1 flex items-center gap-2 text-sm font-medium text-gray-900">
-                      <FileText className="h-3.5 w-3.5 text-gray-400" />
-                      {franchise.gstNumber ?? "—"}
-                    </dd>
-                  </div>
-                  <div>
-                    <dt className="text-xs font-medium uppercase tracking-wider text-gray-400">
-                      Email
-                    </dt>
-                    <dd className="mt-1 flex items-center gap-2 text-sm font-medium text-gray-900">
-                      <Mail className="h-3.5 w-3.5 text-gray-400" />
-                      <a
-                        href={`mailto:${franchise.email}`}
-                        className="text-pink-600 hover:underline"
-                      >
-                        {franchise.email}
-                      </a>
-                    </dd>
-                  </div>
-                  <div>
-                    <dt className="text-xs font-medium uppercase tracking-wider text-gray-400">
-                      Phone
-                    </dt>
-                    <dd className="mt-1 flex items-center gap-2 text-sm font-medium text-gray-900">
-                      <Phone className="h-3.5 w-3.5 text-gray-400" />
-                      <a
-                        href={`tel:${franchise.phone}`}
-                        className="text-pink-600 hover:underline"
-                      >
-                        {franchise.phone}
-                      </a>
-                    </dd>
-                  </div>
-                </dl>
-              </div>
 
-              {/* Location & Distributor */}
-              <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
-                <div className="mb-4 flex items-center gap-2">
-                  <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-violet-50 text-violet-600">
-                    <MapPin className="h-4 w-4" />
+                  {/* Second row: company, GST, phone */}
+                  <div className="grid gap-6 md:grid-cols-3">
+                    <div>
+                      <dt className="text-xs font-medium uppercase tracking-wider text-gray-400">
+                        Company Name
+                      </dt>
+                      <dd className="mt-1 text-sm font-medium text-gray-900">
+                        {franchise.companyName}
+                      </dd>
+                    </div>
+                    <div>
+                      <dt className="text-xs font-medium uppercase tracking-wider text-gray-400">
+                        GST Number
+                      </dt>
+                      <dd className="mt-1 flex items-center gap-2 text-sm font-medium text-gray-900">
+                        <FileText className="h-3.5 w-3.5 text-gray-400" />
+                        {franchise.gstNumber ?? "—"}
+                      </dd>
+                    </div>
+                    <div>
+                      <dt className="text-xs font-medium uppercase tracking-wider text-gray-400">
+                        Phone
+                      </dt>
+                      <dd className="mt-1 flex items-center gap-2 text-sm font-medium text-gray-900">
+                        <Phone className="h-3.5 w-3.5 text-gray-400" />
+                        <a
+                          href={`tel:${franchise.phone}`}
+                          className="text-pink-600 hover:underline"
+                        >
+                          {franchise.phone}
+                        </a>
+                      </dd>
+                    </div>
                   </div>
-                  <h2 className="text-sm font-semibold uppercase tracking-wider text-gray-500">
-                    Location & Distributor
-                  </h2>
-                </div>
-                <dl className="space-y-4">
-                  <div>
-                    <dt className="text-xs font-medium uppercase tracking-wider text-gray-400">
-                      Assigned Distributor
-                    </dt>
-                    <dd className="mt-1 flex items-center gap-2 text-sm font-medium text-gray-900">
-                      <Truck className="h-3.5 w-3.5 text-gray-400" />
-                      {franchise.assignedDistributor}
-                    </dd>
-                  </div>
-                  <div className="grid grid-cols-2 gap-x-6 gap-y-4">
+
+                  {/* Third row: distributor, location */}
+                  <div className="grid gap-6 md:grid-cols-3">
+                    <div>
+                      <dt className="text-xs font-medium uppercase tracking-wider text-gray-400">
+                        Assigned Distributor
+                      </dt>
+                      <dd className="mt-1 flex items-center gap-2 text-sm font-medium text-gray-900">
+                        <Truck className="h-3.5 w-3.5 text-gray-400" />
+                        {franchise.assignedDistributor}
+                      </dd>
+                    </div>
                     <div>
                       <dt className="text-xs font-medium uppercase tracking-wider text-gray-400">
                         State & City
@@ -309,7 +308,7 @@ function FranchiseDetailsContent() {
               </div>
 
               {/* Performance - full width, 3 in a row */}
-              <div className="lg:col-span-2 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
+              <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
                 <div className="mb-4 flex items-center gap-2">
                   <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-amber-50 text-amber-600">
                     <Package className="h-4 w-4" />
