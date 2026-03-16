@@ -281,6 +281,7 @@ export default function ReviewManagementPage() {
               title="Reviews"
               columns={reviewColumns}
               data={filtered}
+              onRowClick={(row) => openViewDrawer(row)}
               searchPlaceholder="Search by ID, product, user, or review text..."
               searchValue={search}
               onSearchValueChange={setSearch}
