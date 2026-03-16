@@ -13,6 +13,7 @@ import { OrdersOverviewChart } from "@/components/charts/OrdersOverviewChart";
 import { UserDistributionChart } from "@/components/charts/UserDistributionChart";
 import { InventoryStatusChart } from "@/components/charts/InventoryStatusChart";
 import { TopSellingBarChart } from "@/components/charts/TopSellingBarChart";
+import { OrdersStatusPieChart } from "@/components/charts/OrdersStatusPieChart";
 import { DataTable, Column } from "@/components/ui/table";
 import { KpiCard, CARD_VARIANTS } from "@/components/ui/kpiCards";
 import { Sidebar } from "@/components/layout/Sidebar";
@@ -199,24 +200,26 @@ export default function DashboardPage() {
                 })}
               </div>
 
-              {/* Charts row: Monthly revenue + Daily orders */}
-              <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-                <Card className="rounded-xl border border-slate-200/80 bg-white shadow-sm">
-                  <CardHeader>
-                    <div>
-                      <CardTitle className="text-lg font-semibold text-slate-800">
-                        Monthly Revenue Trend
-                      </CardTitle>
-                      <CardDescription className="text-sm text-slate-500">
-                        Last 6 months
-                      </CardDescription>
-                    </div>
-                  </CardHeader>
-                  <CardContent>
-                    <RevenueOverviewChart />
-                  </CardContent>
-                </Card>
-                <Card className="rounded-xl border border-slate-200/80 bg-white shadow-sm">
+              {/* Charts row: Monthly revenue */}
+              <Card className="rounded-xl border border-slate-200/80 bg-white shadow-sm">
+                <CardHeader>
+                  <div>
+                    <CardTitle className="text-lg font-semibold text-slate-800">
+                      Monthly Revenue Trend
+                    </CardTitle>
+                    <CardDescription className="text-sm text-slate-500">
+                      Last 6 months
+                    </CardDescription>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <RevenueOverviewChart />
+                </CardContent>
+              </Card>
+
+              {/* Charts row: Daily orders + Order status distribution */}
+              <div className="grid grid-cols-1 gap-6 lg:grid-cols-2 items-stretch">
+                <Card className="h-full rounded-xl border border-slate-200/80 bg-white shadow-sm">
                   <CardHeader>
                     <div>
                       <CardTitle className="text-lg font-semibold text-slate-800">
@@ -229,6 +232,29 @@ export default function DashboardPage() {
                   </CardHeader>
                   <CardContent>
                     <OrdersOverviewChart />
+                  </CardContent>
+                </Card>
+                <Card className="h-full rounded-xl border border-slate-200/80 bg-white shadow-sm">
+                  <CardHeader>
+                    <div>
+                      <CardTitle className="text-lg font-semibold text-slate-800">
+                        Order Status Distribution
+                      </CardTitle>
+                      <CardDescription className="text-sm text-slate-500">
+                        Share of orders by current status
+                      </CardDescription>
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    <OrdersStatusPieChart
+                      data={[
+                        { status: "Pending", value: 47 },
+                        { status: "Processing", value: 32 },
+                        { status: "Shipped", value: 18 },
+                        { status: "Delivered", value: 145 },
+                        { status: "Cancelled", value: 9 },
+                      ]}
+                    />
                   </CardContent>
                 </Card>
               </div>
