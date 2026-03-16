@@ -39,6 +39,8 @@ type UserDetails = {
   email: string;
   phone: string;
   role: string;
+  // Optional: name of the user who referred this customer / user
+  referredByName?: string;
   city: string;
   state: string;
   pinCode?: string;
@@ -78,6 +80,7 @@ type OrderRecord = {
   amount: number;
   status: string;
   items?: string;
+  productName?: string;
 };
 
 type ReturnRefundRecord = {
@@ -220,23 +223,23 @@ function getMockCreatedUsers(_userId: string): CreatedUser[] {
 
 function getMockRecentOrders(_userId: string): OrderRecord[] {
   return [
-    { id: "ORD-1089", date: "2024-03-14", amount: 3240, status: "Delivered", items: "2 items" },
-    { id: "ORD-1085", date: "2024-03-10", amount: 1890, status: "Shipped", items: "1 item" },
-    { id: "ORD-1080", date: "2024-03-05", amount: 4590, status: "Delivered", items: "3 items" },
-    { id: "ORD-1076", date: "2024-02-28", amount: 1200, status: "Delivered", items: "1 item" },
-    { id: "ORD-1072", date: "2024-02-22", amount: 2890, status: "Delivered", items: "2 items" },
+    { id: "ORD-1089", date: "2024-03-14", amount: 3240, status: "Delivered", items: "2 items", productName: "Glow Serum Pro" },
+    { id: "ORD-1085", date: "2024-03-10", amount: 1890, status: "Shipped", items: "1 item", productName: "Hydra Moisturizer" },
+    { id: "ORD-1080", date: "2024-03-05", amount: 4590, status: "Delivered", items: "3 items", productName: "Vitamin C Serum" },
+    { id: "ORD-1076", date: "2024-02-28", amount: 1200, status: "Delivered", items: "1 item", productName: "Sunscreen SPF 50" },
+    { id: "ORD-1072", date: "2024-02-22", amount: 2890, status: "Delivered", items: "2 items", productName: "Night Repair Cream" },
   ];
 }
 
 function getMockPurchaseHistory(_userId: string): OrderRecord[] {
   return [
-    { id: "ORD-1089", date: "2024-03-14", amount: 3240, status: "Delivered" },
-    { id: "ORD-1085", date: "2024-03-10", amount: 1890, status: "Shipped" },
-    { id: "ORD-1080", date: "2024-03-05", amount: 4590, status: "Delivered" },
-    { id: "ORD-1076", date: "2024-02-28", amount: 1200, status: "Delivered" },
-    { id: "ORD-1072", date: "2024-02-22", amount: 2890, status: "Delivered" },
-    { id: "ORD-1068", date: "2024-02-15", amount: 1560, status: "Delivered" },
-    { id: "ORD-1062", date: "2024-02-08", amount: 2100, status: "Delivered" },
+    { id: "ORD-1089", date: "2024-03-14", amount: 3240, status: "Delivered", productName: "Glow Serum Pro" },
+    { id: "ORD-1085", date: "2024-03-10", amount: 1890, status: "Shipped", productName: "Hydra Moisturizer" },
+    { id: "ORD-1080", date: "2024-03-05", amount: 4590, status: "Delivered", productName: "Vitamin C Serum" },
+    { id: "ORD-1076", date: "2024-02-28", amount: 1200, status: "Delivered", productName: "Sunscreen SPF 50" },
+    { id: "ORD-1072", date: "2024-02-22", amount: 2890, status: "Delivered", productName: "Night Repair Cream" },
+    { id: "ORD-1068", date: "2024-02-15", amount: 1560, status: "Delivered", productName: "Glow Serum Pro" },
+    { id: "ORD-1062", date: "2024-02-08", amount: 2100, status: "Delivered", productName: "Hydra Moisturizer" },
   ];
 }
 
@@ -267,7 +270,13 @@ function UserDetailsContent() {
         setNotFound(true);
         return;
       }
-      setUser(data);
+      // For now, add a dummy referred-by name so the UI can demonstrate this field.
+      // In real implementation this should come from API / backend.
+      const withReferral: UserDetails =
+        data.role === "Customer" && !data.referredByName
+          ? { ...data, referredByName: "Rohan Agent" }
+          : data;
+      setUser(withReferral);
       setNotFound(false);
     } catch {
       setNotFound(true);
@@ -290,6 +299,42 @@ function UserDetailsContent() {
   const grnRecords = useMemo(() => getMockGRNRecords(userIdForAnalytics), [userIdForAnalytics]);
   const dispatchOrders = useMemo(() => getMockDispatchOrders(userIdForAnalytics), [userIdForAnalytics]);
   const stockUpdates = useMemo(() => getMockStockUpdates(userIdForAnalytics), [userIdForAnalytics]);
+
+  const [recentOrdersPage, setRecentOrdersPage] = useState(1);
+  const [purchaseHistoryPage, setPurchaseHistoryPage] = useState(1);
+  const ordersPageSize = 5;
+
+  const recentOrdersTotalPages = Math.max(
+    1,
+    Math.ceil(recentOrders.length / ordersPageSize)
+  );
+  const purchaseHistoryTotalPages = Math.max(
+    1,
+    Math.ceil(purchaseHistory.length / ordersPageSize)
+  );
+
+  const paginatedRecentOrders = useMemo(() => {
+    const start = (recentOrdersPage - 1) * ordersPageSize;
+    return recentOrders.slice(start, start + ordersPageSize);
+  }, [recentOrders, recentOrdersPage]);
+
+  const paginatedPurchaseHistory = useMemo(() => {
+    const start = (purchaseHistoryPage - 1) * ordersPageSize;
+    return purchaseHistory.slice(start, start + ordersPageSize);
+  }, [purchaseHistory, purchaseHistoryPage]);
+  const [createdUsersPage, setCreatedUsersPage] = useState(1);
+  const createdUsersPageSize = 5;
+  const createdUsersTotalPages = Math.max(
+    1,
+    Math.ceil(createdUsers.length / createdUsersPageSize)
+  );
+  const paginatedCreatedUsers = useMemo(
+    () => {
+      const start = (createdUsersPage - 1) * createdUsersPageSize;
+      return createdUsers.slice(start, start + createdUsersPageSize);
+    },
+    [createdUsers, createdUsersPage]
+  );
 
   if (notFound || (!user && id)) {
     return (
@@ -400,17 +445,17 @@ function UserDetailsContent() {
                       <h1 className="text-xl font-semibold tracking-tight text-gray-900 sm:text-2xl">
                         {user.name}
                       </h1>
-                      <p className="mt-0.5 text-sm text-gray-600">{user.email}</p>
-                      <div className="mt-3 flex flex-wrap items-center gap-2">
+                      <div className="mt-1 flex flex-wrap items-center gap-2 text-sm">
+                        <p className="text-gray-600">{user.email}</p>
                         <span
-                          className={`inline-flex rounded-full px-3 py-1 text-xs font-medium ${statusStyles}`}
+                          className={`inline-flex rounded-full bg-emerald-50 px-3 py-1 text-xs font-medium ${statusStyles}`}
                         >
                           {user.status}
                         </span>
-                        <span className="rounded-full bg-gray-100 px-3 py-1 text-xs font-medium text-gray-700">
+                        <span className="inline-flex rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-700">
                           {user.userId}
                         </span>
-                        <span className="rounded-full bg-blue-50 px-3 py-1 text-xs font-medium text-blue-700">
+                        <span className="inline-flex rounded-full bg-blue-50 px-3 py-1 text-xs font-medium text-blue-700">
                           {user.role}
                         </span>
                       </div>
@@ -433,7 +478,7 @@ function UserDetailsContent() {
                   Basic Info
                 </h2>
               </div>
-              <dl className="grid grid-cols-2 gap-x-6 gap-y-4 sm:grid-cols-3 lg:grid-cols-5">
+              <dl className="grid grid-cols-2 gap-x-6 gap-y-4 sm:grid-cols-3 lg:grid-cols-6">
                 <div>
                   <dt className="text-xs font-medium uppercase tracking-wider text-gray-400">
                     User ID
@@ -455,6 +500,17 @@ function UserDetailsContent() {
                   </dt>
                   <dd className="mt-1 text-sm font-medium text-gray-900">{user.role}</dd>
                 </div>
+                {user.role === "Customer" && (
+                  <div>
+                    <dt className="text-xs font-medium uppercase tracking-wider text-gray-400">
+                      Referred By
+                    </dt>
+                    <dd className="mt-1 flex items-center gap-2 text-sm font-medium text-gray-900">
+                      <Users className="h-3.5 w-3.5 text-gray-400" />
+                      {user.referredByName ?? "—"}
+                    </dd>
+                  </div>
+                )}
                 <div>
                   <dt className="text-xs font-medium uppercase tracking-wider text-gray-400">
                     Registration Date
@@ -711,7 +767,8 @@ function UserDetailsContent() {
               </div>
             </div>
 
-            {/* Network Performance & User Relationships */}
+            {/* Network Performance & User Relationships (hide for customers) */}
+            {user.role !== "Customer" && (
             <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
               <div className="mb-4 flex items-center gap-2">
                 <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-violet-50 text-violet-600">
@@ -771,7 +828,7 @@ function UserDetailsContent() {
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-50">
-                      {createdUsers.map((u) => (
+                      {paginatedCreatedUsers.map((u) => (
                         <tr key={u.id} className="hover:bg-gray-50/50">
                           <td className="px-4 py-3 font-medium text-gray-900">{u.userId}</td>
                           <td className="px-4 py-3 text-gray-800">{u.name}</td>
@@ -787,8 +844,44 @@ function UserDetailsContent() {
                     </tbody>
                   </table>
                 </div>
+                {createdUsersTotalPages > 1 && (
+                  <div className="mt-3 flex items-center justify-between text-xs text-gray-500">
+                    <span>
+                      Page {createdUsersPage} of {createdUsersTotalPages}
+                    </span>
+                    <div className="flex items-center gap-2">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        className="h-7 px-2"
+                        disabled={createdUsersPage === 1}
+                        onClick={() =>
+                          setCreatedUsersPage((p) => Math.max(1, p - 1))
+                        }
+                      >
+                        Previous
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        className="h-7 px-2"
+                        disabled={createdUsersPage === createdUsersTotalPages}
+                        onClick={() =>
+                          setCreatedUsersPage((p) =>
+                            Math.min(createdUsersTotalPages, p + 1)
+                          )
+                        }
+                      >
+                        Next
+                      </Button>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
+            )}
 
             {/* Order Analytics */}
             <div className="space-y-6">
@@ -805,14 +898,26 @@ function UserDetailsContent() {
                     Recent Orders
                   </h3>
                   <div className="space-y-3">
-                    {recentOrders.map((order) => (
+                    {paginatedRecentOrders.map((order) => (
                       <div
                         key={order.id}
                         className="flex items-center justify-between rounded-lg border border-gray-100 bg-gray-50/50 px-3 py-2.5 text-sm"
                       >
                         <div>
                           <p className="font-medium text-gray-900">{order.id}</p>
-                          <p className="text-xs text-gray-500">{order.date} · {order.items ?? ""}</p>
+                          <p className="mt-0.5 text-xs text-gray-600">
+                            {order.productName ?? "—"}
+                          </p>
+                          <div className="mt-1 flex flex-wrap gap-1.5 text-[11px]">
+                            <span className="inline-flex items-center rounded-full bg-slate-100 px-2 py-0.5 text-slate-700">
+                              {order.date}
+                            </span>
+                            {order.items && (
+                              <span className="inline-flex items-center rounded-full bg-indigo-50 px-2 py-0.5 text-indigo-700">
+                                {order.items}
+                              </span>
+                            )}
+                          </div>
                         </div>
                         <div className="text-right">
                           <p className="font-semibold text-gray-900">₹{order.amount.toLocaleString("en-IN")}</p>
@@ -821,6 +926,41 @@ function UserDetailsContent() {
                       </div>
                     ))}
                   </div>
+                  {recentOrdersTotalPages > 1 && (
+                    <div className="mt-4 flex items-center justify-between text-xs text-gray-500">
+                      <span>
+                        Page {recentOrdersPage} of {recentOrdersTotalPages}
+                      </span>
+                      <div className="flex items-center gap-2">
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          className="h-7 px-2"
+                          disabled={recentOrdersPage === 1}
+                          onClick={() =>
+                            setRecentOrdersPage((p) => Math.max(1, p - 1))
+                          }
+                        >
+                          Previous
+                        </Button>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          className="h-7 px-2"
+                          disabled={recentOrdersPage === recentOrdersTotalPages}
+                          onClick={() =>
+                            setRecentOrdersPage((p) =>
+                              Math.min(recentOrdersTotalPages, p + 1)
+                            )
+                          }
+                        >
+                          Next
+                        </Button>
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 {/* Purchase History */}
@@ -830,14 +970,21 @@ function UserDetailsContent() {
                     Purchase History
                   </h3>
                   <div className="space-y-3">
-                    {purchaseHistory.map((order) => (
+                    {paginatedPurchaseHistory.map((order) => (
                       <div
                         key={order.id}
                         className="flex items-center justify-between rounded-lg border border-gray-100 bg-gray-50/50 px-3 py-2.5 text-sm"
                       >
                         <div>
                           <p className="font-medium text-gray-900">{order.id}</p>
-                          <p className="text-xs text-gray-500">{order.date}</p>
+                          <p className="mt-0.5 text-xs text-gray-600">
+                            {order.productName ?? "—"}
+                          </p>
+                          <div className="mt-1 flex flex-wrap gap-1.5 text-[11px]">
+                            <span className="inline-flex items-center rounded-full bg-slate-100 px-2 py-0.5 text-slate-700">
+                              {order.date}
+                            </span>
+                          </div>
                         </div>
                         <div className="text-right">
                           <p className="font-semibold text-gray-900">₹{order.amount.toLocaleString("en-IN")}</p>
@@ -846,6 +993,43 @@ function UserDetailsContent() {
                       </div>
                     ))}
                   </div>
+                  {purchaseHistoryTotalPages > 1 && (
+                    <div className="mt-4 flex items-center justify-between text-xs text-gray-500">
+                      <span>
+                        Page {purchaseHistoryPage} of {purchaseHistoryTotalPages}
+                      </span>
+                      <div className="flex items-center gap-2">
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          className="h-7 px-2"
+                          disabled={purchaseHistoryPage === 1}
+                          onClick={() =>
+                            setPurchaseHistoryPage((p) => Math.max(1, p - 1))
+                          }
+                        >
+                          Previous
+                        </Button>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          className="h-7 px-2"
+                          disabled={
+                            purchaseHistoryPage === purchaseHistoryTotalPages
+                          }
+                          onClick={() =>
+                            setPurchaseHistoryPage((p) =>
+                              Math.min(purchaseHistoryTotalPages, p + 1)
+                            )
+                          }
+                        >
+                          Next
+                        </Button>
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 {/* Return / Refund History */}
