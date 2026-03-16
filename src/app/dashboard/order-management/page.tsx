@@ -267,9 +267,9 @@ export default function OrderManagementPage() {
       .reduce((s, o) => s + o.amountInr, 0);
     return [
       { title: "Total Orders", value: total, delta: "All orders", icon: <ShoppingBag className="h-4 w-4" /> },
-      { title: "Pending", value: pending, delta: "Awaiting processing", icon: <Clock className="h-4 w-4" /> },
-      { title: "Delivered", value: delivered, delta: "Successfully delivered", icon: <CheckCircle2 className="h-4 w-4" /> },
-      { title: "Cancelled", value: cancelled, delta: "Cancelled orders", icon: <XCircle className="h-4 w-4" /> },
+      { title: "Pending Orders", value: pending, delta: "Awaiting processing", icon: <Clock className="h-4 w-4" /> },
+      { title: "Orders Delivered", value: delivered, delta: "Successfully delivered", icon: <CheckCircle2 className="h-4 w-4" /> },
+      { title: "Cancelled Orders", value: cancelled, delta: "Cancelled orders", icon: <XCircle className="h-4 w-4" /> },
       { title: "Total Revenue", value: `₹${revenue.toLocaleString("en-IN")}`, delta: "From delivered orders", icon: <IndianRupee className="h-4 w-4" /> },
     ];
   }, [orders]);

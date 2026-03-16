@@ -312,78 +312,100 @@ function OrderDetailsContent() {
               </div>
             </div>
 
-            <div className="grid gap-6 lg:grid-cols-2">
-              {/* Customer & shipping */}
-              <Card>
+            <div className="grid gap-6 lg:grid-cols-3">
+              {/* Customer, shipping & payment merged */}
+              <Card className="lg:col-span-2">
                 <CardHeader className="flex flex-row items-center justify-start gap-2 text-left">
                   <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-pink-50 text-pink-500">
                     <User2 className="h-4 w-4" />
                   </div>
                   <div>
-                    <CardTitle className="text-sm font-semibold text-gray-900">Customer & shipping</CardTitle>
-                    <p className="text-xs text-gray-500">Contact and delivery address</p>
+                    <CardTitle className="text-sm font-semibold text-gray-900">
+                      Customer, shipping & payment
+                    </CardTitle>
+                    <p className="text-xs text-gray-500">Contact, delivery address and payment</p>
                   </div>
                 </CardHeader>
-                <CardContent className="space-y-4 text-sm">
-                  <div className="grid gap-4 sm:grid-cols-2">
+                <CardContent className="space-y-6 text-sm">
+                  <div className="grid gap-4 sm:grid-cols-3">
                     <div>
-                      <p className="text-[11px] font-medium uppercase tracking-wider text-gray-400">Name</p>
-                      <p className="mt-1 flex items-center gap-1.5 text-gray-900">{o.customerName}</p>
+                      <p className="text-[11px] font-medium uppercase tracking-wider text-gray-400">
+                        Name
+                      </p>
+                      <p className="mt-1 flex items-center gap-1.5 text-gray-900">
+                        {o.customerName}
+                      </p>
                     </div>
                     <div>
-                      <p className="text-[11px] font-medium uppercase tracking-wider text-gray-400">Phone</p>
-                      <p className="mt-1 flex items-center gap-1.5 text-gray-900">{o.customerPhone}</p>
-                    </div>
-                    <div className="sm:col-span-2">
-                      <p className="text-[11px] font-medium uppercase tracking-wider text-gray-400">Email</p>
+                      <p className="text-[11px] font-medium uppercase tracking-wider text-gray-400">
+                        Email
+                      </p>
                       <p className="mt-1 break-all text-gray-900">{o.customerEmail}</p>
                     </div>
+                    <div>
+                      <p className="text-[11px] font-medium uppercase tracking-wider text-gray-400">
+                        Phone
+                      </p>
+                      <p className="mt-1 flex items-center gap-1.5 text-gray-900">
+                        {o.customerPhone}
+                      </p>
+                    </div>
                     <div className="sm:col-span-2">
-                      <p className="text-[11px] font-medium uppercase tracking-wider text-gray-400">Shipping address</p>
+                      <p className="text-[11px] font-medium uppercase tracking-wider text-gray-400">
+                        Shipping address
+                      </p>
                       <p className="mt-1 flex items-start gap-1.5 text-gray-700">
                         <MapPin className="mt-0.5 h-3.5 w-3.5 shrink-0 text-gray-400" />
                         <span className="whitespace-pre-line">{o.shippingAddress}</span>
                       </p>
                     </div>
                   </div>
+
+                  <div className="grid gap-4 sm:grid-cols-4 border-t border-gray-100 pt-4">
+                    <div>
+                      <p className="text-[11px] font-medium uppercase tracking-wider text-gray-400">
+                        Method
+                      </p>
+                      <p className="mt-1 font-medium text-gray-900">{o.paymentMethod}</p>
+                    </div>
+                    <div>
+                      <p className="text-[11px] font-medium uppercase tracking-wider text-gray-400">
+                        Status
+                      </p>
+                      <p
+                        className={`mt-1 font-medium ${
+                          o.paymentStatus === "Paid"
+                            ? "text-emerald-700"
+                            : o.paymentStatus === "Refunded"
+                              ? "text-blue-700"
+                              : o.paymentStatus === "Pending"
+                                ? "text-amber-700"
+                                : "text-rose-700"
+                        }`}
+                      >
+                        {o.paymentStatus}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-[11px] font-medium uppercase tracking-wider text-gray-400">
+                        Total
+                      </p>
+                      <p className="mt-1 font-semibold text-gray-900">
+                        ₹{o.totalAmountInr.toLocaleString("en-IN")}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-[11px] font-medium uppercase tracking-wider text-gray-400">
+                        Transaction ID
+                      </p>
+                      <p className="mt-1 font-mono text-xs text-gray-700">{o.transactionId}</p>
+                    </div>
+                  </div>
                 </CardContent>
               </Card>
 
-              {/* Payment details */}
+              {/* Order timeline on the right */}
               <Card>
-                <CardHeader className="flex flex-row items-center justify-start gap-2 text-left">
-                  <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-emerald-50 text-emerald-600">
-                    <CreditCard className="h-4 w-4" />
-                  </div>
-                  <div>
-                    <CardTitle className="text-sm font-semibold text-gray-900">Payment details</CardTitle>
-                    <p className="text-xs text-gray-500">Transaction and method</p>
-                  </div>
-                </CardHeader>
-                <CardContent className="grid gap-4 sm:grid-cols-2 text-sm">
-                  <div>
-                    <p className="text-[11px] font-medium uppercase tracking-wider text-gray-400">Method</p>
-                    <p className="mt-1 font-medium text-gray-900">{o.paymentMethod}</p>
-                  </div>
-                  <div>
-                    <p className="text-[11px] font-medium uppercase tracking-wider text-gray-400">Status</p>
-                    <p className={`mt-1 font-medium ${
-                      o.paymentStatus === "Paid" ? "text-emerald-700" : o.paymentStatus === "Refunded" ? "text-blue-700" : o.paymentStatus === "Pending" ? "text-amber-700" : "text-rose-700"
-                    }`}>{o.paymentStatus}</p>
-                  </div>
-                  <div>
-                    <p className="text-[11px] font-medium uppercase tracking-wider text-gray-400">Total</p>
-                    <p className="mt-1 font-semibold text-gray-900">₹{o.totalAmountInr.toLocaleString("en-IN")}</p>
-                  </div>
-                  <div>
-                    <p className="text-[11px] font-medium uppercase tracking-wider text-gray-400">Transaction ID</p>
-                    <p className="mt-1 font-mono text-xs text-gray-700">{o.transactionId}</p>
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Order timeline */}
-              <Card className="lg:col-span-2">
                 <CardHeader className="flex flex-row items-center justify-start gap-2 text-left">
                   <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-indigo-50 text-indigo-600">
                     <Truck className="h-4 w-4" />

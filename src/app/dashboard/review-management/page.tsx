@@ -136,7 +136,7 @@ const initialReviews: ReviewRow[] = [
 ];
 
 const reviewColumns: Column<ReviewRow>[] = [
-  { key: "id", label: "Review ID" },
+  { key: "id", label: "ID" },
   { key: "productName", label: "Product" },
   { key: "userName", label: "User" },
   {
