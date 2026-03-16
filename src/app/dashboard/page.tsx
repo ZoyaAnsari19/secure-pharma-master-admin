@@ -50,13 +50,13 @@ import {
 } from "lucide-react";
 
 const statCards = [
-  { label: "Total Orders", value: "12,847", delta: "+8.2% vs last month", icon: ShoppingBag },
-  { label: "Total Revenue", value: "₹18.42L", delta: "+15.3% vs last month", icon: IndianRupee },
-  { label: "Total Products", value: "684", delta: "+3.1%", icon: Package },
+  { label: "Total Distributors", value: "156", delta: "+5 this month", icon: Truck },
+  { label: "Total Franchise", value: "42", delta: "+3 this month", icon: Building2 },
+  { label: "Total Agents", value: "89", delta: "+4 this month", icon: User },
   { label: "Total Customers", value: "11,219", delta: "+12.5%", icon: Users },
-  { label: "Distributors", value: "156", delta: "+5 this month", icon: Truck },
-  { label: "Franchise", value: "42", delta: "+3 this month", icon: Building2 },
-  { label: "Retailers", value: "892", delta: "+18 this month", icon: Store },
+  { label: "Total Orders", value: "12,847", delta: "+8.2% vs last month", icon: ShoppingBag },
+  { label: "Total Products", value: "684", delta: "+3.1%", icon: Package },
+  { label: "Total Revenue", value: "₹18.42L", delta: "+15.3% vs last month", icon: IndianRupee },
   { label: "Pending Orders", value: "47", delta: "Require action", icon: Clock },
   { label: "Low Stock Products", value: "23", delta: "Below threshold", icon: AlertTriangle },
   { label: "Pending Withdrawal Request", value: "22", delta: "Pending today", icon: Wallet },
