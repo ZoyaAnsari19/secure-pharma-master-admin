@@ -2,6 +2,7 @@
 
 import { useEffect, useState, ReactNode } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import {
   LayoutDashboard,
@@ -128,9 +129,16 @@ export function Sidebar({ onOpenChange }: SidebarProps) {
   const SidebarContent = (
     <div className="flex h-full flex-col bg-white">
       <div className="flex h-16 items-center justify-between border-b border-gray-100 px-4 pr-3">
-        <div className="flex items-center gap-2">
-          <div className="flex h-9 w-9 items-center justify-center rounded-full bg-pink-50 text-pink-500 shadow-sm">
-            <span className="text-sm font-semibold">TB</span>
+        <Link href="/dashboard" className="flex items-center gap-2">
+          <div className="relative h-9 w-9 overflow-hidden rounded-full bg-white shadow-sm">
+            <Image
+              src="/images/logo.png"
+              alt="Secure Pharma logo"
+              fill
+              sizes="36px"
+              className="object-contain p-1"
+              priority
+            />
           </div>
           {!isCollapsed && (
             <div className="flex flex-col">
@@ -142,7 +150,7 @@ export function Sidebar({ onOpenChange }: SidebarProps) {
               </span>
             </div>
           )}
-        </div>
+        </Link>
         <Button
           variant="ghost"
           size="icon"
@@ -244,9 +252,18 @@ export function Sidebar({ onOpenChange }: SidebarProps) {
           <div className="fixed inset-0 z-40 flex">
             <div className="relative flex w-64 flex-col border-r border-gray-200 bg-white pb-4 pt-3 shadow-xl">
               <div className="flex items-center justify-between px-4">
-                <span className="text-sm font-semibold text-gray-900">
-                  True Beauty
-                </span>
+                <Link href="/dashboard" className="flex items-center gap-2">
+                  <div className="relative h-8 w-28">
+                    <Image
+                      src="/images/logo.png"
+                      alt="Secure Pharma logo"
+                      fill
+                      sizes="112px"
+                      className="object-contain"
+                      priority
+                    />
+                  </div>
+                </Link>
                 <button
                   className="flex h-8 w-8 items-center justify-center rounded-full bg-pink-50 text-pink-500"
                   onClick={closeMobile}
