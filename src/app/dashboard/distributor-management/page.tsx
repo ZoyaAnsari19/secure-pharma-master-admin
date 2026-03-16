@@ -574,7 +574,7 @@ export default function DistributorManagementPage() {
               }}
             >
               <SideDrawerContent className="flex h-full flex-col gap-0 overflow-hidden p-0">
-                <SideDrawerHeader className="-mx-6 mb-0 flex h-16 flex-shrink-0 flex-row items-center border-b border-gray-200 bg-pink-50 px-6 pr-14">
+                <SideDrawerHeader className="mb-0 flex h-16 flex-shrink-0 -mx-6 flex-row items-center border-b border-gray-200 bg-pink-50 px-6 pr-14">
                   <div className="flex flex-col justify-center gap-0.5">
                     <SideDrawerTitle className="text-base font-semibold leading-tight text-gray-900">
                       Distributor Details
@@ -585,98 +585,172 @@ export default function DistributorManagementPage() {
                   </div>
                 </SideDrawerHeader>
                 {viewingDistributor && (
-                  <div className="flex-1 min-h-0 overflow-y-auto px-6 py-5">
-                    <div className="space-y-4">
-                      <div className="rounded-xl border border-gray-100 bg-gray-50/50 p-4 shadow-sm">
-                        <h3 className="mb-3 text-[11px] font-semibold uppercase tracking-wider text-gray-400">
-                          Basic Info
+                  <>
+                    <div className="flex-1 min-h-0 overflow-y-auto px-6 py-5">
+                      {/* Profile / basic information */}
+                      <section className="rounded-xl border border-gray-100 bg-gray-50/50 p-4 shadow-sm">
+                        <h3 className="mb-4 text-[11px] font-semibold uppercase tracking-wider text-gray-400">
+                          Basic information
                         </h3>
-                        <dl className="space-y-2 text-sm">
-                          <div>
-                            <dt className="text-[11px] text-gray-500">Distributor ID</dt>
-                            <dd className="font-medium text-gray-900">{viewingDistributor.distributorId}</dd>
+                        <div className="space-y-4">
+                          <div className="flex items-start gap-3">
+                            <span className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-pink-100 text-pink-600">
+                              <Truck className="h-4 w-4" />
+                            </span>
+                            <div className="min-w-0 flex-1">
+                              <p className="text-[11px] font-medium uppercase tracking-wider text-gray-400">
+                                Distributor name
+                              </p>
+                              <p className="mt-0.5 text-sm font-semibold text-gray-900">
+                                {viewingDistributor.name}
+                              </p>
+                              <p className="mt-0.5 text-xs text-gray-500">
+                                ID: {viewingDistributor.distributorId}
+                              </p>
+                            </div>
                           </div>
-                          <div>
-                            <dt className="text-[11px] text-gray-500">Name</dt>
-                            <dd className="font-medium text-gray-900">{viewingDistributor.name}</dd>
+                          <div className="h-px bg-gray-200/80" />
+                          <div className="flex items-start gap-3">
+                            <span className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-sky-100 text-sky-600">
+                              <Package className="h-4 w-4" />
+                            </span>
+                            <div className="min-w-0 flex-1">
+                              <p className="text-[11px] font-medium uppercase tracking-wider text-gray-400">
+                                Company
+                              </p>
+                              <p className="mt-0.5 text-sm font-semibold text-gray-900">
+                                {viewingDistributor.companyName}
+                              </p>
+                            </div>
                           </div>
-                          <div>
-                            <dt className="text-[11px] text-gray-500">Company</dt>
-                            <dd className="font-medium text-gray-900">{viewingDistributor.companyName}</dd>
+                          <div className="h-px bg-gray-200/80" />
+                          <div className="flex items-start gap-3">
+                            <span className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-emerald-100 text-emerald-600">
+                              <Wallet className="h-4 w-4" />
+                            </span>
+                            <div className="min-w-0 flex-1">
+                              <p className="text-[11px] font-medium uppercase tracking-wider text-gray-400">
+                                Wallet balance / total orders
+                              </p>
+                              <p className="mt-0.5 text-sm font-semibold text-gray-900">
+                                ₹{viewingDistributor.walletBalance.toLocaleString("en-IN")}{" "}
+                                <span className="ml-2 text-xs font-medium text-gray-500">
+                                  · {viewingDistributor.totalOrders} orders
+                                </span>
+                              </p>
+                            </div>
                           </div>
-                          <div>
-                            <dt className="text-[11px] text-gray-500">Email / Phone</dt>
-                            <dd className="font-medium text-gray-900">{viewingDistributor.email}</dd>
-                            <dd className="text-gray-600">{viewingDistributor.phone}</dd>
-                          </div>
-                        </dl>
-                      </div>
-                      <div className="rounded-xl border border-gray-100 bg-gray-50/50 p-4 shadow-sm">
-                        <h3 className="mb-3 text-[11px] font-semibold uppercase tracking-wider text-gray-400">
-                          Location & Area
+                        </div>
+                      </section>
+
+                      <div className="my-4 h-px bg-gray-200/60" />
+
+                      {/* Contact & location */}
+                      <section className="rounded-xl border border-gray-100 bg-gray-50/50 p-4 shadow-sm">
+                        <h3 className="mb-4 text-[11px] font-semibold uppercase tracking-wider text-gray-400">
+                          Contact & location
                         </h3>
-                        <dl className="space-y-2 text-sm">
-                          <div>
-                            <dt className="text-[11px] text-gray-500">State, City</dt>
-                            <dd className="font-medium text-gray-900">
-                              {viewingDistributor.state}, {viewingDistributor.city}
-                            </dd>
+                        <div className="space-y-4">
+                          <div className="flex items-start gap-3">
+                            <span className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-sky-100 text-sky-600">
+                              <Eye className="h-4 w-4" />
+                            </span>
+                            <div className="min-w-0 flex-1">
+                              <p className="text-[11px] font-medium uppercase tracking-wider text-gray-400">
+                                Email
+                              </p>
+                              <p className="mt-0.5 break-all text-sm font-semibold text-gray-900">
+                                {viewingDistributor.email}
+                              </p>
+                            </div>
                           </div>
-                          <div>
-                            <dt className="text-[11px] text-gray-500">Assigned Area</dt>
-                            <dd className="font-medium text-gray-900">{viewingDistributor.assignedArea}</dd>
+                          <div className="h-px bg-gray-200/80" />
+                          <div className="flex items-start gap-3">
+                            <span className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-emerald-100 text-emerald-600">
+                              <PauseCircle className="h-4 w-4" />
+                            </span>
+                            <div className="min-w-0 flex-1">
+                              <p className="text-[11px] font-medium uppercase tracking-wider text-gray-400">
+                                Phone
+                              </p>
+                              <p className="mt-0.5 text-sm font-semibold text-gray-900">
+                                {viewingDistributor.phone}
+                              </p>
+                            </div>
                           </div>
-                        </dl>
-                      </div>
-                      <div className="rounded-xl border border-gray-100 bg-gray-50/50 p-4 shadow-sm">
-                        <h3 className="mb-3 text-[11px] font-semibold uppercase tracking-wider text-gray-400">
-                          Performance
+                          <div className="h-px bg-gray-200/80" />
+                          <div className="flex items-start gap-3">
+                            <span className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-gray-200 text-gray-600">
+                              <Truck className="h-4 w-4" />
+                            </span>
+                            <div className="min-w-0 flex-1">
+                              <p className="text-[11px] font-medium uppercase tracking-wider text-gray-400">
+                                State / city / area
+                              </p>
+                              <p className="mt-0.5 text-sm font-semibold text-gray-900">
+                                {viewingDistributor.state}, {viewingDistributor.city}
+                              </p>
+                              <p className="mt-0.5 text-xs text-gray-600">
+                                {viewingDistributor.assignedArea}
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      </section>
+
+                      <div className="my-4 h-px bg-gray-200/60" />
+
+                      {/* Status & identifiers */}
+                      <section className="rounded-xl border border-gray-100 bg-gray-50/50 p-4 shadow-sm">
+                        <h3 className="mb-4 text-[11px] font-semibold uppercase tracking-wider text-gray-400">
+                          Status & identifiers
                         </h3>
-                        <dl className="space-y-2 text-sm">
-                          <div>
-                            <dt className="text-[11px] text-gray-500">Wallet Balance</dt>
-                            <dd className="font-semibold text-gray-900">
-                              ₹{viewingDistributor.walletBalance.toLocaleString("en-IN")}
-                            </dd>
+                        <div className="space-y-4">
+                          <div className="flex items-center justify-between gap-3">
+                            <p className="text-[11px] font-medium uppercase tracking-wider text-gray-400">
+                              Status
+                            </p>
+                            <span
+                              className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold shadow-sm ${
+                                viewingDistributor.status === "Active"
+                                  ? "bg-emerald-100 text-emerald-800 ring-1 ring-emerald-200/60"
+                                  : viewingDistributor.status === "Suspended"
+                                    ? "bg-amber-100 text-amber-800 ring-1 ring-amber-200/60"
+                                    : "bg-gray-100 text-gray-700 ring-1 ring-gray-200/60"
+                              }`}
+                            >
+                              {viewingDistributor.status}
+                            </span>
                           </div>
+                          <div className="h-px bg-gray-200/80" />
                           <div>
-                            <dt className="text-[11px] text-gray-500">Total Orders</dt>
-                            <dd className="font-semibold text-gray-900">{viewingDistributor.totalOrders}</dd>
+                            <p className="text-[11px] font-medium uppercase tracking-wider text-gray-400">
+                              GST & Pin code
+                            </p>
+                            <p className="mt-1 text-xs font-medium text-gray-900">
+                              {viewingDistributor.gstNumber || "—"}
+                            </p>
+                            <p className="mt-0.5 text-xs text-gray-600">
+                              {viewingDistributor.pinCode || "—"}
+                            </p>
                           </div>
-                          <div>
-                            <dt className="text-[11px] text-gray-500">Status</dt>
-                            <dd>
-                              <span
-                                className={`inline-flex rounded-full px-2.5 py-0.5 text-[11px] font-medium ${
-                                  viewingDistributor.status === "Active"
-                                    ? "bg-emerald-50 text-emerald-700"
-                                    : viewingDistributor.status === "Suspended"
-                                      ? "bg-amber-50 text-amber-700"
-                                      : "bg-gray-100 text-gray-600"
-                                }`}
-                              >
-                                {viewingDistributor.status}
-                              </span>
-                            </dd>
-                          </div>
-                        </dl>
-                      </div>
+                        </div>
+                      </section>
                     </div>
-                  </div>
-                )}
-                {viewingDistributor && (
-                  <SideDrawerFooter className="flex-shrink-0 justify-start border-t border-gray-200 bg-gray-50/80 px-6 py-4">
-                    <Button
-                      type="button"
-                      variant="outline"
-                      onClick={() => {
-                        setViewModalOpen(false);
-                        setViewingDistributor(null);
-                      }}
-                    >
-                      Cancel
-                    </Button>
-                  </SideDrawerFooter>
+                    <SideDrawerFooter className="flex-shrink-0 border-t border-gray-200/80 bg-gray-50/80 px-6 py-4">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => {
+                          setViewModalOpen(false);
+                          setViewingDistributor(null);
+                        }}
+                        className="w-full sm:w-auto"
+                      >
+                        Close
+                      </Button>
+                    </SideDrawerFooter>
+                  </>
                 )}
               </SideDrawerContent>
             </SideDrawer>
