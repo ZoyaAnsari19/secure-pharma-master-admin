@@ -21,9 +21,9 @@ const data = [
 
 export function OrdersOverviewChart() {
   return (
-    <div className="h-64 w-full">
+    <div className="h-56 w-full sm:h-64">
       <ResponsiveContainer width="100%" height="100%">
-        <BarChart data={data} margin={{ left: -24, right: 0, top: 10 }}>
+        <BarChart data={data} margin={{ left: 8, right: 8, top: 10, bottom: 0 }}>
           <CartesianGrid
             strokeDasharray="3 3"
             stroke="#fce0ec"

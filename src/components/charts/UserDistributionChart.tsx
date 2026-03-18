@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import {
   Cell,
   Legend,
@@ -28,9 +29,19 @@ const data = [
 const TOTAL_USERS = data.reduce((sum, item) => sum + item.value, 0);
 
 export function UserDistributionChart() {
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const update = () => setIsMobile(window.innerWidth < 640);
+    update();
+    window.addEventListener("resize", update);
+    return () => window.removeEventListener("resize", update);
+  }, []);
+
   return (
-    <div className="flex h-96 w-full flex-col">
-      <div className="h-72">
+    <div className="flex w-full flex-col">
+      <div className="h-60 sm:h-72">
         <ResponsiveContainer width="100%" height="100%">
           <RechartsPieChart margin={{ top: 8, right: 8, left: 8, bottom: 8 }}>
             <Pie
@@ -59,9 +70,9 @@ export function UserDistributionChart() {
               }}
             />
             <Legend
-              layout="vertical"
-              align="right"
-              verticalAlign="middle"
+              layout={isMobile ? "horizontal" : "vertical"}
+              align={isMobile ? "center" : "right"}
+              verticalAlign={isMobile ? "bottom" : "middle"}
               iconType="circle"
               iconSize={8}
               formatter={(value) => (

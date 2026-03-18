@@ -167,85 +167,110 @@ export default function DashboardPage() {
   };
 
   return (
-    <div className="flex h-screen bg-slate-50/80 text-slate-900">
+    <div className="flex h-screen overflow-x-hidden bg-slate-50/80 text-slate-900">
       <Sidebar />
-      <div className="flex h-full flex-1 flex-col">
+      <div className="flex h-full min-w-0 flex-1 flex-col">
         <Topbar />
-        <main className="beauty-scroll flex-1 overflow-y-auto">
-          <div className="mx-auto w-full max-w-[1400px] p-4 sm:p-6 lg:p-8">
-            <div className="space-y-8">
+        <main className="beauty-scroll flex-1 overflow-x-hidden overflow-y-auto">
+          <div className="mx-auto w-full max-w-[1400px] p-3 sm:p-6 lg:p-8">
+            <div className="space-y-6 sm:space-y-8">
               <div className="flex flex-col gap-1">
-                <h1 className="text-2xl font-semibold tracking-tight text-slate-800">
+                <h1 className="text-xl font-semibold tracking-tight text-slate-800 sm:text-2xl">
                   Master Admin
                 </h1>
-                <p className="text-sm text-slate-500">
+                <p className="text-xs text-slate-500 sm:text-sm">
                   E-commerce ERP & supply chain overview
                 </p>
               </div>
 
               {/* Summary KPI cards — 9 metrics */}
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-                {statCards.map((card, index) => {
-                  const Icon = card.icon;
-                  return (
-                    <KpiCard
-                      key={card.label}
-                      title={card.label}
-                      value={card.value}
-                      delta={card.delta}
-                      icon={<Icon className="h-4 w-4" />}
-                      variant={CARD_VARIANTS[index % CARD_VARIANTS.length]}
-                    />
-                  );
-                })}
+              <div className="min-w-0">
+                {/* Mobile: horizontal snap-scroll. Desktop: grid */}
+                <div className="-mx-3 sm:mx-0">
+                  <div className="beauty-scroll flex snap-x snap-mandatory gap-3 overflow-x-auto px-3 pb-1 sm:hidden">
+                    {statCards.map((card, index) => {
+                      const Icon = card.icon;
+                      return (
+                        <div
+                          key={card.label}
+                          className="w-[82vw] max-w-[340px] shrink-0 snap-start"
+                        >
+                          <KpiCard
+                            title={card.label}
+                            value={card.value}
+                            delta={card.delta}
+                            icon={<Icon className="h-4 w-4" />}
+                            variant={CARD_VARIANTS[index % CARD_VARIANTS.length]}
+                          />
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                <div className="hidden grid-cols-1 gap-4 sm:grid sm:grid-cols-2 lg:grid-cols-4">
+                  {statCards.map((card, index) => {
+                    const Icon = card.icon;
+                    return (
+                      <KpiCard
+                        key={card.label}
+                        title={card.label}
+                        value={card.value}
+                        delta={card.delta}
+                        icon={<Icon className="h-4 w-4" />}
+                        variant={CARD_VARIANTS[index % CARD_VARIANTS.length]}
+                      />
+                    );
+                  })}
+                </div>
               </div>
 
               {/* Charts row: Monthly revenue */}
               <Card className="rounded-xl border border-slate-200/80 bg-white shadow-sm">
                 <CardHeader>
                   <div>
-                    <CardTitle className="text-lg font-semibold text-slate-800">
+                    <CardTitle className="text-base font-semibold text-slate-800 sm:text-lg">
                       Monthly Revenue Trend
                     </CardTitle>
-                    <CardDescription className="text-sm text-slate-500">
+                    <CardDescription className="text-xs text-slate-500 sm:text-sm">
                       Last 6 months
                     </CardDescription>
                   </div>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="overflow-hidden">
                   <RevenueOverviewChart />
                 </CardContent>
               </Card>
 
               {/* Charts row: Daily orders + Order status distribution */}
-              <div className="grid grid-cols-1 gap-6 lg:grid-cols-2 items-stretch">
+              <div className="grid grid-cols-1 items-stretch gap-4 sm:gap-6 lg:grid-cols-2">
                 <Card className="h-full rounded-xl border border-slate-200/80 bg-white shadow-sm">
                   <CardHeader>
                     <div>
-                      <CardTitle className="text-lg font-semibold text-slate-800">
+                      <CardTitle className="text-base font-semibold text-slate-800 sm:text-lg">
                         Daily Orders
                       </CardTitle>
-                      <CardDescription className="text-sm text-slate-500">
+                      <CardDescription className="text-xs text-slate-500 sm:text-sm">
                         Orders by day (last 7 days)
                       </CardDescription>
                     </div>
                   </CardHeader>
-                  <CardContent>
+                  <CardContent className="overflow-hidden">
                     <OrdersOverviewChart />
                   </CardContent>
                 </Card>
                 <Card className="h-full rounded-xl border border-slate-200/80 bg-white shadow-sm">
                   <CardHeader>
                     <div>
-                      <CardTitle className="text-lg font-semibold text-slate-800">
+                      <CardTitle className="text-base font-semibold text-slate-800 sm:text-lg">
                         Order Status Distribution
                       </CardTitle>
-                      <CardDescription className="text-sm text-slate-500">
+                      <CardDescription className="text-xs text-slate-500 sm:text-sm">
                         Share of orders by current status
                       </CardDescription>
                     </div>
                   </CardHeader>
-                  <CardContent>
+                  <CardContent className="overflow-hidden">
                     <OrdersStatusPieChart
                       data={[
                         { status: "Pending", value: 47 },
@@ -260,33 +285,33 @@ export default function DashboardPage() {
               </div>
 
               {/* User distribution donut + Inventory overview */}
-              <div className="grid grid-cols-1 gap-6 lg:grid-cols-2 items-stretch">
+              <div className="grid grid-cols-1 items-stretch gap-4 sm:gap-6 lg:grid-cols-2">
                 <Card className="h-full rounded-xl border border-slate-200/80 bg-white shadow-sm">
                   <CardHeader>
                     <div>
-                      <CardTitle className="text-lg font-semibold text-slate-800">
+                      <CardTitle className="text-base font-semibold text-slate-800 sm:text-lg">
                         User Distribution by Role
                       </CardTitle>
-                      <CardDescription className="text-sm text-slate-500">
+                      <CardDescription className="text-xs text-slate-500 sm:text-sm">
                         Distributor, franchise, retailer, networker, customer
                       </CardDescription>
                     </div>
                   </CardHeader>
-                  <CardContent>
+                  <CardContent className="overflow-hidden">
                     <UserDistributionChart />
                   </CardContent>
                 </Card>
                 <Card className="h-full rounded-xl border border-slate-200/80 bg-white shadow-sm">
                   <CardHeader>
                     <div className="flex items-center gap-2">
-                      <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-slate-100 text-slate-600">
+                      <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-slate-100 text-slate-600 sm:h-9 sm:w-9">
                         <Boxes className="h-4 w-4" />
                       </div>
                       <div>
-                        <CardTitle className="text-lg font-semibold text-slate-800">
+                        <CardTitle className="text-base font-semibold text-slate-800 sm:text-lg">
                           Inventory Overview
                         </CardTitle>
-                        <CardDescription className="text-sm text-slate-500">
+                        <CardDescription className="text-xs text-slate-500 sm:text-sm">
                           Stock health at a glance
                         </CardDescription>
                       </div>
@@ -301,7 +326,7 @@ export default function DashboardPage() {
                         { name: "Out of stock", value: 5 },
                       ]}
                     />
-                    <div className="grid grid-cols-2 gap-2">
+                    <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
                       {inventoryMetrics.map((m) => (
                         <div
                           key={m.label}
@@ -311,7 +336,7 @@ export default function DashboardPage() {
                             {m.label}
                           </p>
                           <p className="text-xs text-slate-400">{m.sub}</p>
-                          <p className="mt-1 text-base font-semibold tabular-nums text-slate-800">
+                          <p className="mt-1 text-sm font-semibold tabular-nums text-slate-800 sm:text-base">
                             {m.value}
                           </p>
                         </div>
@@ -325,15 +350,15 @@ export default function DashboardPage() {
               <Card className="rounded-xl border border-slate-200/80 bg-white shadow-sm">
                 <CardHeader>
                   <div>
-                    <CardTitle className="text-lg font-semibold text-slate-800">
+                    <CardTitle className="text-base font-semibold text-slate-800 sm:text-lg">
                       Top Selling Products
                     </CardTitle>
-                    <CardDescription className="text-sm text-slate-500">
+                    <CardDescription className="text-xs text-slate-500 sm:text-sm">
                       Ranked by units sold
                     </CardDescription>
                   </div>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="overflow-hidden">
                   <TopSellingBarChart
                     data={topProductsRows.map((p) => ({
                       name: p.name,
@@ -404,7 +429,7 @@ export default function DashboardPage() {
                 open={!!viewingProduct}
                 onOpenChange={(open) => !open && setViewingProduct(null)}
               >
-                <DialogContent className="max-h-[90vh] max-w-lg overflow-y-auto">
+                <DialogContent className="max-h-[90vh] w-[95vw] max-w-lg overflow-y-auto">
                   <DialogHeader>
                     <DialogTitle>Product Details</DialogTitle>
                     <DialogDescription>Read-only view</DialogDescription>
@@ -412,7 +437,7 @@ export default function DashboardPage() {
                   {viewingProduct && (
                     <>
                       <div className="space-y-4">
-                        <section className="rounded-xl border border-gray-100 bg-gray-50/50 p-4 shadow-sm">
+                        <section className="rounded-xl border border-gray-100 bg-gray-50/50 p-3 shadow-sm sm:p-4">
                           <h3 className="mb-4 text-[11px] font-semibold uppercase tracking-wider text-gray-400">
                             Basic information
                           </h3>
@@ -446,7 +471,7 @@ export default function DashboardPage() {
                             </div>
                           </div>
                         </section>
-                        <section className="rounded-xl border border-gray-100 bg-gray-50/50 p-4 shadow-sm">
+                        <section className="rounded-xl border border-gray-100 bg-gray-50/50 p-3 shadow-sm sm:p-4">
                           <h3 className="mb-4 text-[11px] font-semibold uppercase tracking-wider text-gray-400">
                             Sales & performance
                           </h3>
@@ -510,7 +535,7 @@ export default function DashboardPage() {
                 open={!!viewingOrder}
                 onOpenChange={(open) => !open && setViewingOrder(null)}
               >
-                <DialogContent className="max-h-[90vh] max-w-lg overflow-y-auto">
+                <DialogContent className="max-h-[90vh] w-[95vw] max-w-lg overflow-y-auto">
                   <DialogHeader>
                     <DialogTitle>Order Details</DialogTitle>
                     <DialogDescription>Read-only view</DialogDescription>
@@ -518,7 +543,7 @@ export default function DashboardPage() {
                   {viewingOrder && (
                     <>
                       <div className="space-y-4">
-                        <section className="rounded-xl border border-gray-100 bg-gray-50/50 p-4 shadow-sm">
+                        <section className="rounded-xl border border-gray-100 bg-gray-50/50 p-3 shadow-sm sm:p-4">
                           <h3 className="mb-4 text-[11px] font-semibold uppercase tracking-wider text-gray-400">
                             Order information
                           </h3>
@@ -616,7 +641,7 @@ export default function DashboardPage() {
                   }
                 }}
               >
-                <DialogContent className="max-w-md">
+                <DialogContent className="w-[95vw] max-w-md">
                   <DialogHeader>
                     <DialogTitle>Edit stock</DialogTitle>
                     {editingProduct && (
@@ -628,7 +653,7 @@ export default function DashboardPage() {
                       <div className="space-y-2">
                         <label
                           htmlFor="edit-stock"
-                          className="text-sm font-medium text-gray-700"
+                          className="text-xs font-medium text-gray-700 sm:text-sm"
                         >
                           Current stock (units)
                         </label>

@@ -182,9 +182,9 @@ export function DataTable<T extends { id: string | number }>({
   const items = filtered.slice(startIndex, startIndex + pageSize);
 
   return (
-    <Card className="bg-white">
+    <Card className="min-w-0 bg-white">
       <CardHeader className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-        <div>
+        <div className="min-w-0">
           <CardTitle>{title}</CardTitle>
         </div>
         {headerContent ?? (
@@ -210,9 +210,10 @@ export function DataTable<T extends { id: string | number }>({
           />
         )}
       </CardHeader>
-      <CardContent>
-        <div className="overflow-x-auto rounded-xl border border-gray-100 bg-white">
-          <Table className="min-w-[640px]">
+      <CardContent className="px-0 sm:px-6">
+        <div className="min-w-0 overflow-x-auto border-y border-gray-100 bg-white sm:rounded-xl sm:border">
+          <div className="min-w-[640px] px-4 sm:px-0">
+            <Table className="w-full">
             <TableHeader>
               <TableRow>
                 {showIndexColumn && (
@@ -302,7 +303,8 @@ export function DataTable<T extends { id: string | number }>({
                 </TableRow>
               )}
             </TableBody>
-          </Table>
+            </Table>
+          </div>
         </div>
 
         <div className="mt-4 flex flex-col gap-2 text-[11px] text-slate-500 sm:flex-row sm:items-center sm:justify-between">

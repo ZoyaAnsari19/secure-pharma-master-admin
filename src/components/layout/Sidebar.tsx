@@ -8,9 +8,7 @@ import {
   LayoutDashboard,
   Users,
   Shield,
-  Wallet,
   Package,
-  Boxes,
   ShoppingBag,
   Undo2,
   CreditCard,
@@ -20,7 +18,6 @@ import {
   BarChart3,
   PieChart,
   Palette,
-  Menu,
   X,
   ChevronLeft,
   ChevronRight,
@@ -125,56 +122,59 @@ export function Sidebar({ onOpenChange }: SidebarProps) {
     return () => window.removeEventListener("resize", applyLayoutForWidth);
   }, []);
 
+  // Allow Topbar (and others) to open the drawer without prop-drilling.
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const open = () => {
+      setMobileOpen(true);
+      onOpenChange?.(true);
+    };
+    const toggle = () => {
+      setMobileOpen((prev) => {
+        const next = !prev;
+        onOpenChange?.(next);
+        return next;
+      });
+    };
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setMobileOpen(false);
+        onOpenChange?.(false);
+      }
+    };
+
+    window.addEventListener("dashboard:openSidebar", open as EventListener);
+    window.addEventListener("dashboard:toggleSidebar", toggle as EventListener);
+    window.addEventListener("keydown", onKeyDown);
+    return () => {
+      window.removeEventListener("dashboard:openSidebar", open as EventListener);
+      window.removeEventListener("dashboard:toggleSidebar", toggle as EventListener);
+      window.removeEventListener("keydown", onKeyDown);
+    };
+  }, [onOpenChange]);
+
+  // Lock scroll while the off-canvas drawer is open.
+  useEffect(() => {
+    if (typeof document === "undefined") return;
+    if (!mobileOpen) return;
+    const previous = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = previous;
+    };
+  }, [mobileOpen]);
+
   const closeMobile = () => {
     setMobileOpen(false);
     onOpenChange?.(false);
   };
 
-  const SidebarContent = (
-    <div className="flex h-full flex-col bg-white">
-      <div className="flex h-16 items-center justify-between border-b border-gray-100 px-4 pr-3">
-        <Link
-          href="/dashboard"
-          className="flex items-center gap-2 overflow-hidden"
-          onClick={closeMobile}
-        >
-          <div className="relative h-10 w-40 sm:h-11 sm:w-44 md:h-12 md:w-52 lg:h-14 lg:w-60">
-            <Image
-              src="/images/logo.png"
-              alt="Secure Pharma Organics & Food Industries"
-              fill
-              className="object-contain"
-              sizes="(min-width: 1024px) 208px, (min-width: 768px) 176px, 160px"
-              priority
-            />
-          </div>
-          {!isCollapsed && (
-            <div className="flex flex-col leading-none">
-              <span className="text-xs sm:text-sm font-semibold tracking-tight text-gray-900 whitespace-nowrap">
-                Secure Pharma
-              </span>
-              
-            </div>
-          )}
-        </Link>
-        <Button
-          variant="ghost"
-          size="icon"
-          className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-pink-50 text-gray-900 shadow-sm hover:bg-pink-100"
-          onClick={() => setIsCollapsed((v) => !v)}
-        >
-          <span className="sr-only">Toggle sidebar</span>
-          {isCollapsed ? (
-            <ChevronRight className="h-4 w-4 text-gray-900" />
-          ) : (
-            <ChevronLeft className="h-4 w-4 text-gray-900" />
-          )}
-        </Button>
-      </div>
-      <div className="beauty-scroll mt-2 flex-1 space-y-4 overflow-y-auto px-4 pb-6">
+  const renderNav = (collapsed: boolean) => (
+    <div className="space-y-4">
         {sidebarSections.map((section) => (
           <div key={section.title} className="space-y-1">
-            {!isCollapsed && (
+            {!collapsed && (
               <p className="px-3 text-[10px] font-semibold uppercase tracking-[0.16em] text-gray-400">
                 {section.title}
               </p>
@@ -196,7 +196,7 @@ export function Sidebar({ onOpenChange }: SidebarProps) {
                     >
                       {item.icon}
                     </span>
-                    {!isCollapsed && <span>{item.label}</span>}
+                    {!collapsed && <span>{item.label}</span>}
                   </>
                 );
                 if (item.href) {
@@ -229,7 +229,6 @@ export function Sidebar({ onOpenChange }: SidebarProps) {
             </div>
           </div>
         ))}
-      </div>
     </div>
   );
 
@@ -241,62 +240,107 @@ export function Sidebar({ onOpenChange }: SidebarProps) {
           isCollapsed ? "w-[72px]" : "w-64"
         )}
       >
-        <div className="flex w-full flex-col">{SidebarContent}</div>
+        <div className="flex h-full w-full flex-col bg-white">
+          <div className="flex h-16 items-center justify-between border-b border-gray-100 px-4 pr-3">
+            <Link
+              href="/dashboard"
+              className="flex items-center gap-2 overflow-hidden"
+            >
+              <div className="relative h-10 w-40 sm:h-11 sm:w-44 md:h-12 md:w-52 lg:h-14 lg:w-60">
+                <Image
+                  src="/images/logo.png"
+                  alt="Secure Pharma Organics & Food Industries"
+                  fill
+                  className="object-contain"
+                  sizes="(min-width: 1024px) 208px, (min-width: 768px) 176px, 160px"
+                  priority
+                />
+              </div>
+              {!isCollapsed && (
+                <div className="flex flex-col leading-none">
+                  <span className="whitespace-nowrap text-xs font-semibold tracking-tight text-gray-900 sm:text-sm">
+                    Secure Pharma
+                  </span>
+                </div>
+              )}
+            </Link>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-pink-50 text-gray-900 shadow-sm hover:bg-pink-100"
+              onClick={() => setIsCollapsed((v) => !v)}
+            >
+              <span className="sr-only">Toggle sidebar</span>
+              {isCollapsed ? (
+                <ChevronRight className="h-4 w-4 text-gray-900" />
+              ) : (
+                <ChevronLeft className="h-4 w-4 text-gray-900" />
+              )}
+            </Button>
+          </div>
+
+          <div className="beauty-scroll flex-1 overflow-y-auto px-4 pb-6 pt-2">
+            {renderNav(isCollapsed)}
+          </div>
+        </div>
       </aside>
 
       <div className="md:hidden">
-        <button
-          className="fixed left-4 top-4 z-40 flex h-9 w-9 items-center justify-center rounded-full bg-white shadow-md"
-          onClick={() => {
-            setMobileOpen(true);
-            onOpenChange?.(true);
-          }}
+        {/* Off-canvas drawer (mobile) */}
+        <div
+          className={cn(
+            "fixed inset-0 z-[60] transition",
+            mobileOpen ? "pointer-events-auto" : "pointer-events-none"
+          )}
+          aria-hidden={!mobileOpen}
         >
-          <Menu className="h-4 w-4 text-pink-500" />
-        </button>
-        {mobileOpen && (
-          <div className="fixed inset-0 z-40 flex">
-            <div className="relative flex w-64 flex-col border-r border-gray-200 bg-white pb-4 pt-3 shadow-xl">
-              <div className="flex items-center justify-between px-4">
-                <Link
-                  href="/dashboard"
-                  className="flex items-center gap-2 overflow-hidden"
-                  onClick={closeMobile}
-                >
-                  <div className="relative h-10 w-40 sm:h-11 sm:w-44 md:h-12 md:w-52">
-                    <Image
-                      src="/images/logo.png"
-                      alt="Secure Pharma Organics & Food Industries"
-                      fill
-                      className="object-contain"
-                      sizes="(min-width: 768px) 176px, 160px"
-                      priority
-                    />
-                  </div>
-                  <div className="flex flex-col leading-none">
-                    <span className="text-xs sm:text-sm font-semibold tracking-tight text-gray-900 whitespace-nowrap">
-                      Secure Pharma
-                    </span>
-                    <span className="text-[9px] sm:text-[10px] font-medium text-gray-500">
-                      Organics &amp; Food Industries
-                    </span>
-                  </div>
-                </Link>
-                <button
-                  className="flex h-8 w-8 items-center justify-center rounded-full bg-pink-50 text-pink-500"
-                  onClick={closeMobile}
-                >
-                  <X className="h-4 w-4" />
-                </button>
-              </div>
-              <div className="mt-2 flex-1 px-1">{SidebarContent}</div>
+          <button
+            className={cn(
+              "absolute inset-0 bg-black/20 backdrop-blur-sm transition-opacity duration-200",
+              mobileOpen ? "opacity-100" : "opacity-0"
+            )}
+            onClick={closeMobile}
+          />
+
+          <aside
+            className={cn(
+              "absolute left-0 top-0 flex h-full w-[78vw] max-w-[320px] flex-col border-r border-gray-200 bg-white shadow-2xl transition-transform duration-300 ease-out",
+              mobileOpen ? "translate-x-0" : "-translate-x-full"
+            )}
+          >
+            <div className="flex h-16 items-center justify-between border-b border-gray-100 px-4">
+              <Link
+                href="/dashboard"
+                className="flex items-center gap-2 overflow-hidden"
+                onClick={closeMobile}
+              >
+                <div className="relative h-10 w-40">
+                  <Image
+                    src="/images/logo.png"
+                    alt="Secure Pharma Organics & Food Industries"
+                    fill
+                    className="object-contain"
+                    sizes="160px"
+                    priority
+                  />
+                </div>
+              </Link>
+              <button
+                type="button"
+                className="flex h-9 w-9 items-center justify-center rounded-full bg-pink-50 text-pink-600"
+                onClick={closeMobile}
+              >
+                <span className="sr-only">Close menu</span>
+                <X className="h-4 w-4" />
+              </button>
             </div>
-            <button
-              className="flex-1 bg-black/20 backdrop-blur-sm"
-              onClick={closeMobile}
-            />
-          </div>
-        )}
+
+            {/* Force expanded labels in drawer for usability */}
+            <div className="beauty-scroll flex-1 overflow-y-auto px-4 pb-6 pt-2">
+              {renderNav(false)}
+            </div>
+          </aside>
+        </div>
       </div>
     </>
   );

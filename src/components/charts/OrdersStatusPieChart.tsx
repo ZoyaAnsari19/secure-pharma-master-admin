@@ -1,5 +1,6 @@
  "use client";
 
+import { useEffect, useState } from "react";
 import {
   Cell,
   Legend,
@@ -28,6 +29,16 @@ const STATUS_COLORS: Record<string, string> = {
 };
 
 export function OrdersStatusPieChart({ data }: OrdersStatusPieChartProps) {
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const update = () => setIsMobile(window.innerWidth < 640);
+    update();
+    window.addEventListener("resize", update);
+    return () => window.removeEventListener("resize", update);
+  }, []);
+
   const chartData = data.map((d) => ({
     name: d.status,
     value: d.value,
@@ -37,7 +48,7 @@ export function OrdersStatusPieChart({ data }: OrdersStatusPieChartProps) {
   const total = chartData.reduce((sum, d) => sum + d.value, 0) || 1;
 
   return (
-    <div className="h-64 w-full">
+    <div className="h-56 w-full sm:h-64">
       <ResponsiveContainer width="100%" height="100%">
         <RechartsPieChart margin={{ top: 8, right: 8, left: 8, bottom: 8 }}>
           <Pie
@@ -69,9 +80,9 @@ export function OrdersStatusPieChart({ data }: OrdersStatusPieChartProps) {
             }}
           />
           <Legend
-            layout="vertical"
-            align="right"
-            verticalAlign="middle"
+            layout={isMobile ? "horizontal" : "vertical"}
+            align={isMobile ? "center" : "right"}
+            verticalAlign={isMobile ? "bottom" : "middle"}
             iconType="circle"
             iconSize={8}
             formatter={(value) => <span className="text-xs text-gray-600">{value}</span>}

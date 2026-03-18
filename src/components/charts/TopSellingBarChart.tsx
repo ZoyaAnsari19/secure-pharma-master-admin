@@ -29,14 +29,16 @@ export function TopSellingBarChart({
   metricLabel = "Units sold",
 }: TopSellingBarChartProps) {
   const sorted = [...data].sort((a, b) => b.value - a.value);
+  const truncate = (value: string) =>
+    value.length > 16 ? `${value.slice(0, 16)}…` : value;
 
   return (
-    <div className="h-64 w-full">
+    <div className="h-56 w-full sm:h-64">
       <ResponsiveContainer width="100%" height="100%">
         <BarChart
           data={sorted}
           layout="vertical"
-          margin={{ top: 10, bottom: 10, left: 60, right: 10 }}
+          margin={{ top: 10, bottom: 10, left: 14, right: 10 }}
         >
           <CartesianGrid
             strokeDasharray="3 3"
@@ -53,11 +55,12 @@ export function TopSellingBarChart({
           <YAxis
             type="category"
             dataKey="name"
-            width={120}
+            width={92}
             axisLine={false}
             tickLine={false}
             tickMargin={8}
             tick={{ fontSize: 11, fill: "#4b5563" }}
+            tickFormatter={truncate}
           />
           <Tooltip
             formatter={(value: number) => [

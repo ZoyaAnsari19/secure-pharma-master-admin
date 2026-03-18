@@ -20,10 +20,16 @@ const data = [
 ];
 
 export function RevenueOverviewChart() {
+  const formatCompact = (value: number) => {
+    if (value >= 1000000) return `${Math.round(value / 100000) / 10}M`;
+    if (value >= 1000) return `${Math.round(value / 100) / 10}k`;
+    return String(value);
+  };
+
   return (
-    <div className="h-64 w-full">
+    <div className="h-56 w-full sm:h-64">
       <ResponsiveContainer width="100%" height="100%">
-        <AreaChart data={data} margin={{ left: -24, right: 0, top: 10 }}>
+        <AreaChart data={data} margin={{ left: 8, right: 8, top: 10, bottom: 0 }}>
           <defs>
             <linearGradient id="revGradient" x1="0" y1="0" x2="0" y2="1">
               <stop offset="0%" stopColor="#ec5a87" stopOpacity={0.84} />
@@ -47,6 +53,8 @@ export function RevenueOverviewChart() {
             tickLine={false}
             tickMargin={10}
             tick={{ fontSize: 11, fill: "#9f8ca5" }}
+            width={44}
+            tickFormatter={formatCompact}
           />
           <Tooltip
             contentStyle={{
