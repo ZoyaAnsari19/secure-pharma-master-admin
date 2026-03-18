@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { Topbar } from "@/components/layout/Topbar";
 import {
@@ -16,7 +16,6 @@ import { DataTable, type Column } from "@/components/ui/table";
 import { FiltersBar } from "@/components/ui/filters";
 import {
   Palette,
-  LayoutTemplate,
   Monitor,
   Eye,
   CheckCircle2,
@@ -25,113 +24,28 @@ import {
   Rows3,
   Columns3,
 } from "lucide-react";
-
-type ThemeStatus = "Active" | "Draft" | "Archived";
-type ThemeLayout = "Full width" | "Boxed" | "Split";
-type ThemeMode = "Light" | "Dark" | "Auto";
-
-type ThemeConfig = {
-  id: string;
-  name: string;
-  description: string;
-  status: ThemeStatus;
-  mode: ThemeMode;
-  layout: ThemeLayout;
-  primaryColor: string;
-  secondaryColor: string;
-  accentColor: string;
-  backgroundColor: string;
-  surfaceColor: string;
-  borderRadius: "soft" | "rounded" | "pill";
-  fontFamily: "Inter" | "Poppins" | "System";
-  showHeroBanner: boolean;
-  showPromoStrip: boolean;
-  showTestimonials: boolean;
-  showFeaturedGrid: boolean;
-};
-
-const THEME_LIBRARY: ThemeConfig[] = [
-  {
-    id: "modern-light",
-    name: "Modern Light",
-    description: "Clean light layout with soft cards and pastel accents.",
-    status: "Active",
-    mode: "Light",
-    layout: "Full width",
-    primaryColor: "#ec4899",
-    secondaryColor: "#6366f1",
-    accentColor: "#f97316",
-    backgroundColor: "#f8fafc",
-    surfaceColor: "#ffffff",
-    borderRadius: "rounded",
-    fontFamily: "Inter",
-    showHeroBanner: true,
-    showPromoStrip: true,
-    showTestimonials: true,
-    showFeaturedGrid: true,
-  },
-  {
-    id: "elegant-dark",
-    name: "Elegant Dark",
-    description: "High-contrast dark theme for premium night-time browsing.",
-    status: "Draft",
-    mode: "Dark",
-    layout: "Boxed",
-    primaryColor: "#f472b6",
-    secondaryColor: "#a855f7",
-    accentColor: "#22c55e",
-    backgroundColor: "#020617",
-    surfaceColor: "#020617",
-    borderRadius: "soft",
-    fontFamily: "Poppins",
-    showHeroBanner: true,
-    showPromoStrip: false,
-    showTestimonials: true,
-    showFeaturedGrid: true,
-  },
-  {
-    id: "minimal-split",
-    name: "Minimal Split Layout",
-    description: "Two-column split layout with focus on product discovery.",
-    status: "Archived",
-    mode: "Auto",
-    layout: "Split",
-    primaryColor: "#0ea5e9",
-    secondaryColor: "#64748b",
-    accentColor: "#84cc16",
-    backgroundColor: "#f9fafb",
-    surfaceColor: "#ffffff",
-    borderRadius: "pill",
-    fontFamily: "System",
-    showHeroBanner: false,
-    showPromoStrip: true,
-    showTestimonials: false,
-    showFeaturedGrid: true,
-  },
-];
+import {
+  DEFAULT_THEME_ID,
+  THEME_STORAGE_KEY,
+  getAllThemes,
+  loadCustomThemes,
+  saveCustomThemes,
+  type ThemeConfig,
+  type ThemeStatus,
+} from "@/config/themes";
+import {
+  SideDrawer,
+  SideDrawerContent,
+  SideDrawerFooter,
+  SideDrawerHeader,
+  SideDrawerTitle,
+  SideDrawerTrigger,
+} from "@/components/ui/sideDrawer";
 
 type ThemeRow = ThemeConfig & {
   createdOn: string;
   lastUpdated: string;
 };
-
-const THEME_ROWS: ThemeRow[] = [
-  {
-    ...THEME_LIBRARY[0],
-    createdOn: "2025-01-10",
-    lastUpdated: "2025-03-02",
-  },
-  {
-    ...THEME_LIBRARY[1],
-    createdOn: "2025-02-18",
-    lastUpdated: "2025-02-20",
-  },
-  {
-    ...THEME_LIBRARY[2],
-    createdOn: "2024-10-04",
-    lastUpdated: "2025-01-01",
-  },
-];
 
 const THEME_COLUMNS: Column<ThemeRow>[] = [
   { key: "name", label: "Theme Name" },
@@ -146,12 +60,105 @@ const THEME_COLUMNS: Column<ThemeRow>[] = [
 export default function WebThemePage() {
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<"All" | ThemeStatus>("All");
+  // Theme selected in the library (but not necessarily previewed yet)
   const [selectedThemeId, setSelectedThemeId] =
-    useState<ThemeConfig["id"]>("modern-light");
+    useState<ThemeConfig["id"]>(DEFAULT_THEME_ID);
+  // Theme currently being previewed in the live preview card
+  const [previewThemeId, setPreviewThemeId] =
+    useState<ThemeConfig["id"]>(DEFAULT_THEME_ID);
+  // Theme considered as "applied" (for UX only – not global)
+  const [appliedThemeId, setAppliedThemeId] =
+    useState<ThemeConfig["id"]>(DEFAULT_THEME_ID);
+  const [themeLibrary, setThemeLibrary] = useState<ThemeConfig[]>(() =>
+    getAllThemes()
+  );
+  const [isMounted, setIsMounted] = useState(false);
+  const [newThemeOpen, setNewThemeOpen] = useState(false);
+  const [showAdvanced, setShowAdvanced] = useState(false);
+  const [newThemeForm, setNewThemeForm] = useState<
+    ThemeConfig & { status: ThemeStatus }
+  >({
+    id: "",
+    name: "",
+    description: "",
+    status: "Draft",
+    mode: "Light",
+    layout: "Full width",
+    primaryColor: "#ec4899",
+    secondaryColor: "#6366f1",
+    accentColor: "#f97316",
+    backgroundColor: "#f8fafc",
+    surfaceColor: "#ffffff",
+    textColor: "#0f172a",
+    borderRadius: "rounded",
+    fontFamily: "Inter",
+    fontSize: "md",
+    spacing: "comfortable",
+    showHeroBanner: true,
+    showPromoStrip: true,
+    showTestimonials: true,
+    showFeaturedGrid: true,
+    headerStyle: "solid",
+    footerStyle: "minimal",
+    buttonStyle: "pill",
+    cardStyle: "elevated",
+    customCss: "",
+  });
+
+  // Hydrate theme selection from persisted admin setting
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const storedId =
+      window.localStorage.getItem(THEME_STORAGE_KEY) ?? DEFAULT_THEME_ID;
+    setSelectedThemeId(storedId as ThemeConfig["id"]);
+    setPreviewThemeId(storedId as ThemeConfig["id"]);
+    setAppliedThemeId(storedId as ThemeConfig["id"]);
+    // Refresh library with any custom themes stored in localStorage.
+    setThemeLibrary(getAllThemes());
+    setIsMounted(true);
+  }, []);
+
+  const themeRows: ThemeRow[] = useMemo(() => {
+    const customThemes = loadCustomThemes() as (ThemeConfig & {
+      createdOn?: string;
+      lastUpdated?: string;
+    })[];
+    const now = new Date().toISOString().slice(0, 10);
+
+    return getAllThemes().map((theme) => {
+      const customMeta = customThemes.find((t) => t.id === theme.id);
+      if (theme.id === "modern-light") {
+        return {
+          ...theme,
+          createdOn: "2025-01-10",
+          lastUpdated: customMeta?.lastUpdated ?? "2025-03-02",
+        };
+      }
+      if (theme.id === "elegant-dark") {
+        return {
+          ...theme,
+          createdOn: "2025-02-18",
+          lastUpdated: customMeta?.lastUpdated ?? "2025-02-20",
+        };
+      }
+      if (theme.id === "minimal-split") {
+        return {
+          ...theme,
+          createdOn: "2024-10-04",
+          lastUpdated: customMeta?.lastUpdated ?? "2025-01-01",
+        };
+      }
+      return {
+        ...theme,
+        createdOn: customMeta?.createdOn ?? now,
+        lastUpdated: customMeta?.lastUpdated ?? now,
+      };
+    });
+  }, [themeLibrary]);
 
   const filteredRows = useMemo(
     () =>
-      THEME_ROWS.filter((theme) => {
+      themeRows.filter((theme) => {
         const matchesSearch =
           !search ||
           [theme.name, theme.description].some((value) =>
@@ -161,12 +168,12 @@ export default function WebThemePage() {
           statusFilter === "All" || theme.status === statusFilter;
         return matchesSearch && matchesStatus;
       }),
-    [search, statusFilter]
+    [search, statusFilter, themeRows]
   );
 
   const activeTheme = useMemo(
-    () => THEME_LIBRARY.find((t) => t.id === selectedThemeId) ?? THEME_LIBRARY[0],
-    [selectedThemeId]
+    () => themeLibrary.find((t) => t.id === previewThemeId) ?? themeLibrary[0],
+    [previewThemeId, themeLibrary]
   );
 
   const themePreviewClasses = useMemo(() => {
@@ -187,6 +194,21 @@ export default function WebThemePage() {
     return { radius, fontClass };
   }, [activeTheme.borderRadius, activeTheme.fontFamily]);
 
+  const newThemePreviewJson = useMemo(
+    () =>
+      JSON.stringify(
+        { ...newThemeForm, id: newThemeForm.id || "<auto-generated>" },
+        null,
+        2
+      ),
+    [newThemeForm]
+  );
+
+  if (!isMounted) {
+    // Avoid SSR/CSR mismatches by rendering only after hydration.
+    return null;
+  }
+
   return (
     <div className="flex h-screen bg-slate-50/80 text-slate-900">
       <Sidebar />
@@ -206,39 +228,53 @@ export default function WebThemePage() {
 
             <div className="space-y-6">
               <Card className="rounded-xl border border-slate-200/80 bg-white shadow-sm">
-                <CardHeader>
-                  <div className="flex items-center justify-between gap-2">
-                    <div className="flex items-center gap-2">
-                      <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-pink-50 text-pink-500">
-                        <Monitor className="h-4 w-4" />
-                      </div>
-                      <div>
-                        <CardTitle className="text-lg font-semibold text-slate-800">
-                          Live Theme Preview
-                        </CardTitle>
-                        <CardDescription className="text-sm text-slate-500">
-                          See how the selected theme will look on your storefront.
-                        </CardDescription>
-                      </div>
+                <CardHeader className="flex flex-row items-center justify-between gap-4">
+                  <div className="flex items-center gap-2">
+                    <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-pink-50 text-pink-500">
+                      <Monitor className="h-4 w-4" />
                     </div>
-                    <div className="flex items-center gap-2">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="rounded-full px-3 text-xs"
-                      >
-                        <Eye className="mr-1.5 h-3.5 w-3.5" />
-                        Preview
-                      </Button>
-                      <Button
-                        variant="primary"
-                        size="sm"
-                        className="rounded-full px-3 text-xs"
-                      >
-                        <CheckCircle2 className="mr-1.5 h-3.5 w-3.5" />
-                        Apply theme
-                      </Button>
+                    <div>
+                      <CardTitle className="text-lg font-semibold text-slate-800">
+                        Live Theme Preview
+                      </CardTitle>
+                      <CardDescription className="text-sm text-slate-500">
+                        See how the preview theme will look on your storefront
+                        before applying globally.
+                      </CardDescription>
                     </div>
+                  </div>
+                  <div className="flex flex-nowrap items-center gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="rounded-full px-3 text-xs"
+                      onClick={() => setPreviewThemeId(selectedThemeId)}
+                    >
+                      <Eye className="mr-1.5 h-3.5 w-3.5" />
+                      Preview
+                    </Button>
+                    <Button
+                      variant="primary"
+                      size="sm"
+                      className="rounded-full px-3 text-xs"
+                      onClick={() => {
+                        setAppliedThemeId(previewThemeId);
+                        if (typeof window !== "undefined") {
+                          window.localStorage.setItem(
+                            THEME_STORAGE_KEY,
+                            previewThemeId
+                          );
+                          window.dispatchEvent(
+                            new CustomEvent("super-admin-theme-changed", {
+                              detail: previewThemeId,
+                            })
+                          );
+                        }
+                      }}
+                    >
+                      <CheckCircle2 className="mr-1.5 h-3.5 w-3.5" />
+                      Apply theme
+                    </Button>
                   </div>
                 </CardHeader>
                 <CardContent>
@@ -424,6 +460,19 @@ export default function WebThemePage() {
                         Status:{" "}
                         <span className="font-semibold">{activeTheme.status}</span>
                       </p>
+                      {themeLibrary.length > 0 ? (
+                        <p>
+                          Applied theme:{" "}
+                          <span className="font-semibold">
+                            {
+                              (themeLibrary.find(
+                                (t) => t.id === appliedThemeId
+                              ) ?? themeLibrary[0]
+                            ).name
+                          }
+                        </span>
+                        </p>
+                      ) : null}
                     </div>
                     <div className="space-y-2 text-xs text-slate-600">
                       <p className="font-semibold text-slate-700">
@@ -464,10 +513,514 @@ export default function WebThemePage() {
                       configuration.
                     </CardDescription>
                   </div>
-                  <Button size="sm" variant="primary" className="rounded-full px-4">
-                    <Palette className="mr-1.5 h-3.5 w-3.5" />
-                    New theme
-                  </Button>
+                  <SideDrawer open={newThemeOpen} onOpenChange={setNewThemeOpen}>
+                    <SideDrawerTrigger asChild>
+                      <Button
+                        size="sm"
+                        variant="primary"
+                        className="rounded-full px-4"
+                      >
+                        <Palette className="mr-1.5 h-3.5 w-3.5" />
+                        New theme
+                      </Button>
+                    </SideDrawerTrigger>
+                    <SideDrawerContent className="gap-0">
+                      <SideDrawerHeader>
+                        <SideDrawerTitle>Create new theme</SideDrawerTitle>
+                      </SideDrawerHeader>
+                      <form
+                        className="mt-4 grid gap-5 pb-4"
+                        onSubmit={(e) => {
+                          e.preventDefault();
+                          const id =
+                            newThemeForm.id && newThemeForm.id.trim().length > 0
+                              ? newThemeForm.id.trim()
+                              : `custom-${Date.now()}`;
+
+                          const themeToSave: ThemeConfig = {
+                            ...newThemeForm,
+                            id,
+                          };
+
+                          const existingCustom = loadCustomThemes();
+                          const now = new Date().toISOString().slice(0, 10);
+                          const updatedCustom = [
+                            ...existingCustom,
+                            {
+                              ...themeToSave,
+                              createdOn: now,
+                              lastUpdated: now,
+                            } as any,
+                          ];
+                          saveCustomThemes(updatedCustom as any);
+                          setThemeLibrary(getAllThemes());
+                          setSelectedThemeId(id);
+                          setPreviewThemeId(id);
+                          setNewThemeOpen(false);
+                        }}
+                      >
+                        {/* 1. Basic information */}
+                        <section className="rounded-xl border border-slate-100 bg-slate-50/60 px-4 py-3.5">
+                          <h3 className="mb-3 text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">
+                            Basic information
+                          </h3>
+                          <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+                            <div className="space-y-1.5">
+                              <label className="text-xs font-medium text-slate-700">
+                                Theme name
+                              </label>
+                              <Input
+                                value={newThemeForm.name}
+                                onChange={(e) =>
+                                  setNewThemeForm((t) => ({
+                                    ...t,
+                                    name: e.target.value,
+                                  }))
+                                }
+                                placeholder="e.g. Brand Light Theme"
+                                required
+                              />
+                            </div>
+                            <div className="space-y-1.5">
+                              <label className="text-xs font-medium text-slate-700">
+                                Identifier (optional)
+                              </label>
+                              <Input
+                                value={newThemeForm.id}
+                                onChange={(e) =>
+                                  setNewThemeForm((t) => ({
+                                    ...t,
+                                    id: e.target.value,
+                                  }))
+                                }
+                                placeholder="e.g. brand-light"
+                              />
+                            </div>
+                          </div>
+                          <div className="mt-3 space-y-1.5">
+                            <label className="text-xs font-medium text-slate-700">
+                              Description
+                            </label>
+                            <textarea
+                              className="min-h-[60px] w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs text-slate-800 shadow-sm focus:border-pink-300 focus:outline-none focus:ring-1 focus:ring-pink-200"
+                              value={newThemeForm.description}
+                              onChange={(e) =>
+                                setNewThemeForm((t) => ({
+                                  ...t,
+                                  description: e.target.value,
+                                }))
+                              }
+                              placeholder="Short description of where this theme will be used..."
+                            />
+                          </div>
+                          <div className="mt-3 grid grid-cols-3 gap-3">
+                            <div className="space-y-1.5">
+                              <label className="text-xs font-medium text-slate-700">
+                                Mode
+                              </label>
+                              <select
+                                className="h-9 w-full rounded-lg border border-slate-200 bg-white px-3 text-xs text-slate-700 focus:border-pink-300 focus:outline-none focus:ring-1 focus:ring-pink-200"
+                                value={newThemeForm.mode}
+                                onChange={(e) =>
+                                  setNewThemeForm((t) => ({
+                                    ...t,
+                                    mode: e.target.value as ThemeConfig["mode"],
+                                  }))
+                                }
+                              >
+                                <option value="Light">Light</option>
+                                <option value="Dark">Dark</option>
+                                <option value="Auto">Auto</option>
+                              </select>
+                            </div>
+                            <div className="space-y-1.5">
+                              <label className="text-xs font-medium text-slate-700">
+                                Status
+                              </label>
+                              <select
+                                className="h-9 w-full rounded-lg border border-slate-200 bg-white px-3 text-xs text-slate-700 focus:border-pink-300 focus:outline-none focus:ring-1 focus:ring-pink-200"
+                                value={newThemeForm.status}
+                                onChange={(e) =>
+                                  setNewThemeForm((t) => ({
+                                    ...t,
+                                    status: e.target.value as ThemeStatus,
+                                  }))
+                                }
+                              >
+                                <option value="Draft">Draft</option>
+                                <option value="Active">Active</option>
+                                <option value="Archived">Archived</option>
+                              </select>
+                            </div>
+                            <div className="space-y-1.5">
+                              <label className="text-xs font-medium text-slate-700">
+                                Layout
+                              </label>
+                              <select
+                                className="h-9 w-full rounded-lg border border-slate-200 bg-white px-3 text-xs text-slate-700 focus:border-pink-300 focus:outline-none focus:ring-1 focus:ring-pink-200"
+                                value={newThemeForm.layout}
+                                onChange={(e) =>
+                                  setNewThemeForm((t) => ({
+                                    ...t,
+                                    layout: e.target
+                                      .value as ThemeConfig["layout"],
+                                  }))
+                                }
+                              >
+                                <option value="Full width">Full width</option>
+                                <option value="Boxed">Boxed</option>
+                                <option value="Split">Split</option>
+                              </select>
+                            </div>
+                          </div>
+                        </section>
+
+                        {/* 2. Colors */}
+                        <section className="rounded-xl border border-slate-100 bg-white px-4 py-3.5">
+                          <h3 className="mb-3 text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">
+                            Colors
+                          </h3>
+                          <div className="grid grid-cols-2 gap-3 md:grid-cols-5">
+                            {([
+                            ["Primary", "primaryColor"],
+                            ["Secondary", "secondaryColor"],
+                            ["Accent", "accentColor"],
+                            ["Background", "backgroundColor"],
+                            ["Text", "textColor"],
+                          ] as const).map(([label, key]) => (
+                            <div key={key} className="space-y-1">
+                              <label className="text-xs font-medium text-slate-700">
+                                {label} color
+                              </label>
+                              <div className="flex items-center gap-2">
+                                <Input
+                                  type="color"
+                                  value={newThemeForm[key] ?? "#000000"}
+                                  onChange={(e) =>
+                                    setNewThemeForm((t) => ({
+                                      ...t,
+                                      [key]: e.target.value,
+                                    }))
+                                  }
+                                  className="h-8 w-10 cursor-pointer rounded-full border border-slate-200 bg-transparent p-1"
+                                />
+                                <Input
+                                  value={newThemeForm[key] ?? ""}
+                                  onChange={(e) =>
+                                    setNewThemeForm((t) => ({
+                                      ...t,
+                                      [key]: e.target.value,
+                                    }))
+                                  }
+                                  className="h-8 flex-1 rounded-lg border border-slate-200 bg-white px-2 text-[11px] text-slate-700 focus:border-pink-300 focus:outline-none focus:ring-1 focus:ring-pink-200"
+                                />
+                              </div>
+                            </div>
+                          ))}
+                          </div>
+                        </section>
+
+                        {/* 3. Typography + 4. Layout & UI */}
+                        <section className="grid grid-cols-1 gap-3 md:grid-cols-2">
+                          <div className="rounded-xl border border-slate-100 bg-white px-4 py-3.5">
+                            <h3 className="mb-3 text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">
+                              Typography
+                            </h3>
+                            <div className="space-y-3">
+                              <div className="space-y-1.5">
+                                <label className="text-xs font-medium text-slate-700">
+                                  Font family
+                                </label>
+                                <select
+                                  className="h-9 w-full rounded-lg border border-slate-200 bg-white px-3 text-xs text-slate-700 focus:border-pink-300 focus:outline-none focus:ring-1 focus:ring-pink-200"
+                                  value={newThemeForm.fontFamily}
+                                  onChange={(e) =>
+                                    setNewThemeForm((t) => ({
+                                      ...t,
+                                      fontFamily: e.target
+                                        .value as ThemeConfig["fontFamily"],
+                                    }))
+                                  }
+                                >
+                                  <option value="Inter">Inter</option>
+                                  <option value="Poppins">Poppins</option>
+                                  <option value="System">System</option>
+                                </select>
+                              </div>
+                              <div className="space-y-1.5">
+                                <label className="text-xs font-medium text-slate-700">
+                                  Font size
+                                </label>
+                                <select
+                                  className="h-9 w-full rounded-lg border border-slate-200 bg-white px-3 text-xs text-slate-700 focus:border-pink-300 focus:outline-none focus:ring-1 focus:ring-pink-200"
+                                  value={newThemeForm.fontSize}
+                                  onChange={(e) =>
+                                    setNewThemeForm((t) => ({
+                                      ...t,
+                                      fontSize: e.target.value as
+                                        | "sm"
+                                        | "md"
+                                        | "lg",
+                                    }))
+                                  }
+                                >
+                                  <option value="sm">Compact</option>
+                                  <option value="md">Default</option>
+                                  <option value="lg">Large</option>
+                                </select>
+                              </div>
+                            </div>
+                          </div>
+
+                          <div className="rounded-xl border border-slate-100 bg-white px-4 py-3.5">
+                            <h3 className="mb-3 text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">
+                              Layout & UI
+                            </h3>
+                            <div className="grid grid-cols-2 gap-3">
+                              <div className="space-y-1.5">
+                                <label className="text-xs font-medium text-slate-700">
+                                  Spacing
+                                </label>
+                                <select
+                                  className="h-9 w-full rounded-lg border border-slate-200 bg-white px-3 text-xs text-slate-700 focus:border-pink-300 focus:outline-none focus:ring-1 focus:ring-pink-200"
+                                  value={newThemeForm.spacing}
+                                  onChange={(e) =>
+                                    setNewThemeForm((t) => ({
+                                      ...t,
+                                      spacing: e.target.value as
+                                        | "compact"
+                                        | "comfortable"
+                                        | "relaxed",
+                                    }))
+                                  }
+                                >
+                                  <option value="compact">Compact</option>
+                                  <option value="comfortable">Comfortable</option>
+                                  <option value="relaxed">Relaxed</option>
+                                </select>
+                              </div>
+                              <div className="space-y-1.5">
+                                <label className="text-xs font-medium text-slate-700">
+                                  Border radius
+                                </label>
+                                <select
+                                  className="h-9 w-full rounded-lg border border-slate-200 bg-white px-3 text-xs text-slate-700 focus:border-pink-300 focus:outline-none focus:ring-1 focus:ring-pink-200"
+                                  value={newThemeForm.borderRadius}
+                                  onChange={(e) =>
+                                    setNewThemeForm((t) => ({
+                                      ...t,
+                                      borderRadius: e.target
+                                        .value as ThemeConfig["borderRadius"],
+                                    }))
+                                  }
+                                >
+                                  <option value="soft">Soft</option>
+                                  <option value="rounded">Rounded</option>
+                                  <option value="pill">Pill</option>
+                                </select>
+                              </div>
+                              <div className="space-y-1.5">
+                                <label className="text-xs font-medium text-slate-700">
+                                  Button style
+                                </label>
+                                <select
+                                  className="h-9 w-full rounded-lg border border-slate-200 bg-white px-3 text-xs text-slate-700 focus:border-pink-300 focus:outline-none focus:ring-1 focus:ring-pink-200"
+                                  value={newThemeForm.buttonStyle}
+                                  onChange={(e) =>
+                                    setNewThemeForm((t) => ({
+                                      ...t,
+                                      buttonStyle: e.target
+                                        .value as ThemeConfig["buttonStyle"],
+                                    }))
+                                  }
+                                >
+                                  <option value="pill">Pill</option>
+                                  <option value="rounded">Rounded</option>
+                                  <option value="soft">Soft</option>
+                                </select>
+                              </div>
+                              <div className="space-y-1.5">
+                                <label className="text-xs font-medium text-slate-700">
+                                  Card style
+                                </label>
+                                <select
+                                  className="h-9 w-full rounded-lg border border-slate-200 bg-white px-3 text-xs text-slate-700 focus:border-pink-300 focus:outline-none focus:ring-1 focus:ring-pink-200"
+                                  value={newThemeForm.cardStyle}
+                                  onChange={(e) =>
+                                    setNewThemeForm((t) => ({
+                                      ...t,
+                                      cardStyle: e.target
+                                        .value as ThemeConfig["cardStyle"],
+                                    }))
+                                  }
+                                >
+                                  <option value="elevated">Elevated</option>
+                                  <option value="flat">Flat</option>
+                                  <option value="outlined">Outlined</option>
+                                </select>
+                              </div>
+                            </div>
+                          </div>
+                        </section>
+
+                        {/* 5. Header & Footer + 6. Components */}
+                        <section className="grid grid-cols-1 gap-3 md:grid-cols-2">
+                          <div className="rounded-xl border border-slate-100 bg-white px-4 py-3.5">
+                            <h3 className="mb-3 text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">
+                              Header & Footer
+                            </h3>
+                            <div className="space-y-3">
+                              <div className="space-y-1.5">
+                                <label className="text-xs font-medium text-slate-700">
+                                  Header style
+                                </label>
+                                <select
+                                  className="h-9 w-full rounded-lg border border-slate-200 bg-white px-3 text-xs text-slate-700 focus:border-pink-300 focus:outline-none focus:ring-1 focus:ring-pink-200"
+                                  value={newThemeForm.headerStyle}
+                                  onChange={(e) =>
+                                    setNewThemeForm((t) => ({
+                                      ...t,
+                                      headerStyle: e.target
+                                        .value as ThemeConfig["headerStyle"],
+                                    }))
+                                  }
+                                >
+                                  <option value="solid">Solid</option>
+                                  <option value="transparent">Transparent</option>
+                                  <option value="glass">Glass</option>
+                                </select>
+                              </div>
+                              <div className="space-y-1.5">
+                                <label className="text-xs font-medium text-slate-700">
+                                  Footer style
+                                </label>
+                                <select
+                                  className="h-9 w-full rounded-lg border border-slate-200 bg-white px-3 text-xs text-slate-700 focus:border-pink-300 focus:outline-none focus:ring-1 focus:ring-pink-200"
+                                  value={newThemeForm.footerStyle}
+                                  onChange={(e) =>
+                                    setNewThemeForm((t) => ({
+                                      ...t,
+                                      footerStyle: e.target
+                                        .value as ThemeConfig["footerStyle"],
+                                    }))
+                                  }
+                                >
+                                  <option value="minimal">Minimal</option>
+                                  <option value="columns">Columns</option>
+                                  <option value="centered">Centered</option>
+                                </select>
+                              </div>
+                            </div>
+                          </div>
+
+                          <div className="rounded-xl border border-slate-100 bg-white px-4 py-3.5">
+                            <h3 className="mb-3 text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">
+                              Components
+                            </h3>
+                            <div className="grid grid-cols-2 gap-2 text-[11px]">
+                              {[
+                                ["Hero banner", "showHeroBanner"],
+                                ["Promo strip", "showPromoStrip"],
+                                ["Testimonials", "showTestimonials"],
+                                ["Featured products", "showFeaturedGrid"],
+                              ].map(([label, key]) => (
+                                <label
+                                  key={key}
+                                  className="inline-flex items-center gap-1.5 rounded-lg bg-slate-50 px-2 py-1 text-slate-700"
+                                >
+                                  <input
+                                    type="checkbox"
+                                    className="h-3.5 w-3.5 rounded border-slate-300 text-pink-500 focus:ring-pink-200"
+                                    checked={Boolean(
+                                      newThemeForm[key as keyof ThemeConfig]
+                                    )}
+                                    onChange={(e) =>
+                                      setNewThemeForm((t) => ({
+                                        ...t,
+                                        [key]: e.target.checked,
+                                      }))
+                                    }
+                                  />
+                                  <span>{label}</span>
+                                </label>
+                              ))}
+                            </div>
+                          </div>
+                        </section>
+
+                        {/* Advanced settings */}
+                        <section className="rounded-xl border border-dashed border-slate-200 bg-slate-50/40 px-4 py-3">
+                          <button
+                            type="button"
+                            className="flex w-full items-center justify-between text-xs font-medium text-slate-700"
+                            onClick={() => setShowAdvanced((v) => !v)}
+                          >
+                            <span>Advanced settings</span>
+                            <span className="text-[11px] text-slate-500">
+                              {showAdvanced ? "Hide" : "Show"}
+                            </span>
+                          </button>
+                          {showAdvanced && (
+                            <div className="mt-3 grid grid-cols-1 gap-3 md:grid-cols-2">
+                              <div className="space-y-1.5">
+                                <label className="text-xs font-medium text-slate-700">
+                                  Custom CSS (optional)
+                                </label>
+                                <textarea
+                                  className="min-h-[80px] w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-xs font-mono text-slate-800 shadow-sm focus:border-pink-300 focus:outline-none focus:ring-1 focus:ring-pink-200"
+                                  value={newThemeForm.customCss ?? ""}
+                                  onChange={(e) =>
+                                    setNewThemeForm((t) => ({
+                                      ...t,
+                                      customCss: e.target.value,
+                                    }))
+                                  }
+                                  placeholder=":root { --button-radius: 999px; }"
+                                />
+                              </div>
+                              <div className="space-y-1.5">
+                                <label className="text-xs font-medium text-slate-700">
+                                  Theme JSON preview
+                                </label>
+                                <textarea
+                                  className="min-h-[80px] w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-[11px] font-mono text-slate-800"
+                                  value={newThemePreviewJson}
+                                  readOnly
+                                />
+                              </div>
+                            </div>
+                          )}
+                        </section>
+
+                        <SideDrawerFooter>
+                          <Button
+                            type="button"
+                            variant="outline"
+                            onClick={() => setNewThemeOpen(false)}
+                          >
+                            Cancel
+                          </Button>
+                          <div className="flex items-center gap-2">
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="sm"
+                              onClick={() => {
+                                // Local preview without saving
+                                const tempId = newThemeForm.id || "preview-temp";
+                                setPreviewThemeId(tempId);
+                              }}
+                            >
+                              Preview only
+                            </Button>
+                            <Button type="submit" variant="primary">
+                              Save theme
+                            </Button>
+                          </div>
+                        </SideDrawerFooter>
+                      </form>
+                    </SideDrawerContent>
+                  </SideDrawer>
                 </CardHeader>
                 <CardContent>
                   <DataTable<ThemeRow>
