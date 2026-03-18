@@ -28,7 +28,7 @@ export function FiltersBar({
 }: FiltersBarProps) {
   return (
     <div className={className ?? "flex flex-wrap items-center gap-2"}>
-      <div className="w-full min-w-[320px] flex-1 sm:w-auto md:min-w-[420px]">
+      <div className="w-full sm:w-[260px] md:w-[320px] lg:w-[380px] xl:w-[420px]">
         <div className="relative">
           <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
           <Input

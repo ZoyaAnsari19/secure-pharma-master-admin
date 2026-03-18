@@ -36,7 +36,10 @@ const TableHeader = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <thead
     ref={ref}
-    className={cn("bg-gray-50 text-xs font-semibold text-gray-600", className)}
+    className={cn(
+      "whitespace-nowrap bg-gray-50 text-xs font-semibold text-gray-600",
+      className
+    )}
     {...props}
   />
 ));
@@ -75,7 +78,7 @@ const TableHead = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <th
     ref={ref}
-    className={cn("px-6 py-3 text-left align-middle", className)}
+    className={cn("whitespace-nowrap px-6 py-3 text-left align-middle", className)}
     {...props}
   />
 ));
@@ -185,8 +188,8 @@ export function DataTable<T extends { id: string | number }>({
   return (
     <Card className="min-w-0 bg-white">
       <CardHeader className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-        <div className="min-w-0">
-          <CardTitle>{title}</CardTitle>
+        <div className="min-w-0 flex-1">
+          <CardTitle className="truncate whitespace-nowrap">{title}</CardTitle>
         </div>
         {headerContent ?? (
           <>
@@ -218,8 +221,9 @@ export function DataTable<T extends { id: string | number }>({
             </div>
 
             {/* Desktop/tablet: existing filters bar */}
-            <div className="hidden w-full sm:block">
+            <div className="hidden flex-1 justify-end sm:flex">
               <FiltersBar
+                className="flex items-center justify-end gap-2"
                 searchPlaceholder={searchPlaceholder}
                 searchValue={effectiveSearch}
                 onSearchValueChange={setSearch}
