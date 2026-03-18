@@ -338,9 +338,9 @@ function UserDetailsContent() {
 
   if (notFound || (!user && id)) {
     return (
-      <div className="flex min-h-screen bg-gray-50 text-gray-900">
+      <div className="flex h-screen bg-gray-50 text-gray-900">
         <Sidebar />
-        <div className="flex min-h-screen flex-1 flex-col">
+        <div className="flex h-full flex-1 flex-col">
           <Topbar />
           <main className="beauty-scroll flex-1 overflow-y-auto">
             <div className="mx-auto w-full max-w-[1400px] p-4 sm:p-6 lg:p-8">
@@ -366,9 +366,9 @@ function UserDetailsContent() {
 
   if (!user) {
     return (
-      <div className="flex min-h-screen bg-gray-50 text-gray-900">
+      <div className="flex h-screen bg-gray-50 text-gray-900">
         <Sidebar />
-        <div className="flex min-h-screen flex-1 flex-col">
+        <div className="flex h-full flex-1 flex-col">
           <Topbar />
           <main className="flex flex-1 items-center justify-center">
             <div className="h-8 w-8 animate-spin rounded-full border-2 border-pink-500 border-t-transparent" />
@@ -392,9 +392,9 @@ function UserDetailsContent() {
   });
 
   return (
-    <div className="flex min-h-screen bg-gray-50 text-gray-900">
+    <div className="flex h-screen bg-gray-50 text-gray-900">
       <Sidebar />
-      <div className="flex min-h-screen flex-1 flex-col">
+      <div className="flex h-full flex-1 flex-col">
         <Topbar />
         <main className="beauty-scroll flex-1 overflow-y-auto">
           <div className="mx-auto w-full max-w-[1400px] space-y-6 p-4 sm:p-6 lg:p-8">
@@ -1069,9 +1069,9 @@ function UserDetailsContent() {
 
 function UserDetailsFallback() {
   return (
-    <div className="flex min-h-screen bg-gray-50 text-gray-900">
+    <div className="flex h-screen bg-gray-50 text-gray-900">
       <Sidebar />
-      <div className="flex min-h-screen flex-1 flex-col">
+      <div className="flex h-full flex-1 flex-col">
         <Topbar />
         <main className="flex flex-1 items-center justify-center">
           <div className="h-8 w-8 animate-spin rounded-full border-2 border-gray-300 border-t-gray-600" />

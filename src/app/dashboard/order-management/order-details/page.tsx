@@ -229,9 +229,9 @@ function OrderDetailsContent() {
 
   if (!orderId || !displayOrder) {
     return (
-      <div className="flex min-h-screen bg-gray-50 text-gray-900">
+      <div className="flex h-screen bg-gray-50 text-gray-900">
         <Sidebar />
-        <div className="flex min-h-screen flex-1 flex-col">
+        <div className="flex h-full flex-1 flex-col">
           <Topbar />
           <main className="beauty-scroll flex-1 overflow-y-auto">
             <div className="mx-auto w-full max-w-[1200px] p-4 sm:p-6 lg:p-8">
@@ -257,9 +257,9 @@ function OrderDetailsContent() {
   const o = displayOrder;
 
   return (
-    <div className="flex min-h-screen bg-gray-50 text-gray-900">
+    <div className="flex h-screen bg-gray-50 text-gray-900">
       <Sidebar />
-      <div className="flex min-h-screen flex-1 flex-col">
+      <div className="flex h-full flex-1 flex-col">
         <Topbar />
         <main className="beauty-scroll flex-1 overflow-y-auto">
           <div className="mx-auto w-full max-w-[1200px] space-y-6 p-4 sm:p-6 lg:p-8">
@@ -526,7 +526,7 @@ function OrderDetailsContent() {
 export default function OrderDetailsPage() {
   return (
     <Suspense fallback={
-      <div className="flex min-h-screen items-center justify-center bg-gray-50 text-gray-900">
+      <div className="flex h-screen items-center justify-center bg-gray-50 text-gray-900">
         <div className="h-8 w-8 animate-spin rounded-full border-2 border-pink-500 border-t-transparent" />
       </div>
     }>
