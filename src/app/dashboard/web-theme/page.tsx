@@ -43,11 +43,17 @@ import {
 } from "@/components/ui/sideDrawer";
 
 type ThemeRow = ThemeConfig & {
+  srNo: number;
   createdOn: string;
   lastUpdated: string;
 };
 
 const THEME_COLUMNS: Column<ThemeRow>[] = [
+  {
+    key: "srNo",
+    label: "Sr No.",
+    render: (_row, index) => <span className="text-xs font-semibold">{index + 1}</span>,
+  },
   { key: "name", label: "Theme Name" },
   { key: "status", label: "Status" },
   { key: "mode", label: "Mode" },
@@ -75,6 +81,7 @@ export default function WebThemePage() {
   const [isMounted, setIsMounted] = useState(false);
   const [newThemeOpen, setNewThemeOpen] = useState(false);
   const [showAdvanced, setShowAdvanced] = useState(false);
+  const [previewDraftTheme, setPreviewDraftTheme] = useState(false);
   const [newThemeForm, setNewThemeForm] = useState<
     ThemeConfig & { status: ThemeStatus }
   >({
@@ -118,6 +125,16 @@ export default function WebThemePage() {
     setIsMounted(true);
   }, []);
 
+  // When creating a new theme, preview it live while editing.
+  useEffect(() => {
+    if (!newThemeOpen) {
+      setPreviewDraftTheme(false);
+      return;
+    }
+    setPreviewDraftTheme(true);
+    setShowAdvanced(false);
+  }, [newThemeOpen]);
+
   const themeRows: ThemeRow[] = useMemo(() => {
     const customThemes = loadCustomThemes() as (ThemeConfig & {
       createdOn?: string;
@@ -125,10 +142,11 @@ export default function WebThemePage() {
     })[];
     const now = new Date().toISOString().slice(0, 10);
 
-    return getAllThemes().map((theme) => {
+    return getAllThemes().map((theme, index) => {
       const customMeta = customThemes.find((t) => t.id === theme.id);
       if (theme.id === "modern-light") {
         return {
+          srNo: index + 1,
           ...theme,
           createdOn: "2025-01-10",
           lastUpdated: customMeta?.lastUpdated ?? "2025-03-02",
@@ -136,6 +154,7 @@ export default function WebThemePage() {
       }
       if (theme.id === "elegant-dark") {
         return {
+          srNo: index + 1,
           ...theme,
           createdOn: "2025-02-18",
           lastUpdated: customMeta?.lastUpdated ?? "2025-02-20",
@@ -143,12 +162,14 @@ export default function WebThemePage() {
       }
       if (theme.id === "minimal-split") {
         return {
+          srNo: index + 1,
           ...theme,
           createdOn: "2024-10-04",
           lastUpdated: customMeta?.lastUpdated ?? "2025-01-01",
         };
       }
       return {
+        srNo: index + 1,
         ...theme,
         createdOn: customMeta?.createdOn ?? now,
         lastUpdated: customMeta?.lastUpdated ?? now,
@@ -171,10 +192,53 @@ export default function WebThemePage() {
     [search, statusFilter, themeRows]
   );
 
-  const activeTheme = useMemo(
-    () => themeLibrary.find((t) => t.id === previewThemeId) ?? themeLibrary[0],
-    [previewThemeId, themeLibrary]
-  );
+  const activeTheme = useMemo(() => {
+    if (previewDraftTheme) {
+      return { ...newThemeForm, id: "draft-preview" } as ThemeConfig;
+    }
+    return themeLibrary.find((t) => t.id === previewThemeId) ?? themeLibrary[0];
+  }, [previewDraftTheme, newThemeForm, previewThemeId, themeLibrary]);
+
+  const previewTextColor =
+    activeTheme.textColor ??
+    (activeTheme.mode === "Dark" ? "#e2e8f0" : "#0f172a");
+  const previewMutedTextColor =
+    activeTheme.mode === "Dark" ? "rgba(226,232,240,0.72)" : "#64748b";
+
+  const previewSpacing =
+    activeTheme.spacing === "compact"
+      ? { pad: "p-4", gap: "gap-3" }
+      : activeTheme.spacing === "relaxed"
+      ? { pad: "p-6", gap: "gap-6" }
+      : { pad: "p-5", gap: "gap-4" };
+
+  const previewFontSize =
+    activeTheme.fontSize === "sm"
+      ? { body: "text-[11px]", title: "text-base", hero: "text-xl md:text-2xl" }
+      : activeTheme.fontSize === "lg"
+      ? { body: "text-sm", title: "text-lg", hero: "text-2xl md:text-3xl" }
+      : { body: "text-xs", title: "text-base", hero: "text-xl md:text-2xl" };
+
+  const previewButtonRadius =
+    activeTheme.buttonStyle === "pill" || activeTheme.borderRadius === "pill"
+      ? "rounded-full"
+      : activeTheme.buttonStyle === "soft" || activeTheme.borderRadius === "soft"
+      ? "rounded-lg"
+      : "rounded-xl";
+
+  const previewCardClass =
+    activeTheme.cardStyle === "outlined"
+      ? "border border-slate-200/80 shadow-none"
+      : activeTheme.cardStyle === "flat"
+      ? "border border-slate-100 shadow-none"
+      : "border border-slate-200/80 shadow-sm";
+
+  const previewContainerClass =
+    activeTheme.layout === "Boxed"
+      ? "mx-auto max-w-[980px]"
+      : activeTheme.layout === "Split"
+      ? "mx-auto max-w-[1100px]"
+      : "w-full";
 
   const themePreviewClasses = useMemo(() => {
     const radius =
@@ -248,7 +312,10 @@ export default function WebThemePage() {
                       variant="outline"
                       size="sm"
                       className="rounded-full px-3 text-xs"
-                      onClick={() => setPreviewThemeId(selectedThemeId)}
+                      onClick={() => {
+                        setPreviewDraftTheme(false);
+                        setPreviewThemeId(selectedThemeId);
+                      }}
                     >
                       <Eye className="mr-1.5 h-3.5 w-3.5" />
                       Preview
@@ -257,6 +324,7 @@ export default function WebThemePage() {
                       variant="primary"
                       size="sm"
                       className="rounded-full px-3 text-xs"
+                      disabled={previewDraftTheme}
                       onClick={() => {
                         setAppliedThemeId(previewThemeId);
                         if (typeof window !== "undefined") {
@@ -284,163 +352,345 @@ export default function WebThemePage() {
                       background: activeTheme.backgroundColor,
                     }}
                   >
+                    {/* Mini storefront preview (Secure Mart style) */}
                     <div
-                      className="border-b px-4 py-3 text-xs font-medium flex items-center justify-between"
+                      className={`${previewContainerClass} ${previewSpacing.pad}`}
                       style={{
-                        background: activeTheme.surfaceColor,
-                        color: activeTheme.primaryColor,
+                        color: previewTextColor,
                       }}
                     >
-                      <span className="inline-flex items-center gap-1.5">
-                        <span
-                          className="inline-flex h-5 w-5 items-center justify-center rounded-full text-[10px] font-semibold"
-                          style={{
-                            background: activeTheme.primaryColor,
-                            color: "#ffffff",
-                          }}
-                        >
-                          TB
-                        </span>
-                        <span>Brand storefront</span>
-                      </span>
-                      <span className="inline-flex items-center gap-1.5 text-[11px] text-slate-500">
-                        <Moon className="h-3.5 w-3.5" />
-                        <SunMedium className="h-3.5 w-3.5" />
-                      </span>
-                    </div>
-
-                    {activeTheme.showHeroBanner && (
-                      <div className="flex flex-col gap-4 px-5 py-5 md:flex-row">
-                        <div className="space-y-2 md:w-3/5">
-                          <p
-                            className="text-[11px] font-semibold uppercase tracking-[0.16em]"
-                            style={{ color: activeTheme.secondaryColor }}
-                          >
-                            New launch collection
-                          </p>
-                          <h2
-                            className="text-xl font-semibold leading-tight md:text-2xl"
-                            style={{ color: "#0f172a" }}
-                          >
-                            Bring your beauty storefront to life with a curated
-                            theme.
-                          </h2>
-                          <p className="text-xs leading-relaxed text-slate-600">
-                            Themes control colors, typography, layout density and
-                            homepage modules. Configure once and reuse across
-                            your entire network.
-                          </p>
-                          <div className="flex flex-wrap gap-2 pt-1">
-                            <span
-                              className="inline-flex items-center rounded-full px-3 py-1 text-[11px] font-medium shadow-sm"
-                              style={{
-                                background: activeTheme.primaryColor,
-                                color: "#ffffff",
-                              }}
-                            >
-                              Primary button
-                            </span>
-                            <span
-                              className="inline-flex items-center rounded-full border px-3 py-1 text-[11px] font-medium"
-                              style={{
-                                borderColor: activeTheme.primaryColor,
-                                color: activeTheme.primaryColor,
-                              }}
-                            >
-                              Secondary button
-                            </span>
-                          </div>
-                        </div>
-                        <div className="mt-2 flex flex-1 flex-col gap-2 text-[11px] text-slate-600 md:w-2/5">
-                          <div className="grid grid-cols-3 gap-2">
-                            <div
-                              className="h-16 rounded-xl border text-center text-[10px] font-medium flex items-center justify-center"
-                              style={{ borderColor: activeTheme.primaryColor }}
-                            >
-                              Primary
-                            </div>
-                            <div
-                              className="h-16 rounded-xl border text-center text-[10px] font-medium flex items-center justify-center"
-                              style={{ borderColor: activeTheme.secondaryColor }}
-                            >
-                              Secondary
-                            </div>
-                            <div
-                              className="h-16 rounded-xl border text-center text-[10px] font-medium flex items-center justify-center"
-                              style={{ borderColor: activeTheme.accentColor }}
-                            >
-                              Accent
-                            </div>
-                          </div>
-                          <div className="flex items-center justify-between rounded-xl bg-slate-50 px-3 py-2">
-                            <div className="space-y-0.5">
-                              <p className="text-[11px] font-medium text-slate-700">
-                                Layout preset
-                              </p>
-                              <p className="text-[11px] text-slate-500">
-                                {activeTheme.layout} •{" "}
-                                {activeTheme.borderRadius === "pill"
-                                  ? "Pill corners"
-                                  : activeTheme.borderRadius === "rounded"
-                                  ? "Rounded corners"
-                                  : "Soft corners"}
-                              </p>
-                            </div>
-                            <span className="inline-flex h-7 w-7 items-center justify-center rounded-lg bg-white text-slate-500">
-                              {activeTheme.layout === "Split" ? (
-                                <Rows3 className="h-4 w-4" />
-                              ) : (
-                                <Columns3 className="h-4 w-4" />
-                              )}
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-                    )}
-
-                    {activeTheme.showFeaturedGrid && (
-                      <div
-                        className="border-t px-5 py-4 text-[11px]"
+                      {/* Header */}
+                      <header
+                        className={`flex items-center justify-between ${previewSpacing.gap}`}
                         style={{
-                          borderColor: activeTheme.surfaceColor,
-                          background: activeTheme.surfaceColor,
+                          background:
+                            activeTheme.headerStyle === "glass"
+                              ? "rgba(255,255,255,0.6)"
+                              : activeTheme.headerStyle === "transparent"
+                              ? "transparent"
+                              : activeTheme.surfaceColor,
+                          borderColor:
+                            activeTheme.mode === "Dark"
+                              ? "rgba(148,163,184,0.35)"
+                              : "rgba(226,232,240,0.9)",
                         }}
                       >
-                        <p className="mb-2 text-[11px] font-medium text-slate-600">
-                          Featured components
-                        </p>
-                        <div className="grid gap-2 md:grid-cols-3">
-                          {["Hero banner", "Promo strip", "Testimonials"].map(
-                            (label) => {
-                              const isEnabled =
-                                (label === "Hero banner" &&
-                                  activeTheme.showHeroBanner) ||
-                                (label === "Promo strip" &&
-                                  activeTheme.showPromoStrip) ||
-                                (label === "Testimonials" &&
-                                  activeTheme.showTestimonials);
-                              return (
-                                <div
-                                  key={label}
-                                  className={`flex items-center justify-between rounded-lg border px-3 py-2 ${
-                                    isEnabled
-                                      ? "border-pink-100 bg-pink-50/50 text-pink-700"
-                                      : "border-slate-100 bg-slate-50 text-slate-500"
-                                  }`}
-                                >
-                                  <span className="text-[11px] font-medium">
-                                    {label}
-                                  </span>
-                                  {isEnabled && (
-                                    <CheckCircle2 className="h-3.5 w-3.5" />
-                                  )}
-                                </div>
-                              );
-                            }
-                          )}
+                        <div className="flex items-center gap-2">
+                          <span
+                            className="inline-flex h-8 w-8 items-center justify-center rounded-xl text-sm font-bold"
+                            style={{
+                              background: activeTheme.primaryColor,
+                              color: "#ffffff",
+                            }}
+                          >
+                            SM
+                          </span>
+                          <div className="leading-tight">
+                            <p className={`font-semibold ${previewFontSize.title}`}>
+                              Secure Mart
+                            </p>
+                            <p
+                              className={`${previewFontSize.body}`}
+                              style={{ color: previewMutedTextColor }}
+                            >
+                              Everyday essentials
+                            </p>
+                          </div>
                         </div>
-                      </div>
-                    )}
+                        <div className="hidden items-center gap-2 md:flex">
+                          {["Home", "Shop", "Deals", "Support"].map((t) => (
+                            <button
+                              key={t}
+                              type="button"
+                              className="px-2 py-1 text-[11px] font-medium"
+                              style={{ color: previewMutedTextColor }}
+                            >
+                              {t}
+                            </button>
+                          ))}
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <div
+                            className={`hidden md:flex items-center gap-2 ${previewButtonRadius} border px-3 py-2`}
+                            style={{
+                              borderColor:
+                                activeTheme.mode === "Dark"
+                                  ? "rgba(148,163,184,0.35)"
+                                  : "rgba(226,232,240,0.9)",
+                              background: activeTheme.surfaceColor,
+                            }}
+                          >
+                            <span
+                              className="h-2 w-2 rounded-full"
+                              style={{ background: activeTheme.secondaryColor }}
+                            />
+                            <span
+                              className="text-[11px]"
+                              style={{ color: previewMutedTextColor }}
+                            >
+                              Search products…
+                            </span>
+                          </div>
+                          <button
+                            type="button"
+                            className={`${previewButtonRadius} border px-3 py-2 text-[11px] font-semibold`}
+                            style={{
+                              borderColor: activeTheme.primaryColor,
+                              color: activeTheme.primaryColor,
+                              background: "transparent",
+                            }}
+                          >
+                            Cart (2)
+                          </button>
+                        </div>
+                      </header>
+
+                      {/* Promo strip */}
+                      {activeTheme.showPromoStrip && (
+                        <div
+                          className={`mt-4 ${previewButtonRadius} px-4 py-2 text-[11px] font-medium`}
+                          style={{
+                            background: activeTheme.accentColor,
+                            color: "#0b1220",
+                          }}
+                        >
+                          Free delivery above ₹499 · Today only: extra 10% off on
+                          essentials
+                        </div>
+                      )}
+
+                      {/* Hero */}
+                      {activeTheme.showHeroBanner && (
+                        <section className={`mt-5 grid gap-4 md:grid-cols-2 ${previewSpacing.gap}`}>
+                          <div className="space-y-3">
+                            <p
+                              className="text-[11px] font-semibold uppercase tracking-[0.16em]"
+                              style={{ color: activeTheme.secondaryColor }}
+                            >
+                              Smart savings, secure checkout
+                            </p>
+                            <h2 className={`font-semibold leading-tight ${previewFontSize.hero}`}>
+                              Fresh groceries delivered in under 60 minutes.
+                            </h2>
+                            <p
+                              className={`${previewFontSize.body} leading-relaxed`}
+                              style={{ color: previewMutedTextColor }}
+                            >
+                              A realistic preview of your storefront: header,
+                              hero, product cards and CTAs styled by your theme
+                              tokens.
+                            </p>
+                            <div className="flex flex-wrap items-center gap-2 pt-1">
+                              <button
+                                type="button"
+                                className={`${previewButtonRadius} px-4 py-2 text-[11px] font-semibold`}
+                                style={{
+                                  background: activeTheme.primaryColor,
+                                  color: "#ffffff",
+                                }}
+                              >
+                                Shop now
+                              </button>
+                              <button
+                                type="button"
+                                className={`${previewButtonRadius} border px-4 py-2 text-[11px] font-semibold`}
+                                style={{
+                                  borderColor: activeTheme.primaryColor,
+                                  color: activeTheme.primaryColor,
+                                  background: activeTheme.surfaceColor,
+                                }}
+                              >
+                                View categories
+                              </button>
+                              <span
+                                className={`${previewButtonRadius} border px-3 py-2 text-[10px] font-medium`}
+                                style={{
+                                  borderColor:
+                                    activeTheme.mode === "Dark"
+                                      ? "rgba(148,163,184,0.35)"
+                                      : "rgba(226,232,240,0.9)",
+                                  color: previewMutedTextColor,
+                                  background: activeTheme.surfaceColor,
+                                }}
+                              >
+                                {activeTheme.layout} · {activeTheme.spacing ?? "comfortable"} spacing
+                              </span>
+                            </div>
+                          </div>
+
+                          <div
+                            className={`${themePreviewClasses.radius} relative overflow-hidden ${previewCardClass}`}
+                            style={{
+                              background:
+                                activeTheme.mode === "Dark"
+                                  ? "rgba(2,6,23,0.35)"
+                                  : "rgba(248,250,252,0.9)",
+                            }}
+                          >
+                            <div
+                              className="absolute inset-0 opacity-80"
+                              style={{
+                                background: `linear-gradient(135deg, ${activeTheme.primaryColor}22, ${activeTheme.secondaryColor}22, ${activeTheme.accentColor}22)`,
+                              }}
+                            />
+                            <div className="relative p-4">
+                              <div className="flex items-center justify-between">
+                                <span
+                                  className={`${previewButtonRadius} px-2.5 py-1 text-[10px] font-semibold`}
+                                  style={{
+                                    background: activeTheme.primaryColor,
+                                    color: "#ffffff",
+                                  }}
+                                >
+                                  Deal of the day
+                                </span>
+                                <span className="text-[10px]" style={{ color: previewMutedTextColor }}>
+                                  Trusted by 12k+ customers
+                                </span>
+                              </div>
+                              <div className="mt-4 grid grid-cols-3 gap-2">
+                                {["Fruits", "Dairy", "Snacks"].map((c) => (
+                                  <div
+                                    key={c}
+                                    className={`${previewButtonRadius} border px-3 py-3 text-center text-[10px] font-semibold`}
+                                    style={{
+                                      borderColor:
+                                        activeTheme.mode === "Dark"
+                                          ? "rgba(148,163,184,0.35)"
+                                          : "rgba(226,232,240,0.9)",
+                                      background: activeTheme.surfaceColor,
+                                    }}
+                                  >
+                                    {c}
+                                  </div>
+                                ))}
+                              </div>
+                              <div className="mt-3 flex items-center justify-between rounded-xl bg-white/70 px-3 py-2 text-[11px]">
+                                <span style={{ color: previewMutedTextColor }}>
+                                  Secure payments · Fast refunds
+                                </span>
+                                <span
+                                  className="h-2.5 w-10 rounded-full"
+                                  style={{ background: activeTheme.accentColor }}
+                                />
+                              </div>
+                            </div>
+                          </div>
+                        </section>
+                      )}
+
+                      {/* Product grid */}
+                      <section className="mt-6">
+                        <div className="mb-3 flex items-end justify-between">
+                          <div>
+                            <p className="text-[11px] font-semibold uppercase tracking-[0.16em]" style={{ color: previewMutedTextColor }}>
+                              Featured products
+                            </p>
+                            <p className="text-sm font-semibold">Top picks for you</p>
+                          </div>
+                          <button
+                            type="button"
+                            className="text-[11px] font-semibold"
+                            style={{ color: activeTheme.primaryColor }}
+                          >
+                            View all →
+                          </button>
+                        </div>
+
+                        <div
+                          className={`grid ${previewSpacing.gap} grid-cols-2 md:grid-cols-3`}
+                        >
+                          {[
+                            { name: "Organic Apples", price: "₹149", tag: "Fresh" },
+                            { name: "Whole Milk 1L", price: "₹68", tag: "Daily" },
+                            { name: "Brown Bread", price: "₹45", tag: "Bestseller" },
+                            { name: "Almonds 200g", price: "₹299", tag: "Premium" },
+                            { name: "Instant Oats", price: "₹129", tag: "Healthy" },
+                            { name: "Dark Chocolate", price: "₹99", tag: "Deal" },
+                          ].map((p) => (
+                            <div
+                              key={p.name}
+                              className={`${themePreviewClasses.radius} ${previewCardClass} overflow-hidden`}
+                              style={{ background: activeTheme.surfaceColor }}
+                            >
+                              <div
+                                className="h-20"
+                                style={{
+                                  background: `linear-gradient(135deg, ${activeTheme.secondaryColor}22, ${activeTheme.primaryColor}22)`,
+                                }}
+                              />
+                              <div className="p-3">
+                                <div className="flex items-center justify-between gap-2">
+                                  <p className="text-xs font-semibold truncate">{p.name}</p>
+                                  <span
+                                    className={`${previewButtonRadius} px-2 py-0.5 text-[10px] font-semibold`}
+                                    style={{
+                                      background: activeTheme.accentColor,
+                                      color: "#0b1220",
+                                    }}
+                                  >
+                                    {p.tag}
+                                  </span>
+                                </div>
+                                <p className="mt-1 text-[11px]" style={{ color: previewMutedTextColor }}>
+                                  ★ 4.6 · 1.2k reviews
+                                </p>
+                                <div className="mt-2 flex items-center justify-between gap-2">
+                                  <span className="text-xs font-bold">{p.price}</span>
+                                  <button
+                                    type="button"
+                                    className={`${previewButtonRadius} px-2.5 py-1.5 text-[10px] font-semibold`}
+                                    style={{
+                                      background: activeTheme.primaryColor,
+                                      color: "#ffffff",
+                                    }}
+                                  >
+                                    Add
+                                  </button>
+                                </div>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </section>
+
+                      {/* Testimonials */}
+                      {activeTheme.showTestimonials && (
+                        <section className="mt-6">
+                          <div
+                            className={`${themePreviewClasses.radius} ${previewCardClass} p-4`}
+                            style={{ background: activeTheme.surfaceColor }}
+                          >
+                            <p className="text-sm font-semibold">What customers say</p>
+                            <p className="mt-1 text-[11px]" style={{ color: previewMutedTextColor }}>
+                              “Fast delivery and great packaging. Love the clean UI.”
+                            </p>
+                            <div className="mt-3 flex items-center justify-between">
+                              <span className="text-[11px] font-medium" style={{ color: previewMutedTextColor }}>
+                                — Riya, Mumbai
+                              </span>
+                              <span className="text-[11px] font-semibold" style={{ color: activeTheme.primaryColor }}>
+                                ★★★★★
+                              </span>
+                            </div>
+                          </div>
+                        </section>
+                      )}
+
+                      {/* Footer */}
+                      <footer className="mt-6 border-t pt-4" style={{ borderColor: "rgba(226,232,240,0.9)" }}>
+                        <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
+                          <p className="text-[11px]" style={{ color: previewMutedTextColor }}>
+                            © Secure Mart · Powered by your theme settings
+                          </p>
+                          <div className="flex items-center gap-3 text-[11px]" style={{ color: previewMutedTextColor }}>
+                            <span>Privacy</span>
+                            <span>Terms</span>
+                            <span>Contact</span>
+                          </div>
+                        </div>
+                      </footer>
+                    </div>
                   </div>
 
                   <div className="mt-4 grid gap-3 md:grid-cols-2">
@@ -544,16 +794,22 @@ export default function WebThemePage() {
 
                           const existingCustom = loadCustomThemes();
                           const now = new Date().toISOString().slice(0, 10);
+                          const themeWithMeta = {
+                            ...themeToSave,
+                            createdOn: now,
+                            lastUpdated: now,
+                          } as any;
                           const updatedCustom = [
                             ...existingCustom,
                             {
-                              ...themeToSave,
-                              createdOn: now,
-                              lastUpdated: now,
+                              ...themeWithMeta,
                             } as any,
                           ];
                           saveCustomThemes(updatedCustom as any);
-                          setThemeLibrary(getAllThemes());
+                          // Make the newly created theme immediately visible in the library.
+                          setSearch("");
+                          setStatusFilter("All");
+                          setThemeLibrary((prev) => [themeWithMeta as ThemeConfig, ...prev]);
                           setSelectedThemeId(id);
                           setPreviewThemeId(id);
                           setNewThemeOpen(false);
@@ -564,7 +820,7 @@ export default function WebThemePage() {
                           <h3 className="mb-3 text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">
                             Basic information
                           </h3>
-                          <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+                          <div className="grid grid-cols-1 gap-3">
                             <div className="space-y-1.5">
                               <label className="text-xs font-medium text-slate-700">
                                 Theme name
@@ -579,21 +835,6 @@ export default function WebThemePage() {
                                 }
                                 placeholder="e.g. Brand Light Theme"
                                 required
-                              />
-                            </div>
-                            <div className="space-y-1.5">
-                              <label className="text-xs font-medium text-slate-700">
-                                Identifier (optional)
-                              </label>
-                              <Input
-                                value={newThemeForm.id}
-                                onChange={(e) =>
-                                  setNewThemeForm((t) => ({
-                                    ...t,
-                                    id: e.target.value,
-                                  }))
-                                }
-                                placeholder="e.g. brand-light"
                               />
                             </div>
                           </div>
@@ -680,43 +921,87 @@ export default function WebThemePage() {
                           <h3 className="mb-3 text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">
                             Colors
                           </h3>
-                          <div className="grid grid-cols-2 gap-3 md:grid-cols-5">
-                            {([
-                            ["Primary", "primaryColor"],
-                            ["Secondary", "secondaryColor"],
-                            ["Accent", "accentColor"],
-                            ["Background", "backgroundColor"],
-                            ["Text", "textColor"],
-                          ] as const).map(([label, key]) => (
-                            <div key={key} className="space-y-1">
-                              <label className="text-xs font-medium text-slate-700">
-                                {label} color
-                              </label>
-                              <div className="flex items-center gap-2">
-                                <Input
-                                  type="color"
-                                  value={newThemeForm[key] ?? "#000000"}
-                                  onChange={(e) =>
-                                    setNewThemeForm((t) => ({
-                                      ...t,
-                                      [key]: e.target.value,
-                                    }))
-                                  }
-                                  className="h-8 w-10 cursor-pointer rounded-full border border-slate-200 bg-transparent p-1"
-                                />
-                                <Input
-                                  value={newThemeForm[key] ?? ""}
-                                  onChange={(e) =>
-                                    setNewThemeForm((t) => ({
-                                      ...t,
-                                      [key]: e.target.value,
-                                    }))
-                                  }
-                                  className="h-8 flex-1 rounded-lg border border-slate-200 bg-white px-2 text-[11px] text-slate-700 focus:border-pink-300 focus:outline-none focus:ring-1 focus:ring-pink-200"
-                                />
-                              </div>
-                            </div>
-                          ))}
+                          <div className="grid grid-cols-1 gap-3">
+                            {(
+                              [
+                                [
+                                  "Primary",
+                                  "primaryColor",
+                                  "Primary actions, highlights, key links",
+                                ],
+                                [
+                                  "Secondary",
+                                  "secondaryColor",
+                                  "Secondary accents, tags, subtle emphasis",
+                                ],
+                                [
+                                  "Accent",
+                                  "accentColor",
+                                  "Badges, attention states, supporting accents",
+                                ],
+                                [
+                                  "Background",
+                                  "backgroundColor",
+                                  "Page background and large surfaces",
+                                ],
+                                [
+                                  "Text",
+                                  "textColor",
+                                  "Default text on light backgrounds",
+                                ],
+                              ] as const
+                            ).map(([label, key, description]) => {
+                              const value = (newThemeForm[key] ??
+                                "#000000") as string;
+                              return (
+                                <div
+                                  key={key}
+                                  className="flex items-start justify-between gap-3 rounded-xl border border-slate-100 bg-slate-50/60 px-3 py-2.5"
+                                >
+                                  <div className="flex items-start gap-2.5">
+                                    <span
+                                      className="mt-0.5 h-7 w-7 rounded-full border border-white shadow-sm ring-1 ring-slate-200"
+                                      style={{ backgroundColor: value }}
+                                      aria-hidden="true"
+                                    />
+                                    <div className="min-w-0">
+                                      <p className="text-xs font-semibold text-slate-800">
+                                        {label}
+                                      </p>
+                                      <p className="mt-0.5 text-[11px] text-slate-500">
+                                        {description}
+                                      </p>
+                                    </div>
+                                  </div>
+
+                                  <div className="flex items-center gap-2">
+                                    <Input
+                                      type="color"
+                                      aria-label={`${label} color picker`}
+                                      value={value}
+                                      onChange={(e) =>
+                                        setNewThemeForm((t) => ({
+                                          ...t,
+                                          [key]: e.target.value,
+                                        }))
+                                      }
+                                      className="h-8 w-10 cursor-pointer rounded-full border border-slate-200 bg-white p-1"
+                                    />
+                                    <Input
+                                      aria-label={`${label} hex value`}
+                                      value={value}
+                                      onChange={(e) =>
+                                        setNewThemeForm((t) => ({
+                                          ...t,
+                                          [key]: e.target.value,
+                                        }))
+                                      }
+                                      className="h-8 w-[110px] rounded-lg border border-slate-200 bg-white px-2 text-[11px] text-slate-700 focus:border-pink-300 focus:outline-none focus:ring-1 focus:ring-pink-200"
+                                    />
+                                  </div>
+                                </div>
+                              );
+                            })}
                           </div>
                         </section>
 
