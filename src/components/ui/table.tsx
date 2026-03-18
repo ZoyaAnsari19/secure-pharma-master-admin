@@ -7,7 +7,8 @@ import { cn } from "@/utils";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { FiltersBar } from "@/components/ui/filters";
-import { ChevronLeft, ChevronRight, Filter, MoreVertical } from "lucide-react";
+import { ChevronLeft, ChevronRight, Filter, MoreVertical, Search } from "lucide-react";
+import { Input } from "@/components/ui/input";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -188,80 +189,90 @@ export function DataTable<T extends { id: string | number }>({
           <CardTitle>{title}</CardTitle>
         </div>
         {headerContent ?? (
-          <FiltersBar
-            searchPlaceholder={searchPlaceholder}
-            searchValue={effectiveSearch}
-            onSearchValueChange={setSearch}
-            right={
-              <>
-                {!hideFiltersButton && (
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="rounded-full border-pink-100 bg-white text-xs text-slate-600 hover:border-pink-200 hover:bg-pink-50"
-                  >
-                    <Filter className="mr-1.5 h-3.5 w-3.5" />
-                    Filters
-                  </Button>
-                )}
-                {rightHeader}
-              </>
-            }
-          />
+          <>
+            {/* Mobile: search + filters on same row */}
+            <div className="flex w-full items-center gap-2 sm:hidden">
+              <div className="relative min-w-0 flex-1">
+                <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                <Input
+                  className="pl-10"
+                  placeholder={searchPlaceholder}
+                  value={effectiveSearch}
+                  onChange={(e) => setSearch(e.target.value)}
+                />
+              </div>
+
+              {!hideFiltersButton && (
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className="shrink-0 rounded-full border-pink-100 bg-white text-xs text-slate-600 hover:border-pink-200 hover:bg-pink-50"
+                >
+                  <Filter className="mr-1.5 h-3.5 w-3.5" />
+                  Filters
+                </Button>
+              )}
+
+              {rightHeader}
+            </div>
+
+            {/* Desktop/tablet: existing filters bar */}
+            <div className="hidden w-full sm:block">
+              <FiltersBar
+                searchPlaceholder={searchPlaceholder}
+                searchValue={effectiveSearch}
+                onSearchValueChange={setSearch}
+                right={
+                  <>
+                    {!hideFiltersButton && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="rounded-full border-pink-100 bg-white text-xs text-slate-600 hover:border-pink-200 hover:bg-pink-50"
+                      >
+                        <Filter className="mr-1.5 h-3.5 w-3.5" />
+                        Filters
+                      </Button>
+                    )}
+                    {rightHeader}
+                  </>
+                }
+              />
+            </div>
+          </>
         )}
       </CardHeader>
       <CardContent className="px-0 sm:px-6">
-        <div className="min-w-0 overflow-x-auto border-y border-gray-100 bg-white sm:rounded-xl sm:border">
-          <div className="min-w-[640px] px-4 sm:px-0">
-            <Table className="w-full">
-            <TableHeader>
-              <TableRow>
-                {showIndexColumn && (
-                  <TableHead className="w-[70px] whitespace-nowrap text-center">
-                    {indexColumnLabel}
-                  </TableHead>
-                )}
-                {columns.map((col) => (
-                  <TableHead key={String(col.key)}>{col.label}</TableHead>
-                ))}
-                {(renderActions || renderActionMenuItems) && (
-                  <TableHead className="w-[120px]">Actions</TableHead>
-                )}
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {items.map((row, rowIndex) => {
-                const absoluteIndex = startIndex + rowIndex;
-                return (
-                  <TableRow
-                    key={row.id}
-                    className={cn(
-                      onRowClick && "cursor-pointer hover:bg-pink-50/70"
-                    )}
-                    onClick={
-                      onRowClick
-                        ? () => {
-                            onRowClick(row);
-                          }
-                        : undefined
-                    }
-                  >
-                    {showIndexColumn && (
-                      <TableCell className="px-6 text-center text-xs text-gray-500">
-                        {absoluteIndex + 1}
-                      </TableCell>
-                    )}
-                    {columns.map((col) => (
-                      <TableCell key={String(col.key)}>
-                        {col.render
-                          ? col.render(row, absoluteIndex)
-                          : String(row[col.key] ?? "")}
-                      </TableCell>
-                    ))}
+        {/* Mobile: data cards */}
+        <div className="px-4 sm:hidden">
+          <div className="space-y-3">
+            {items.map((row, rowIndex) => {
+              const absoluteIndex = startIndex + rowIndex;
+              return (
+                <div
+                  key={row.id}
+                  className={cn(
+                    "min-w-0 rounded-xl border border-gray-100 bg-white p-4 shadow-sm",
+                    onRowClick && "cursor-pointer hover:border-pink-200 hover:bg-pink-50/30"
+                  )}
+                  onClick={onRowClick ? () => onRowClick(row) : undefined}
+                >
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0">
+                      {showIndexColumn && (
+                        <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-gray-400">
+                          {indexColumnLabel} {absoluteIndex + 1}
+                        </p>
+                      )}
+                      <p className="truncate text-sm font-semibold text-slate-900">
+                        {String(row[columns[0]?.key] ?? title)}
+                      </p>
+                    </div>
+
                     {(renderActions || renderActionMenuItems) && (
-                      <TableCell
+                      <div
                         onClick={(e) => {
-                          // Prevent row click handler from firing when interacting with actions
                           e.stopPropagation();
                         }}
                       >
@@ -271,7 +282,7 @@ export function DataTable<T extends { id: string | number }>({
                               <Button
                                 variant="outline"
                                 size="icon"
-                                className="h-7 w-7 rounded-full border border-pink-100 bg-white text-slate-500 shadow-none hover:border-pink-200 hover:bg-pink-50 hover:shadow-none focus:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:ring-transparent focus-visible:border-pink-200"
+                                className="h-8 w-8 rounded-full border border-pink-100 bg-white text-slate-500 shadow-none hover:border-pink-200 hover:bg-pink-50 hover:shadow-none focus:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:ring-transparent focus-visible:border-pink-200"
                               >
                                 <MoreVertical className="h-4 w-4" />
                               </Button>
@@ -283,31 +294,134 @@ export function DataTable<T extends { id: string | number }>({
                         ) : (
                           renderActions?.(row)
                         )}
-                      </TableCell>
+                      </div>
                     )}
-                  </TableRow>
-                );
-              })}
-              {items.length === 0 && (
+                  </div>
+
+                  <div className="mt-3 grid grid-cols-2 gap-x-3 gap-y-2">
+                    {columns.slice(0).map((col) => (
+                      <div key={String(col.key)} className="min-w-0">
+                        <p className="text-[11px] font-medium text-gray-400">
+                          {col.label}
+                        </p>
+                        <div className="truncate text-sm text-gray-700">
+                          {col.render
+                            ? col.render(row, absoluteIndex)
+                            : String(row[col.key] ?? "")}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              );
+            })}
+
+            {items.length === 0 && (
+              <div className="rounded-xl border border-gray-100 bg-white p-6 text-center text-xs text-slate-400">
+                No data available for the current filters.
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Desktop/tablet: table */}
+        <div className="hidden min-w-0 overflow-x-auto border-y border-gray-100 bg-white sm:block sm:rounded-xl sm:border">
+          <div className="min-w-[640px] px-4 sm:px-0">
+            <Table className="w-full">
+              <TableHeader>
                 <TableRow>
-                  <TableCell
-                    colSpan={
-                      columns.length +
-                      (renderActions || renderActionMenuItems ? 1 : 0) +
-                      (showIndexColumn ? 1 : 0)
-                    }
-                    className="py-8 text-center text-xs text-slate-400"
-                  >
-                    No data available for the current filters.
-                  </TableCell>
+                  {showIndexColumn && (
+                    <TableHead className="w-[70px] whitespace-nowrap text-center">
+                      {indexColumnLabel}
+                    </TableHead>
+                  )}
+                  {columns.map((col) => (
+                    <TableHead key={String(col.key)}>{col.label}</TableHead>
+                  ))}
+                  {(renderActions || renderActionMenuItems) && (
+                    <TableHead className="w-[120px]">Actions</TableHead>
+                  )}
                 </TableRow>
-              )}
-            </TableBody>
+              </TableHeader>
+              <TableBody>
+                {items.map((row, rowIndex) => {
+                  const absoluteIndex = startIndex + rowIndex;
+                  return (
+                    <TableRow
+                      key={row.id}
+                      className={cn(
+                        onRowClick && "cursor-pointer hover:bg-pink-50/70"
+                      )}
+                      onClick={
+                        onRowClick
+                          ? () => {
+                              onRowClick(row);
+                            }
+                          : undefined
+                      }
+                    >
+                      {showIndexColumn && (
+                        <TableCell className="px-6 text-center text-xs text-gray-500">
+                          {absoluteIndex + 1}
+                        </TableCell>
+                      )}
+                      {columns.map((col) => (
+                        <TableCell key={String(col.key)}>
+                          {col.render
+                            ? col.render(row, absoluteIndex)
+                            : String(row[col.key] ?? "")}
+                        </TableCell>
+                      ))}
+                      {(renderActions || renderActionMenuItems) && (
+                        <TableCell
+                          onClick={(e) => {
+                            // Prevent row click handler from firing when interacting with actions
+                            e.stopPropagation();
+                          }}
+                        >
+                          {renderActionMenuItems ? (
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                <Button
+                                  variant="outline"
+                                  size="icon"
+                                  className="h-7 w-7 rounded-full border border-pink-100 bg-white text-slate-500 shadow-none hover:border-pink-200 hover:bg-pink-50 hover:shadow-none focus:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:ring-transparent focus-visible:border-pink-200"
+                                >
+                                  <MoreVertical className="h-4 w-4" />
+                                </Button>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent align="end">
+                                {renderActionMenuItems(row)}
+                              </DropdownMenuContent>
+                            </DropdownMenu>
+                          ) : (
+                            renderActions?.(row)
+                          )}
+                        </TableCell>
+                      )}
+                    </TableRow>
+                  );
+                })}
+                {items.length === 0 && (
+                  <TableRow>
+                    <TableCell
+                      colSpan={
+                        columns.length +
+                        (renderActions || renderActionMenuItems ? 1 : 0) +
+                        (showIndexColumn ? 1 : 0)
+                      }
+                      className="py-8 text-center text-xs text-slate-400"
+                    >
+                      No data available for the current filters.
+                    </TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
             </Table>
           </div>
         </div>
 
-        <div className="mt-4 flex flex-col gap-2 text-[11px] text-slate-500 sm:flex-row sm:items-center sm:justify-between">
+        <div className="mt-4 flex flex-row flex-wrap items-center justify-between gap-2 text-[11px] text-slate-500">
           <p>
             Showing{" "}
             <span className="font-semibold text-slate-700">
@@ -319,7 +433,7 @@ export function DataTable<T extends { id: string | number }>({
             </span>{" "}
             records
           </p>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center justify-end gap-2 self-end sm:self-auto">
             <Button
               variant="outline"
               size="icon"
