@@ -65,7 +65,7 @@ const sidebarSections: { title: string; items: NavItem[] }[] = [
         href: "/dashboard/order-management",
       },
       { label: "Refunds / Returns", icon: <Undo2 className="h-4 w-4" />, href: "/dashboard/refund-return-management" },
-      { label: "Withdraw Requests", icon: <CreditCard className="h-4 w-4" /> },
+      { label: "Withdraw Requests", icon: <CreditCard className="h-4 w-4" />, href: "/dashboard/withdrawe-requests-management" },
     ],
   },
   {
