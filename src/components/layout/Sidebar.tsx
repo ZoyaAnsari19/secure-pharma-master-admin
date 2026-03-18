@@ -89,7 +89,7 @@ const sidebarSections: { title: string; items: NavItem[] }[] = [
   {
     title: "System",
     items: [
-      { label: "Web Theme", icon: <Palette className="h-4 w-4" /> },
+      { label: "Web Theme", icon: <Palette className="h-4 w-4" />, href: "/dashboard/web-theme" },
     ],
   },
 ];
