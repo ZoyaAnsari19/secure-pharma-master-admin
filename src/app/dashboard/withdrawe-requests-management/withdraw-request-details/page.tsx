@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { Suspense, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { Topbar } from "@/components/layout/Topbar";
@@ -231,7 +231,7 @@ function pillForRole(role: WithdrawalRequestRow["role"]) {
   );
 }
 
-export default function WithdrawRequestDetailsPage() {
+function WithdrawRequestDetailsInner() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const requestId = searchParams.get("id") ?? "";
@@ -567,5 +567,29 @@ export default function WithdrawRequestDetailsPage() {
         </main>
       </div>
     </div>
+  );
+}
+
+export default function WithdrawRequestDetailsPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex h-screen bg-gray-50 text-gray-900">
+          <Sidebar />
+          <div className="flex h-full flex-1 flex-col">
+            <Topbar />
+            <main className="beauty-scroll flex-1 overflow-y-auto">
+              <div className="mx-auto w-full max-w-[1400px] space-y-6 p-4 sm:p-6 lg:p-8">
+                <div className="rounded-xl border border-gray-100 bg-white p-6 text-sm text-gray-600">
+                  Loading request details…
+                </div>
+              </div>
+            </main>
+          </div>
+        </div>
+      }
+    >
+      <WithdrawRequestDetailsInner />
+    </Suspense>
   );
 }
