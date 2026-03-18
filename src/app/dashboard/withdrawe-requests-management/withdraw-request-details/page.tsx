@@ -201,6 +201,20 @@ function pillForStatus(status: WithdrawalRequestRow["status"]) {
   );
 }
 
+function pillForTxnStatus(status: "Success" | "Pending" | "Failed") {
+  const styles =
+    status === "Success"
+      ? "bg-emerald-50 text-emerald-700"
+      : status === "Pending"
+        ? "bg-amber-50 text-amber-700"
+        : "bg-rose-50 text-rose-700";
+  return (
+    <span className={`inline-flex rounded-full px-2.5 py-0.5 text-[11px] font-medium ${styles}`}>
+      {status}
+    </span>
+  );
+}
+
 function pillForRole(role: WithdrawalRequestRow["role"]) {
   const styles =
     role === "Retailer"
@@ -213,20 +227,6 @@ function pillForRole(role: WithdrawalRequestRow["role"]) {
   return (
     <span className={`inline-flex rounded-full px-2.5 py-0.5 text-[11px] font-medium ${styles}`}>
       {role}
-    </span>
-  );
-}
-
-function pillForTxnStatus(status: "Success" | "Pending" | "Failed") {
-  const styles =
-    status === "Success"
-      ? "bg-emerald-50 text-emerald-700"
-      : status === "Pending"
-        ? "bg-amber-50 text-amber-700"
-        : "bg-rose-50 text-rose-700";
-  return (
-    <span className={`inline-flex rounded-full px-2.5 py-0.5 text-[11px] font-medium ${styles}`}>
-      {status}
     </span>
   );
 }
@@ -267,26 +267,23 @@ export default function WithdrawRequestDetailsPage() {
           <div className="mx-auto w-full max-w-[1400px] space-y-6 p-4 sm:p-6 lg:p-8">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <div className="space-y-1">
-                <div className="flex items-center gap-2">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    className="rounded-full"
-                    onClick={() => router.back()}
-                  >
-                    <ChevronLeft className="mr-1.5 h-4 w-4" />
-                    Back
-                  </Button>
-                  <h1 className="text-2xl font-semibold tracking-tight text-gray-800">
-                    Withdraw Request Details
-                  </h1>
-                </div>
+                <h1 className="text-2xl font-semibold tracking-tight text-gray-800">
+                  Withdraw Request Details
+                </h1>
                 <p className="text-xs text-gray-500">
                   {request ? `${request.id} · ${request.user}` : "Request not found"}
                 </p>
               </div>
-              {request ? <div className="flex items-center gap-2">{pillForStatus(request.status)}</div> : null}
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                className="rounded-full"
+                onClick={() => router.back()}
+              >
+                <ChevronLeft className="mr-1.5 h-4 w-4" />
+                Back
+              </Button>
             </div>
 
             {!request ? (
@@ -354,6 +351,36 @@ export default function WithdrawRequestDetailsPage() {
                       </div>
                     </section>
 
+                    {/* User information */}
+                    <section className="rounded-xl border border-gray-100 bg-white p-5 shadow-sm">
+                      <h2 className="text-sm font-semibold text-gray-900">User information</h2>
+                      <p className="mt-1 text-xs text-gray-500">Requester identity snapshot.</p>
+
+                      <div className="mt-4 flex items-start gap-3 rounded-xl border border-gray-100 bg-gray-50/50 p-4">
+                        <span className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg bg-emerald-100 text-emerald-600">
+                          <User className="h-4 w-4" />
+                        </span>
+                        <div className="min-w-0 flex-1 space-y-1 text-sm text-gray-800">
+                          <div className="flex flex-wrap items-center justify-between gap-2">
+                            <p className="min-w-0 truncate">
+                              <span className="font-medium text-gray-600">Name</span>
+                              {": "}
+                              <span className="font-semibold text-gray-900">{request.user}</span>
+                            </p>
+                            <div className="flex items-center gap-2">
+                              <span className="text-sm font-medium text-gray-600">Role:</span>
+                              {pillForRole(request.role)}
+                            </div>
+                          </div>
+                          <p className="text-gray-700">
+                            <span className="font-medium text-gray-600">Email</span>
+                            {": "}
+                            <span className="font-semibold text-gray-900">{request.user.toLowerCase().replace(/\s+/g, ".")}@example.com</span>
+                          </p>
+                        </div>
+                      </div>
+                    </section>
+
                     {/* Transaction history */}
                     <section className="rounded-xl border border-gray-100 bg-white p-5 shadow-sm">
                       <h2 className="text-sm font-semibold text-gray-900">Transaction history</h2>
@@ -391,28 +418,6 @@ export default function WithdrawRequestDetailsPage() {
                   </div>
 
                   <aside className="space-y-6">
-                    {/* User info */}
-                    <section className="rounded-xl border border-gray-100 bg-white p-5 shadow-sm">
-                      <h2 className="text-sm font-semibold text-gray-900">User information</h2>
-                      <p className="mt-1 text-xs text-gray-500">Requester identity and role.</p>
-
-                      <div className="mt-4 flex items-start gap-3 rounded-xl border border-gray-100 bg-gray-50/50 p-4">
-                        <span className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg bg-emerald-100 text-emerald-600">
-                          <User className="h-4 w-4" />
-                        </span>
-                        <div className="min-w-0 flex-1">
-                          <p className="text-[11px] font-medium uppercase tracking-wider text-gray-400">Name</p>
-                          <div className="mt-0.5 flex flex-wrap items-center justify-between gap-2">
-                            <p className="text-sm font-semibold text-gray-900">{request.user}</p>
-                            {pillForRole(request.role)}
-                          </div>
-                          <p className="mt-1 text-xs text-gray-500">
-                            Email: <span className="font-medium text-gray-700">{request.user.toLowerCase().replace(/\s+/g, ".")}@example.com</span>
-                          </p>
-                        </div>
-                      </div>
-                    </section>
-
                     {/* Wallet */}
                     <section className="rounded-xl border border-gray-100 bg-white p-5 shadow-sm">
                       <h2 className="text-sm font-semibold text-gray-900">Wallet</h2>
@@ -438,8 +443,10 @@ export default function WithdrawRequestDetailsPage() {
                       <p className="mt-1 text-xs text-gray-500">Payout destination for processing.</p>
 
                       <div className="mt-4 rounded-xl border border-gray-100 bg-gray-50/50 p-4">
-                        <p className="text-[11px] font-medium uppercase tracking-wider text-gray-400">Method</p>
-                        <p className="mt-0.5 text-sm font-semibold text-gray-900">{request.paymentMethod}</p>
+                        <p className="text-sm text-gray-800">
+                          <span className="font-medium text-gray-600">Method:</span>{" "}
+                          <span className="font-semibold text-gray-900">{request.paymentMethod}</span>
+                        </p>
                         {request.paymentMethod === "UPI" && request.payout.upiId ? (
                           <p className="mt-1 text-xs text-gray-500">
                             UPI ID: <span className="font-medium text-gray-700">{request.payout.upiId}</span>
@@ -525,8 +532,8 @@ export default function WithdrawRequestDetailsPage() {
                   </aside>
                 </div>
 
-                {/* Sticky footer actions */}
-                <div className="sticky bottom-0 z-10 -mx-4 border-t border-gray-200/80 bg-white/95 px-4 py-4 backdrop-blur sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8">
+                {/* Fixed footer actions */}
+                <div className="fixed bottom-0 left-0 right-0 z-50 border-t border-gray-200/80 bg-white/95 px-4 py-4 backdrop-blur md:ml-64">
                   <div className="mx-auto flex w-full max-w-[1400px] flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                     <div className="flex items-center gap-2">
                       <span className="text-xs text-gray-500">Current status</span>
@@ -550,15 +557,6 @@ export default function WithdrawRequestDetailsPage() {
                       >
                         <ThumbsUp className="mr-2 h-4 w-4 text-emerald-600" />
                         Approve
-                      </Button>
-                      <Button
-                        type="button"
-                        variant="primary"
-                        disabled={request.status !== "Approved"}
-                        onClick={markPaid}
-                      >
-                        <Banknote className="mr-2 h-4 w-4" />
-                        Mark as paid
                       </Button>
                     </div>
                   </div>
